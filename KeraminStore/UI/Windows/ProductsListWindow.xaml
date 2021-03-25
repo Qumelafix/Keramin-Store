@@ -1,0 +1,66 @@
+﻿<Window x:Class="KeraminStore.UI.Windows.ProductsListWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KeraminStore.UI.Windows"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Width="1720" Height="730" BorderThickness="1" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="None" Foreground="White" Background="#FFEAEAEA" MouseLeftButtonDown="Window_MouseLeftButtonDown">
+
+    <Window.Resources>
+        <Style x:Key="ElementStyle" TargetType="TextBlock">
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+    </Window.Resources>
+    
+    <Grid>
+        <Label Content="Список изделий" FontSize="30" FontWeight="Bold" FontFamily="Helvetica" Margin="20 20 0 0"/>
+        <Label x:Name="Description" Content="Для удаления/изменения данных об изделии необходимо выделить строку, а затем нажать на соответсвующую кнопку снизу" FontSize="20" FontWeight="Light" FontFamily="Helvetica" Margin="21 60 0 0"/>
+        <Button x:Name="CloseButton" Style="{StaticResource MaterialDesignFlatButton}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="5" Content="Закрыть" ToolTip="MaterialDesignFlatButton" Click="CloseButton_Click"/>
+        <Grid Width="1720" Height="100" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Button x:Name="ChangeButton" Width="110" Height="40" HorizontalAlignment="Center" VerticalAlignment="Center" Content="ИЗМЕНИТЬ" Margin="0 13 150 0" Click="ChangeButton_Click"/>
+            <Rectangle Width="1" Height="50" Fill="#FFB2B2B2" Margin="1 13 0 0"/>
+            <Button x:Name="DeleteButton" Width="110" Height="40" HorizontalAlignment="Center" VerticalAlignment="Center" Content="УДАЛИТЬ" Margin="150 13 0 0" Click="DeleteButton_Click"/>
+        </Grid>
+        <DataGrid x:Name="ProductsInfoGrid" Width="1670" Height="532" HorizontalAlignment="Center" Margin="25,110,27,88" BorderThickness="1" AutoGenerateColumns="False" ScrollViewer.HorizontalScrollBarVisibility="Hidden" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" GridLinesVisibility="All">
+            <DataGrid.Columns>
+                <DataGridTextColumn  Header="Изображение">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell" >
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="DataGridCell">
+                                        <Grid Background="{TemplateBinding Background}" >
+                                            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            <Image Grid.Column="0" Width="120" Height="120" Source="{Binding productImage}" HorizontalAlignment="Center"/>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+                <!--<DataGridTextColumn Binding="{Binding productImage}" Header="Изображение" Width="140" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>-->
+                <DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding productName}" Header="Наименование" Width="140" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding productTypeName}" Header="Тип" Width="110" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding productCollectionName}" Header="Коллекция" Width="110" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding productLenght}" Width="0" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Visibility="Hidden"/>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding productWidth}" Width="0" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Visibility="Hidden"/>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding productParametrs}" Header="Размер, мм" Width="110" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding surfaceName}" Header="Поверхность" Width="130" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding productArticle}" Header="Артикул" Width="140" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding productBoxWeight}" Header="Вес ящика, кг" Width="120" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding productCountInBox}" Header="В ящике, шт." Width="110" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding productCostCount}" Header="Цена руб./шт." Width="120" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding productCostArea}" Header="Цена руб./м²" Width="120" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding productDescription}" Header="Описание" Width="200" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding availabilityStatusName}" Header="Статус наличия" Width="130" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>
