@@ -18,8 +18,8 @@ namespace KeraminStore.UI.Windows
                 MessageBox.Show("Вы не указали место, где будет класться плитка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            else if (floor.IsChecked == true) surfaceHeight.Text = "1";
 
+            double surfaceWidthValue = 0;
             if (surfaceWidth.Text == string.Empty)
             {
                 MessageBox.Show("Вы не указали ширину комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -27,27 +27,23 @@ namespace KeraminStore.UI.Windows
             }
             else
             {
-                char[] surfaceWidthArray = surfaceWidth.Text.ToCharArray();
-                for (int i = 0; i < surfaceWidthArray.Length; i++)
+                bool isNum = double.TryParse(surfaceWidth.Text, out surfaceWidthValue);
+                if (isNum)
                 {
-                    if (!char.IsDigit(surfaceWidthArray[i]))
+                    if (surfaceWidthValue <= 0)
                     {
-                        MessageBox.Show("Вы указали неверные символы в ширине комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Ширина комнаты/пола не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
-                if (int.Parse(surfaceWidth.Text) < 0)
+                else
                 {
-                    MessageBox.Show("Ширина комнаты/пола не может быть отрицательной.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-                if (int.Parse(surfaceWidth.Text) > 10)
-                {
-                    MessageBox.Show("Ширина комнаты/пола не может быть более 10 м.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Вы указали недопустимые символы в ширине комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }
 
+            double surfaceLenghtValue = 0;
             if (surfaceLenght.Text == string.Empty)
             {
                 MessageBox.Show("Вы не указали длину комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -55,27 +51,24 @@ namespace KeraminStore.UI.Windows
             }
             else
             {
-                char[] surfaceLenghtArray = surfaceLenght.Text.ToCharArray();
-                for (int i = 0; i < surfaceLenghtArray.Length; i++)
+                bool isNum = double.TryParse(surfaceLenght.Text, out surfaceLenghtValue);
+                if (isNum)
                 {
-                    if (!char.IsDigit(surfaceLenghtArray[i]))
+                    if (surfaceLenghtValue <= 0)
                     {
-                        MessageBox.Show("Вы указали неверные символы в длине комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Длина комнаты/пола не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
-                if (int.Parse(surfaceLenght.Text) < 0)
+                else
                 {
-                    MessageBox.Show("Длина комнаты/пола не может быть отрицательной.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-                if (int.Parse(surfaceLenght.Text) > 10)
-                {
-                    MessageBox.Show("Длина комнаты/пола не может быть более 10 м.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Вы указали недопустимые символы в длине комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }
 
+            double surfaceArea = 0;
+            double surfaceHeightValue = 0;
             if (room.IsChecked == true)
             {
                 if (surfaceHeight.Text == string.Empty)
@@ -85,28 +78,29 @@ namespace KeraminStore.UI.Windows
                 }
                 else
                 {
-                    char[] surfaceHeightArray = surfaceHeight.Text.ToCharArray();
-                    for (int i = 0; i < surfaceHeightArray.Length; i++)
+                    bool isNum = double.TryParse(surfaceHeight.Text, out surfaceHeightValue);
+                    if (isNum)
                     {
-                        if (!char.IsDigit(surfaceHeightArray[i]))
+                        if (surfaceHeightValue <= 0)
                         {
-                            MessageBox.Show("Вы указали неверные символы в высоте комнаты.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                            MessageBox.Show("Высота комнаты не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                             return;
                         }
                     }
-                    if (int.Parse(surfaceHeight.Text) < 0)
+                    else
                     {
-                        MessageBox.Show("Высота комнаты не может быть отрицательной.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-                    if (int.Parse(surfaceHeight.Text) > 10)
-                    {
-                        MessageBox.Show("Высота комнаты не может быть более 10 м.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Вы указали недопустимые символы в высоте комнаты.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
+                surfaceArea = (surfaceLenghtValue * 2 + surfaceWidthValue * 2) * surfaceHeightValue;
+            }
+            else
+            {
+                surfaceArea = surfaceLenghtValue * surfaceWidthValue;
             }
 
+            double tileWidthValue = 0;
             if (tileWidth.Text == string.Empty)
             {
                 MessageBox.Show("Вы не указали ширину плитки.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -114,27 +108,28 @@ namespace KeraminStore.UI.Windows
             }
             else
             {
-                char[] tileWidthArray = tileWidth.Text.ToCharArray();
-                for (int i = 0; i < tileWidthArray.Length; i++)
+                bool isNum = double.TryParse(tileWidth.Text, out tileWidthValue);
+                if (isNum)
                 {
-                    if (!char.IsDigit(tileWidthArray[i]))
+                    if (tileWidthValue <= 0)
                     {
-                        MessageBox.Show("Вы указали неверные символы.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Ширина плитки не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
-                if (int.Parse(tileWidth.Text) < 0)
+                else
                 {
-                    MessageBox.Show("Ширина плитки не может быть отрицательной.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Вы указали недопустимые символы в ширине плитки.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-                if (int.Parse(tileWidth.Text) > 600)
+                if (tileWidthValue / 1000 > surfaceWidthValue)
                 {
-                    MessageBox.Show("Ширина плитки не может быть более 600 мм.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Ширина плитки не может быть больше ширины комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }
 
+            double tileLenghtValue = 0;
             if (tileLenght.Text == string.Empty)
             {
                 MessageBox.Show("Вы не указали длину плитки.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -142,27 +137,29 @@ namespace KeraminStore.UI.Windows
             }
             else
             {
-                char[] tileLenghtArray = tileLenght.Text.ToCharArray();
-                for (int i = 0; i < tileLenghtArray.Length; i++)
+                bool isNum = double.TryParse(tileLenght.Text, out tileLenghtValue);
+                if (isNum)
                 {
-                    if (!char.IsDigit(tileLenghtArray[i]))
+                    if (tileLenghtValue <= 0)
                     {
-                        MessageBox.Show("Вы указали неверные символы в длине плитки.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Длина плитки не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
-                if (int.Parse(tileLenght.Text) < 0)
+                else
                 {
-                    MessageBox.Show("Длина плитки не может быть отрицательной.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Вы указали недопустимые символы в длине плитки.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-                if (int.Parse(tileLenght.Text) > 600)
+                if (tileLenghtValue / 1000 > surfaceLenghtValue)
                 {
-                    MessageBox.Show("Длина плитки не может быть более 600 мм.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Длина плитки не может быть больше длины комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }
 
+            double tileArea = (tileLenghtValue / 1000) * (tileWidthValue / 1000);
+            int tileReserveValue = 0;
             if (tileReserve.Text == string.Empty)
             {
                 MessageBox.Show("Вы не указали запас плитки.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -170,104 +167,262 @@ namespace KeraminStore.UI.Windows
             }
             else
             {
-                char[] tileReserveArray = tileReserve.Text.ToCharArray();
-                for (int i = 0; i < tileReserveArray.Length; i++)
+                bool isNum = int.TryParse(tileReserve.Text, out tileReserveValue);
+                if (isNum)
                 {
-                    if (!char.IsDigit(tileReserveArray[i]))
+                    if (tileReserveValue < 0)
                     {
-                        MessageBox.Show("Вы указали неверные символы в запасе плитки.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Запас плитки не может быть отрицательным.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
-                if (int.Parse(tileReserve.Text) < 0)
+                else
                 {
-                    MessageBox.Show("Запас плитки не может быть отрицательной величиной.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-                if (int.Parse(tileReserve.Text) > 100)
-                {
-                    MessageBox.Show("Вы не можете указать более 100% запаса.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Вы указали недопустимые символы в запасе плитки.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }
 
-            //if (areaWidth.Text == string.Empty)
-            //{
-            //    MessageBox.Show("Вы не указали ширину незакладываемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            //    return;
-            //}
-            //else
-            //{
-            //    char[] areaWidthArray = areaWidth.Text.ToCharArray();
-            //    for (int i = 0; i < areaWidthArray.Length; i++)
-            //    {
-            //        if (!char.IsDigit(areaWidthArray[i]))
-            //        {
-            //            MessageBox.Show("Вы указали неверные символы в ширине незакладываемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            //            return;
-            //        }
-            //    }
-            //    if (int.Parse(areaWidth.Text) < 0)
-            //    {
-            //        MessageBox.Show("Ширина незакладываемого участка не может быть отрицательной.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            //        return;
-            //    }
-            //    if (int.Parse(areaWidth.Text) > int.Parse(surfaceWidth.Text))
-            //    {
-            //        MessageBox.Show("Ширина незакладываемого участка не может быть больше ширины комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            //        return;
-            //    }
-            //}
-
-            //if (areaLenght.Text == string.Empty)
-            //{
-            //    MessageBox.Show("Вы не указали длину незакладываемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            //    return;
-            //}
-            //else
-            //{
-            //    char[] areaLenghtArray = areaLenght.Text.ToCharArray();
-            //    for (int i = 0; i < areaLenghtArray.Length; i++)
-            //    {
-            //        if (!char.IsDigit(areaLenghtArray[i]))
-            //        {
-            //            MessageBox.Show("Вы указали неверные символы в длине незакладываемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            //            return;
-            //        }
-            //    }
-            //    if (int.Parse(areaLenght.Text) < 0)
-            //    {
-            //        MessageBox.Show("Длина незакладываемого участка не может быть отрицательной.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            //        return;
-            //    }
-            //    if (int.Parse(areaLenght.Text) > int.Parse(surfaceLenght.Text))
-            //    {
-            //        MessageBox.Show("Длина незакладываемого участка не может быть больше длины комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            //        return;
-            //    }
-            //}
-
-            if (room.IsChecked == true)
+            surfaceArea -= double.Parse(area.Text);
+            if (surfaceArea < tileArea)
             {
-                double roomSquare = (int.Parse(surfaceLenght.Text) + int.Parse(surfaceWidth.Text)) * 2 * int.Parse(surfaceHeight.Text);
-                //double areaSquare = int.Parse(areaLenght.Text) * int.Parse(areaWidth.Text);
-                //roomSquare = roomSquare - areaSquare;
-                double tileArea = (double.Parse(tileLenght.Text) / 1000) * (double.Parse(tileWidth.Text) / 1000);
-                tileSquare.Text = roomSquare.ToString();
-                double tilesCount = roomSquare / tileArea;
-                tilesCount += tilesCount + int.Parse(tileReserve.Text);
-                tileCount.Text = ((int)tilesCount).ToString();
+                MessageBox.Show("Площадь плитки не может быть больше площади комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            else
+            {
+                tileSquare.Text = surfaceArea.ToString("#.##");
+                tileCount.Text = (Convert.ToInt32(surfaceArea / tileArea) + tileReserveValue).ToString();
             }
         }
 
         private void room_Click(object sender, RoutedEventArgs e)
         {
             surfaceHeight.Visibility = Visibility.Visible;
+            areaHeight.Visibility = Visibility.Visible;
+            AddArea.Margin = new Thickness(0, 129, 135, 0);
+            ClearArea.Margin = new Thickness(125, 129, 0, 0);
+            area.Margin = new Thickness(0, 288, 5, 0);
+            UnlockString();
         }
 
         private void floor_Click(object sender, RoutedEventArgs e)
         {
             surfaceHeight.Visibility = Visibility.Hidden;
+            areaHeight.Visibility = Visibility.Hidden;
+            AddArea.Margin = new Thickness(15, 174, 150, 175);
+            ClearArea.Margin = new Thickness(145, 174, 20, 174);
+            area.Margin = new Thickness(15, 223, 20, 0);
+            UnlockString();
+        }
+
+        private void AddArea_Click(object sender, RoutedEventArgs e)
+        {
+            double surfaceWidthValue = 0;
+            if (surfaceWidth.Text == string.Empty)
+            {
+                MessageBox.Show("Вы не указали ширину комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            else
+            {
+                bool isNum = double.TryParse(surfaceWidth.Text, out surfaceWidthValue);
+                if (isNum)
+                {
+                    if (surfaceWidthValue <= 0)
+                    {
+                        MessageBox.Show("Ширина комнаты/пола не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Вы указали недопустимые символы в ширине комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
+
+            double surfaceLenghtValue = 0;
+            if (surfaceLenght.Text == string.Empty)
+            {
+                MessageBox.Show("Вы не указали длину комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            else
+            {
+                bool isNum = double.TryParse(surfaceLenght.Text, out surfaceLenghtValue);
+                if (isNum)
+                {
+                    if (surfaceLenghtValue <= 0)
+                    {
+                        MessageBox.Show("Длина комнаты/пола не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Вы указали недопустимые символы в длине комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
+
+            double surfaceArea = 0;
+            double surfaceHeightValue = 0;
+            if (room.IsChecked == true)
+            {
+                if (surfaceHeight.Text == string.Empty)
+                {
+                    MessageBox.Show("Вы не указали высоту комнаты.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                else
+                {
+                    bool isNum = double.TryParse(surfaceHeight.Text, out surfaceHeightValue);
+                    if (isNum)
+                    {
+                        if (surfaceHeightValue <= 0)
+                        {
+                            MessageBox.Show("Высота комнаты не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Вы указали недопустимые символы в высоте комнаты.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                }
+                surfaceArea = (surfaceLenghtValue * 2 + surfaceWidthValue * 2) * surfaceHeightValue;
+            }
+            else
+            {
+                surfaceArea = surfaceLenghtValue * surfaceWidthValue;
+            }
+
+            double areaWidthValue = 0;
+            if (areaWidth.Text == string.Empty)
+            {
+                MessageBox.Show("Вы не указали ширину незакладываемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            else
+            {
+                bool isNum = double.TryParse(areaWidth.Text, out areaWidthValue);
+                if (isNum)
+                {
+                    if (areaWidthValue <= 0)
+                    {
+                        MessageBox.Show("Ширина незакладываемого участка не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Вы указали недопустимые символы в ширине незаклыдваемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                if (areaWidthValue > surfaceWidthValue)
+                {
+                    MessageBox.Show("Ширина незакладываемого участка не может быть больше ширины комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
+
+            double areaLenghtValue = 0;
+            if (areaLenght.Text == string.Empty)
+            {
+                MessageBox.Show("Вы не указали длину незакладываемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            else
+            {
+                bool isNum = double.TryParse(areaLenght.Text, out areaLenghtValue);
+                if (isNum)
+                {
+                    if (areaLenghtValue <= 0)
+                    {
+                        MessageBox.Show("Длина незакладываемого участка не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Вы указали недопустимые символы в длине незаклыдваемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                if (areaLenghtValue > surfaceLenghtValue)
+                {
+                    MessageBox.Show("Длина незакладываемого участка не может быть больше длины комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
+
+            double areaArea = 0;
+            double areaHeightValue = 0;
+            if (room.IsChecked == true && areaHeight.Text != string.Empty)
+            {
+                bool isNum = double.TryParse(areaHeight.Text, out areaHeightValue);
+                if (isNum)
+                {
+                    if (areaHeightValue <= 0)
+                    {
+                        MessageBox.Show("Высота незакладываемого участка не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Вы указали недопустимые символы в высоте незаклыдваемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                if (areaHeightValue > surfaceHeightValue)
+                {
+                    MessageBox.Show("Высота незакладываемого участка не может быть больше высоты комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                areaArea = (areaLenghtValue * 2 + areaWidthValue * 2) * areaHeightValue;
+                if (surfaceArea < areaArea || surfaceArea < (areaArea + double.Parse(area.Text)))
+                {
+                    MessageBox.Show("Площадь незакладываемого участка не может быть больше площади комнаты.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                else
+                {
+                    area.Text = (double.Parse(area.Text) + areaArea).ToString();
+                }
+            }
+            else if (room.IsChecked == true && areaHeight.Text == string.Empty || floor.IsChecked == true)
+            {
+                areaArea = areaLenghtValue * areaWidthValue;
+                if (surfaceArea < areaArea || surfaceArea < (areaArea + double.Parse(area.Text)))
+                {
+                    MessageBox.Show("Площадь незакладываемого участка не может быть больше площади комнаты.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                else
+                {
+                    area.Text = (double.Parse(area.Text) + areaArea).ToString("#.##");
+                }
+            }
+        }
+
+        private void ClearArea_Click(object sender, RoutedEventArgs e)
+        {
+            area.Clear();
+            area.Text = "0";
+        }
+
+        private void UnlockString()
+        {
+            surfaceWidth.IsReadOnly = false;
+            surfaceLenght.IsReadOnly = false;
+            tileWidth.IsReadOnly = false;
+            tileLenght.IsReadOnly = false;
+            tileReserve.IsReadOnly = false;
+            areaWidth.IsReadOnly = false;
+            areaLenght.IsReadOnly = false;
+            AddArea.IsEnabled = true;
+            ClearArea.IsEnabled = true;
         }
     }
 }
