@@ -1,4 +1,6 @@
 ﻿using KeraminStore.UI.Windows;
+using System;
+using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
@@ -15,34 +17,22 @@ namespace KeraminStore
         {
             InitializeComponent();
 
-            //AddEmployees.Visibility = Visibility.Hidden;
-            //ChangeEmployeesInfo.Visibility = Visibility.Hidden;
+            StreamReader file = new StreamReader("UserCode.txt");
+            int employeeCode = Convert.ToInt32(file.ReadLine());
+            file.Close();
 
-            //StreamReader file = new StreamReader("UserLogin.txt");
-            //string employeeLogin = file.ReadLine();
-            //file.Close();
-            //login.Text = employeeLogin;
-
-            //string post = string.Empty;
-            //string selectEmployeePostQuery = "SELECT postName FROM Employee JOIN Post ON Employee.postCode = Post.postCode WHERE employeeLogin = '" + login.Text + "'";
-            //using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectEmployeePostQuery, myConnectionString))
-            //{
-            //    DataTable table = new DataTable();
-            //    dataAdapter.Fill(table);
-            //    if (table.Rows.Count > 0)
-            //    {
-            //        post = table.Rows[0]["postName"].ToString();
-            //    }
-            //}
-            //if (post == "Администратор")
-            //{
-            //    AddEmployees.Visibility = Visibility.Visible;
-            //    ChangeEmployeesInfo.Visibility = Visibility.Visible;
-            //}
-            //else
-            //{
-            //    Height = 575;
-            //}
+            string status = string.Empty;
+            string selectEmployeeStatusQuery = "SELECT employeeAdminStatus FROM Employee WHERE employeeCode = " + employeeCode + "";
+            using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectEmployeeStatusQuery, connectionString))
+            {
+                DataTable table = new DataTable();
+                dataAdapter.Fill(table);
+                if (table.Rows.Count > 0 && Convert.ToBoolean(table.Rows[0]["employeeAdminStatus"].ToString()) == false)
+                {
+                    AddEmployee.Visibility = Visibility.Hidden;
+                    StaffList.Visibility = Visibility.Hidden;
+                }
+            }
         }
 
         private void ButtonPopUpLogout_Click(object sender, RoutedEventArgs e)
@@ -82,100 +72,6 @@ namespace KeraminStore
             WorkPlace.Children.Add(new AccountSettingsWindow());
         }
 
-        private void ComponentsInfo_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            //ComponentsInfo componentsInfo = new ComponentsInfo();
-            //componentsInfo.Show();
-            //this.Close();
-        }
-
-        private void AddComponents_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            //AddComponentsWindow addComponents = new AddComponentsWindow();
-            //addComponents.Show();
-            //this.Close();
-        }
-
-        private void AddEmployees_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            //RegistrationWindow registrationWindow = new RegistrationWindow();
-            //registrationWindow.Title.Content = "Add employees";
-            //registrationWindow.Description.Content = "Fill the fields below to adding employee";
-            //registrationWindow.RegisterButton.Content = "ADD EMPLOYEE";
-            //registrationWindow.Account.Visibility = Visibility.Hidden;
-            //registrationWindow.SingInButton.Visibility = Visibility.Hidden;
-            //registrationWindow.successfulRegistration = "Adding employee is successful!";
-            //registrationWindow.Show();
-            //this.Close();
-        }
-
-        private void ChangeComponentsInfo_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            //ChangeComponentsInfoWindow changeComponentsInfoWindow = new ChangeComponentsInfoWindow();
-            //changeComponentsInfoWindow.Show();
-            //this.Close();
-        }
-
-        private void ChangeEmployeesInfo_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            //ChangeEmployeesInfoWindow changeEmployeesInfoWindow = new ChangeEmployeesInfoWindow();
-            //changeEmployeesInfoWindow.Show();
-            //this.Close();
-        }
-
-        private void CreateConsignmentNote_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            //AddToConsignmentNoteWindow addToConsignmentNoteWindow = new AddToConsignmentNoteWindow();
-            //addToConsignmentNoteWindow.Show();
-            //this.Close();
-        }
-
-        private void AddConsumers_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            //AddConsumersWindow addConsumersWindow = new AddConsumersWindow();
-            //addConsumersWindow.Show();
-            //this.Close();
-        }
-
-        private void ChangeConsumersInfo_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            //ChangeConsumersInfoWindow changeConsumersInfoWindow = new ChangeConsumersInfoWindow();
-            //changeConsumersInfoWindow.Show();
-            //this.Close();
-        }
-
-        private void CreateReport_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            //CreateReportWindow createReportWindow = new CreateReportWindow();
-            //createReportWindow.Show();
-            //this.Close();
-        }
-
-        private void HelpButton_Click(object sender, RoutedEventArgs e)
-        {
-            //string post = string.Empty;
-            //string selectEmployeePostQuery = "SELECT postName FROM Employee JOIN Post ON Employee.postCode = Post.postCode WHERE employeeLogin = '" + login.Text + "'";
-            //using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectEmployeePostQuery, myConnectionString))
-            //{
-            //    DataTable table = new DataTable();
-            //    dataAdapter.Fill(table);
-            //    if (table.Rows.Count > 0)
-            //    {
-            //        post = table.Rows[0]["postName"].ToString();
-            //    }
-            //}
-            //if (post == "Администратор")
-            //{
-            //    HelpNavigator navigator = HelpNavigator.Topic;
-            //    Help.ShowHelp(null, "help.chm", navigator, "rukovodstvo_administratora.htm");
-            //}
-            //else
-            //{
-            //    HelpNavigator navigator = HelpNavigator.Topic;
-            //    Help.ShowHelp(null, "help.chm", navigator, "rukovodstvo_sotrudnika.htm");
-            //}
-        }
-
         private void Menu_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             int menuIndex = Menu.SelectedIndex;
@@ -192,6 +88,9 @@ namespace KeraminStore
                     WorkPlace.Children.Clear();
                     Menu.SelectedIndex = -1;
                     WorkPlace.Children.Add(new CatalogWindow());
+                    File.WriteAllText(@"BasketNumber.txt", string.Empty);
+                    OrderNumberWindow order = new OrderNumberWindow();
+                    order.ShowDialog();
                     break;
 
                 case 2:
@@ -199,11 +98,13 @@ namespace KeraminStore
                     Menu.SelectedIndex = -1;
                     WorkPlace.Children.Add(new TileCalculatorWindow());
                     break;
+
                 case 3:
                     WorkPlace.Children.Clear();
                     Menu.SelectedIndex = -1;
                     WorkPlace.Children.Add(new AddNewProductWindow());
                     break;
+
                 case 4:
                     WorkPlace.Children.Clear();
                     WorkPlace.Children.Add(new MainPage());
@@ -212,12 +113,21 @@ namespace KeraminStore
                     productsListWindow.ShowDialog();
                     break;
 
-                case 7:
+                case 5:
+                    WorkPlace.Children.Clear();
+                    WorkPlace.Children.Add(new MainPage());
+                    CreateOrderWindow createOrder = new CreateOrderWindow();
+                    Menu.SelectedIndex = -1;
+                    createOrder.ShowDialog();
+                    break;
+
+                case 6:
                     WorkPlace.Children.Clear();
                     Menu.SelectedIndex = -1;
                     WorkPlace.Children.Add(new RegistrationWindow());
                     break;
-                case 8:
+
+                case 7:
                     WorkPlace.Children.Clear();
                     WorkPlace.Children.Add(new MainPage());
                     StaffWindow staffWindow = new StaffWindow();

@@ -1,4 +1,5 @@
-﻿<UserControl xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"  x:Class="KeraminStore.UI.Windows.TileCalculatorWindow"
+﻿<UserControl xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"  
+             x:Class="KeraminStore.UI.Windows.TileCalculatorWindow"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -9,8 +10,8 @@
              mc:Ignorable="d"
              Height="730" Width="1302" Background="#FFEAEAEA">
     <Grid>
-        <Label x:Name="Title" Width="400" VerticalAlignment="Top" Height="50" Content="Калькулятор плитки" FontSize="30" FontWeight="Bold" HorizontalAlignment="Left" FontFamily="Helvetica" Margin="210 30 0 0"/>
-        <Label x:Name="Description" Width="800" VerticalAlignment="Top" Height="30" Content="Для расчета необходимого количества плитки заполните поля, расположенные ниже" FontSize="20" FontWeight="Light" HorizontalAlignment="Left" FontFamily="Helvetica" Margin="210 80 0 0"/>
+        <Label Width="400" VerticalAlignment="Top" Height="50" Content="Калькулятор плитки" FontSize="30" FontWeight="Bold" HorizontalAlignment="Left" FontFamily="Helvetica" Margin="210 30 0 0"/>
+        <Label Width="800" VerticalAlignment="Top" Height="30" Content="Для расчета необходимого количества плитки заполните поля, расположенные ниже" FontSize="20" FontWeight="Light" HorizontalAlignment="Left" FontFamily="Helvetica" Margin="212,75,0,0"/>
         <Grid Width="270" Height="300" HorizontalAlignment="Right" Margin="0 105 827 265">
             <TextBlock Text="Площадь работ" HorizontalAlignment="Center" VerticalAlignment="Top" Width="150" Height="30" Foreground="Black" FontSize="20" FontWeight="Normal" FontFamily="Helvetica"/>
             <RadioButton x:Name="room" Content="Комната" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20 54 0 0" Foreground="Black" Background="Black" Style="{StaticResource MaterialDesignDarkRadioButton}" Click="room_Click"/>

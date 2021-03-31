@@ -40,7 +40,7 @@ namespace KeraminStore
                         loginFile.Close();
 
                         MainWindow mainWindow = new MainWindow();
-                        mainWindow.login.Text = table.Rows[0]["employeeLogin"].ToString();
+                        //mainWindow.login.Text = table.Rows[0]["employeeLogin"].ToString();
                         mainWindow.WorkPlace.Children.Add(new MainPage());
                         mainWindow.Show();
                         this.Close();

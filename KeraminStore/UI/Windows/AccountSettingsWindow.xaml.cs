@@ -16,7 +16,7 @@ namespace KeraminStore.UI.Windows
         public AccountSettingsWindow()
         {
             InitializeComponent();
-            GetPostName();
+            //GetPostName();
             GetEducationName();
 
             StreamReader file = new StreamReader("UserCode.txt");
@@ -58,25 +58,25 @@ namespace KeraminStore.UI.Windows
             }
         }
 
-        private void GetPostName()
-        {
-            List<string> postNames = new List<string>();
-            connectionString.Open();
-            string query = @"SELECT postName FROM Post";
-            SqlCommand sqlCommand = new SqlCommand(query, connectionString);
-            SqlDataReader dataReader = sqlCommand.ExecuteReader();
-            if (dataReader.HasRows)
-            {
-                while (dataReader.Read())
-                {
-                    postNames.Add(dataReader["postName"].ToString());
-                    var newList = from i in postNames orderby i select i;
-                    postField.ItemsSource = newList;
-                }
-            }
-            dataReader.Close();
-            connectionString.Close();
-        }
+        //private void GetPostName()
+        //{
+        //    List<string> postNames = new List<string>();
+        //    connectionString.Open();
+        //    string query = @"SELECT postName FROM Post";
+        //    SqlCommand sqlCommand = new SqlCommand(query, connectionString);
+        //    SqlDataReader dataReader = sqlCommand.ExecuteReader();
+        //    if (dataReader.HasRows)
+        //    {
+        //        while (dataReader.Read())
+        //        {
+        //            postNames.Add(dataReader["postName"].ToString());
+        //            var newList = from i in postNames orderby i select i;
+        //            postField.ItemsSource = newList;
+        //        }
+        //    }
+        //    dataReader.Close();
+        //    connectionString.Close();
+        //}
 
         private void GetEducationName()
         {
@@ -185,11 +185,11 @@ namespace KeraminStore.UI.Windows
                 return;
             }
 
-            if (postField.Text == string.Empty)
-            {
-                MessageBox.Show("Необходимо указать должность.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+            //if (postField.Text == string.Empty)
+            //{
+            //    MessageBox.Show("Необходимо указать должность.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            //    return;
+            //}
 
             if (birthdayDateField.SelectedDate == null)
             {
@@ -205,29 +205,29 @@ namespace KeraminStore.UI.Windows
             string alterationQuery = "SELECT * FROM Employee WHERE employeeCode = '" + employeeCode + "'";
             using (SqlDataAdapter dataAdapter = new SqlDataAdapter(alterationQuery, connectionString))
             {
-                int postCode = 0;
+                //int postCode = 0;
                 int educationCode = 0;
 
                 DataTable table = new DataTable();
                 dataAdapter.Fill(table);
 
-                string selectNamesQuery = "SELECT postCode, educationCode FROM Post, Education WHERE postName = '" + postField.Text + "' AND educationName = '" + educationField.Text + "'";
+                string selectNamesQuery = "SELECT educationCode FROM Post, Education WHERE educationName = '" + educationField.Text + "'";  /*postName = '" + postField.Text + "' AND   postName = '" + postField.Text + "' AND*/
                 using (SqlDataAdapter codesDataAdapter = new SqlDataAdapter(selectNamesQuery, connectionString))
                 {
                     DataTable codesTable = new DataTable();
                     codesDataAdapter.Fill(codesTable);
                     if (codesTable.Rows.Count > 0)
                     {
-                        postCode = Convert.ToInt32(codesTable.Rows[0]["postCode"].ToString());
+                        //postCode = Convert.ToInt32(codesTable.Rows[0]["postCode"].ToString());
                         educationCode = Convert.ToInt32(codesTable.Rows[0]["educationCode"].ToString());
                     }
                 }
 
-                if (table.Rows.Count > 0 && (table.Rows[0]["employeeLogin"].ToString() != loginField.Text || table.Rows[0]["employeeName"].ToString() != nameField.Text || table.Rows[0]["employeeSurname"].ToString() != surnameField.Text || table.Rows[0]["employeePatronymic"].ToString() != patronymicField.Text || table.Rows[0]["employeePassword"].ToString() != passwordField.Text || table.Rows[0]["employeePasportNumber"].ToString() != pasportField.Text || Convert.ToDateTime(table.Rows[0]["employeeDateOfBirth"].ToString()).ToShortDateString() != Convert.ToDateTime(birthdayDateField.Text).ToShortDateString() || Convert.ToInt32(table.Rows[0]["postCode"].ToString()) != postCode || Convert.ToInt32(table.Rows[0]["educationCode"].ToString()) != educationCode))
+                if (table.Rows.Count > 0 && (table.Rows[0]["employeeLogin"].ToString() != loginField.Text || table.Rows[0]["employeeName"].ToString() != nameField.Text || table.Rows[0]["employeeSurname"].ToString() != surnameField.Text || table.Rows[0]["employeePatronymic"].ToString() != patronymicField.Text || table.Rows[0]["employeePassword"].ToString() != passwordField.Text || table.Rows[0]["employeePasportNumber"].ToString() != pasportField.Text || Convert.ToDateTime(table.Rows[0]["employeeDateOfBirth"].ToString()).ToShortDateString() != Convert.ToDateTime(birthdayDateField.Text).ToShortDateString() || Convert.ToInt32(table.Rows[0]["educationCode"].ToString()) != educationCode)) /*|| Convert.ToInt32(table.Rows[0]["postCode"].ToString()) != postCode*/
                 {
                     SqlCommand cmd = new SqlCommand();
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "UPDATE Employee SET employeeLogin = @login, employeePassword = @password, employeeName = @name, employeeSurname = @surname, employeePatronymic = @patronymic, employeePasportNumber = @pasport, employeeDateOfBirth = @date, postCode = @post, educationCode = @education, employeeAdminStatus = @status WHERE employeeCode = @code";
+                    cmd.CommandText = "UPDATE Employee SET employeeLogin = @login, employeePassword = @password, employeeName = @name, employeeSurname = @surname, employeePatronymic = @patronymic, employeePasportNumber = @pasport, employeeDateOfBirth = @date, educationCode = @education WHERE employeeCode = @code"; /*postCode = @post,*/ /*, employeeAdminStatus = @status*/
                     cmd.Parameters.Add("@code", SqlDbType.Int).Value = employeeCode;
                     cmd.Parameters.Add("@login", SqlDbType.VarChar).Value = loginField.Text;
                     cmd.Parameters.Add("@password", SqlDbType.VarChar).Value = passwordField.Text;
@@ -235,10 +235,10 @@ namespace KeraminStore.UI.Windows
                     cmd.Parameters.Add("@surname", SqlDbType.VarChar).Value = surnameField.Text;
                     cmd.Parameters.Add("@patronymic", SqlDbType.VarChar).Value = patronymicField.Text;
                     cmd.Parameters.Add("@pasport", SqlDbType.VarChar).Value = pasportField.Text;
-                    if (postCode == 1) cmd.Parameters.Add("@status", SqlDbType.Bit).Value = 1;
-                    else cmd.Parameters.Add("@status", SqlDbType.Bit).Value = 0;
+                    //if (postCode == 1) cmd.Parameters.Add("@status", SqlDbType.Bit).Value = 1;
+                    //else cmd.Parameters.Add("@status", SqlDbType.Bit).Value = 0;
                     cmd.Parameters.Add("@date", SqlDbType.Date).Value = birthdayDateField.SelectedDate.Value.ToShortDateString();
-                    cmd.Parameters.Add("@post", SqlDbType.VarChar).Value = postCode;
+                    //cmd.Parameters.Add("@post", SqlDbType.VarChar).Value = postCode;
                     cmd.Parameters.Add("@education", SqlDbType.VarChar).Value = educationCode;
                     cmd.Connection = connectionString;
                     connectionString.Open();

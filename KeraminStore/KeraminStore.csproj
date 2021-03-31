@@ -191,6 +191,11 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Data\Models\Product.cs" />
+    <Compile Include="KeraminStoreDataSet.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>KeraminStoreDataSet.xsd</DependentUpon>
+    </Compile>
     <Compile Include="UI\Windows\AccountSettingsWindow.xaml.cs">
       <DependentUpon>AccountSettingsWindow.xaml</DependentUpon>
     </Compile>
@@ -201,11 +206,6 @@
       <DependentUpon>AutorizationWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Data\Models\Employee.cs" />
-    <Compile Include="KeraminStoreDataSet.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>KeraminStoreDataSet.xsd</DependentUpon>
-    </Compile>
     <Compile Include="UI\Windows\CatalogWindow.xaml.cs">
       <DependentUpon>CatalogWindow.xaml</DependentUpon>
     </Compile>
@@ -215,11 +215,23 @@
     <Compile Include="UI\Windows\ChangeProductInfoWindow.xaml.cs">
       <DependentUpon>ChangeProductInfoWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\Windows\CreateOrderWindow.xaml.cs">
+      <DependentUpon>CreateOrderWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\Windows\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Windows\BasketWindow.xaml.cs">
+      <DependentUpon>BasketWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Windows\OrderNumberWindow.xaml.cs">
+      <DependentUpon>OrderNumberWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Windows\ProductCountWindow.xaml.cs">
+      <DependentUpon>ProductCountWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\Windows\ProductsListWindow.xaml.cs">
       <DependentUpon>ProductsListWindow.xaml</DependentUpon>
@@ -297,11 +309,27 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UI\Windows\CreateOrderWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\Windows\MainPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\Windows\MainWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\Windows\BasketWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\Windows\OrderNumberWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\Windows\ProductCountWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

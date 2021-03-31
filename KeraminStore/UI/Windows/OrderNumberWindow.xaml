@@ -1,0 +1,16 @@
+﻿<Window x:Class="KeraminStore.UI.Windows.OrderNumberWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KeraminStore.UI.Windows"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Height="250" Width="500" BorderBrush="Black" BorderThickness="1" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="None" Foreground="White" Background="LightGray" MouseLeftButtonDown="Window_MouseLeftButtonDown">
+    <Grid>
+        <Label Content="Номер заказа" FontSize="20" FontWeight="Bold" FontFamily="Helvetica" Margin="10"/>
+        <Label Width="800" VerticalAlignment="Top" Height="30" Content="Введите номер заказа для его создания" FontSize="17" FontWeight="Light" HorizontalAlignment="Left" FontFamily="Helvetica" Margin="10,35,-312,0"/>
+        <TextBox x:Name="number" materialDesign:HintAssist.Hint="Номер заказа" TextAlignment="Center" FontFamily="Helvetica" FontWeight="Light" FontSize="18" Foreground="Black" Background="Transparent" Width="180" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="160,85,158,118"/>
+        <Button x:Name="ContinueButton" Width="140" Height="40" HorizontalAlignment="Center" VerticalAlignment="Bottom" Content="ПРОДОЛЖИТЬ" Margin="180,0,178,30" Click="ContinueButton_Click"/>
+    </Grid>
+</Window>

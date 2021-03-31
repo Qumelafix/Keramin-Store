@@ -81,17 +81,17 @@ namespace KeraminStore.UI.Windows
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            if (EmployeesInfoGrid.SelectedItem == null)
+            if (EmployeesInfoGrid.SelectedItem == null) //Проверка выбора сотрудника, который будет удален
             {
                 MessageBox.Show("Невозможно удалить информацию о сотруднике, так как он не был выбран.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             else
             {
-                DataRowView employeeInfo = (DataRowView)EmployeesInfoGrid.SelectedItems[0];
+                DataRowView employeeInfo = (DataRowView)EmployeesInfoGrid.SelectedItems[0]; //Получание информации о сотруднике из таблицы
                 SqlCommand cmd = new SqlCommand();
                 cmd.CommandType = CommandType.Text;
-                cmd.CommandText = "DELETE FROM Employee WHERE employeeLogin = @login";
+                cmd.CommandText = "DELETE FROM Employee WHERE employeeLogin = @login"; //Запрос на удаление выбранного сотрудника
                 cmd.Parameters.Add("@login", SqlDbType.VarChar).Value = employeeInfo["employeeLogin"].ToString();
                 cmd.Connection = connectionString;
                 connectionString.Open();

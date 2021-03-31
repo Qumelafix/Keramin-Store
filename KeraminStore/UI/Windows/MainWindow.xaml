@@ -35,11 +35,11 @@
         <Grid Height="60" VerticalAlignment="Top" Background="#FFEA0256">
             <TextBlock Text="Магазин «Керамин»" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" FontFamily="Helvetica" FontWeight="Light"/>
             <StackPanel VerticalAlignment="Center" Orientation="Horizontal" HorizontalAlignment="Right">
-                <TextBlock x:Name="login" VerticalAlignment="Center" FontSize="20" Margin="10" FontFamily="Helvetica" FontWeight="Light"/>
+                <!--<TextBlock x:Name="login" VerticalAlignment="Center" FontSize="20" Margin="10" FontFamily="Helvetica" FontWeight="Light"/>-->
                 <materialDesign:PopupBox Margin="10" PlacementMode="BottomAndAlignRightEdges" StaysOpen="False">
                     <StackPanel Width="150">
                         <Button Content="Настройки" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Click="SettingsButton_Click"/>
-                        <Button x:Name="HelpButton" Content="Помощь" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Click="HelpButton_Click"/>
+                        <Button x:Name="HelpButton" Content="Помощь" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                         <Button x:Name="ChangeAccButton" Content="Сменить аккаунт" Click="ChangeAccButton_Click" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                         <Separator/>
                         <Button x:Name="ButtonPopUpLogout" Content="Выйти" Click="ButtonPopUpLogout_Click" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
@@ -59,55 +59,55 @@
                     </Button>
                 </Grid>
                 <ListView x:Name="Menu" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Foreground="White" SelectionChanged="Menu_SelectionChanged">
-                    <ListViewItem x:Name="Items" Height="60">
+                    <ListViewItem x:Name="MainPage" Height="60">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="ViewGrid" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
                             <TextBlock Text="Главная" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                         </StackPanel>
                     </ListViewItem>
-                    <ListViewItem x:Name="AddComponents" Height="60">
+                    <ListViewItem x:Name="Catalog" Height="60">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="ViewGrid" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
                             <TextBlock Text="Каталог" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                         </StackPanel>
                     </ListViewItem>
-                    <ListViewItem x:Name="ChangeComponentsInfo" Height="60" MouseDoubleClick="ChangeComponentsInfo_MouseDoubleClick" >
+                    <ListViewItem x:Name="TileCalculator" Height="60">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="PencilRuler" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
                             <TextBlock Text="Калькулятор плитки" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                         </StackPanel>
                     </ListViewItem>
-                    <ListViewItem x:Name="CreateConsignmentNote" Height="60" MouseDoubleClick="CreateConsignmentNote_MouseDoubleClick">
+                    <ListViewItem x:Name="AddProduct" Height="60">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="AddBox" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
                             <TextBlock Text="Добавить изделие" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                         </StackPanel>
                     </ListViewItem>
-                    <ListViewItem x:Name="CreateReport" Height="60" MouseDoubleClick="CreateReport_MouseDoubleClick">
+                    <ListViewItem x:Name="ProductsList" Height="60">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="AssignmentReturnedOutline" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
                             <TextBlock Text="Список изделий" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                         </StackPanel>
                     </ListViewItem>
-                    <ListViewItem x:Name="AddConsumers" Height="60" MouseDoubleClick="AddConsumers_MouseDoubleClick">
+                    <ListViewItem x:Name="CreateOrder" Height="60">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="BankPlus" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
-                            <TextBlock Text="Add consumer" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                            <TextBlock Text="Корзина" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                         </StackPanel>
                     </ListViewItem>
-                    <ListViewItem x:Name="ChangeConsumersInfo" Height="60" MouseDoubleClick="ChangeConsumersInfo_MouseDoubleClick">
+                    <!--<ListViewItem x:Name="ChangeConsumersInfo" Height="60" MouseDoubleClick="ChangeConsumersInfo_MouseDoubleClick">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="Bank" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
                             <TextBlock Text="Change consumers info" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                         </StackPanel>
-                    </ListViewItem>
-                    <ListViewItem x:Name="AddEmployees" Height="60" MouseDoubleClick="AddEmployees_MouseDoubleClick">
+                    </ListViewItem>-->
+                    <ListViewItem x:Name="AddEmployee" Height="60">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="AccountAdd" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
                             <TextBlock Text="Добавить сотрудника" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                         </StackPanel>
                     </ListViewItem>
-                    <ListViewItem x:Name="ChangeEmployeesInfo" Height="60" MouseDoubleClick="ChangeEmployeesInfo_MouseDoubleClick">
+                    <ListViewItem x:Name="StaffList" Height="60">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="AccountCog" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
                             <TextBlock Text="Список сотрудников" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>

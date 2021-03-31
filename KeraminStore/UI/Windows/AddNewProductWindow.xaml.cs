@@ -106,6 +106,7 @@ namespace KeraminStore.UI.Windows
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
+            //Проверки вводимых данных на корректность (начало)
             if (productNameField.Text != Product.CheckProductName(productNameField.Text, "Наименование изделия не может быть пустым.", "Наименование изделия содержит недопустимые символы.", "Длина наименования изделия может составлять 10-100 символов."))
             {
                 MessageBox.Show(Product.CheckProductName(productNameField.Text, "Наименование изделия не может быть пустым.", "Наименование изделия содержит недопустимые символы.", "Длина наименования изделия может составлять 10-100 символов."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -167,7 +168,7 @@ namespace KeraminStore.UI.Windows
 
             if (productCostAreaField.Text == string.Empty && productCostCountField.Text == string.Empty)
             {
-                MessageBox.Show("Вы должны указать стоимость изделия за штуку или за метр квадратный", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Вы должны указать стоимость изделия за штуку.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             else if (productCostCountField.Text != string.Empty)
@@ -175,14 +176,6 @@ namespace KeraminStore.UI.Windows
                 if (productCostCountField.Text != Product.CheckProductCostOrWeight(productCostCountField.Text, "Стоимость изделия не может быть отрицательной.", "Вы указали недопустимые символы в стоимости изделия."))
                 {
                     MessageBox.Show(Product.CheckProductCostOrWeight(productCostCountField.Text, "Стоимость изделия не может быть отрицательной.", "Вы указали недопустимые символы в стоимости изделия."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-            }
-            else if (productCostAreaField.Text != string.Empty)
-            {
-                if (productCostAreaField.Text != Product.CheckProductCostOrWeight(productCostAreaField.Text, "Стоимость изделия не может быть отрицательной.", "Вы указали недопустимые символы в стоимости изделия."))
-                {
-                    MessageBox.Show(Product.CheckProductCostOrWeight(productCostAreaField.Text, "Стоимость изделия не может быть отрицательной.", "Вы указали недопустимые символы в стоимости изделия."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }
@@ -204,6 +197,7 @@ namespace KeraminStore.UI.Windows
                 MessageBox.Show("Необходимо загрузить картинку изделия.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+            //Проверки вводимых данных на корректность (конец)
 
             int typeCode = 0;
             int collectionCode = 0;
@@ -212,7 +206,7 @@ namespace KeraminStore.UI.Windows
             string selectPostCodeQuery = "SELECT productCollectionCode, availabilityStatusCode, productTypeCode, surfaceCode FROM Surface, ProductType, AvailabilityStatus, ProductCollection " +
                                          "WHERE productCollectionName = '" + productCollection.Text + "' AND availabilityStatusName = '" + productStatusField.Text + "' AND productTypeName = '" + productTypeField.Text + "'" +
                                          "AND surfaceName = '" + productSurfaceField.Text + "'";
-            using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectPostCodeQuery, connectionString))
+            using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectPostCodeQuery, connectionString)) //Получение кодов коллекции, статуса наличия, типа и повехности изделия для последующей работы с ними
             {
                 DataTable table = new DataTable();
                 dataAdapter.Fill(table);
@@ -229,11 +223,11 @@ namespace KeraminStore.UI.Windows
                                             "JOIN ProductCollection ON Product.productCollectionCode = ProductCollection.productCollectionCode " +
                                             "JOIN ProductType ON Product.productTypeCode = ProductType.productTypeCode " +
                                             "WHERE productName= '" + productNameField.Text + "' AND productCollectionName = '" + productCollection.Text + "' AND productTypeName = '" + productTypeField.Text + "'";
-            using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectUniqProductQuery, connectionString))
+            using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectUniqProductQuery, connectionString)) //Проверка уникальности товара, то есть его наличия в базе
             {
                 DataTable table = new DataTable();
                 dataAdapter.Fill(table);
-                if (table.Rows.Count > 0)
+                if (table.Rows.Count > 0) //В случае, если таковой имеется, отобразится соответсвующее предупреждение
                 {
                     MessageBox.Show("Это изделие уже имеется в базе.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
@@ -245,61 +239,35 @@ namespace KeraminStore.UI.Windows
                     {
                         DataTable articleTable = new DataTable();
                         articleAdapter.Fill(articleTable);
-                        if (articleTable.Rows.Count > 0)
+                        if (articleTable.Rows.Count > 0) //Проверка уникальности артикула
                         {
                             MessageBox.Show("Этот артикул принаджет другому изделию. Проверьте, не допустили ли вы ошибку.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                             return;
                         }
                     }
 
-                    SqlCommand cmd = new SqlCommand();
+                    SqlCommand cmd = new SqlCommand(); //Добавление изделия в базу
                     cmd.CommandType = CommandType.Text;
-                    if (productCostAreaField.Text == string.Empty)
-                    {
-                        cmd.CommandText = "INSERT Product (productName, productArticle, productWidth, productLenght, productBoxWeight, productCountInBox, productCostCount, productCostArea, productImage, productDescription, productCollectionCode, availabilityStatusCode, productTypeCode, surfaceCode) " +
-                            "VALUES (@name, @article, @width, @lenght, @boxWeight, @countInBox, @countCost, @areaCost, @image, @description, @collectionCode, @statusCode, @typeCode, @surfaceCode)";
-                        cmd.Parameters.Add("@name", SqlDbType.VarChar).Value = productNameField.Text;
-                        cmd.Parameters.Add("@article", SqlDbType.VarChar).Value = productArticleField.Text;
-                        cmd.Parameters.Add("@width", SqlDbType.Float).Value = Convert.ToDouble(productWidth.Text);
-                        cmd.Parameters.Add("@lenght", SqlDbType.Float).Value = Convert.ToDouble(productLenght.Text);
-                        cmd.Parameters.Add("@boxWeight", SqlDbType.Float).Value = Convert.ToDouble(boxWeightField.Text);
-                        cmd.Parameters.Add("@countInBox", SqlDbType.Int).Value = Convert.ToInt32(productCountInBox.Text);
-                        cmd.Parameters.Add("@countCost", SqlDbType.Float).Value = Convert.ToDouble(productCostCountField.Text);
-                        cmd.Parameters.Add("@areaCost", SqlDbType.Float).Value = DBNull.Value;
-                        cmd.Parameters.Add("@image", SqlDbType.VarChar).Value = productImage.Source.ToString();
-                        cmd.Parameters.Add("@description", SqlDbType.VarChar).Value = productDescriptionField.Text;
-                        cmd.Parameters.Add("@collectionCode", SqlDbType.Int).Value = collectionCode;
-                        cmd.Parameters.Add("@statusCode", SqlDbType.Int).Value = statusCode;
-                        cmd.Parameters.Add("@typeCode", SqlDbType.Int).Value = typeCode;
-                        cmd.Parameters.Add("@surfaceCode", SqlDbType.Int).Value = surfaceCode;
-                        cmd.Connection = connectionString;
-                        connectionString.Open();
-                        cmd.ExecuteNonQuery();
-                        connectionString.Close();
-                    }
-                    else if (productCostCountField.Text == string.Empty)
-                    {
-                        cmd.CommandText = "INSERT Product (productName, productArticle, productWidth, productLenght, productBoxWeight, productCountInBox, productCostCount, productCostArea, productImage, productDescription, productCollectionCode, availabilityStatusCode, productTypeCode, surfaceCode) " +
-                            "VALUES (@name, @article, @width, @lenght, @boxWeight, @countInBox, @countCost, @areaCost, @image, @description, @collectionCode, @statusCode, @typeCode, @surfaceCode)";
-                        cmd.Parameters.Add("@name", SqlDbType.VarChar).Value = productNameField.Text;
-                        cmd.Parameters.Add("@article", SqlDbType.VarChar).Value = productArticleField.Text;
-                        cmd.Parameters.Add("@width", SqlDbType.Float).Value = Convert.ToDouble(productWidth.Text);
-                        cmd.Parameters.Add("@lenght", SqlDbType.Float).Value = Convert.ToDouble(productLenght.Text);
-                        cmd.Parameters.Add("@boxWeight", SqlDbType.Float).Value = Convert.ToDouble(boxWeightField.Text);
-                        cmd.Parameters.Add("@countInBox", SqlDbType.Int).Value = Convert.ToInt32(productCountInBox.Text);
-                        cmd.Parameters.Add("@countCost", SqlDbType.Float).Value = DBNull.Value;
-                        cmd.Parameters.Add("@areaCost", SqlDbType.Float).Value = Convert.ToDouble(productCostAreaField.Text);
-                        cmd.Parameters.Add("@image", SqlDbType.VarChar).Value = productImage.Source.ToString();
-                        cmd.Parameters.Add("@description", SqlDbType.VarChar).Value = productDescriptionField.Text;
-                        cmd.Parameters.Add("@collectionCode", SqlDbType.Int).Value = collectionCode;
-                        cmd.Parameters.Add("@statusCode", SqlDbType.Int).Value = statusCode;
-                        cmd.Parameters.Add("@typeCode", SqlDbType.Int).Value = typeCode;
-                        cmd.Parameters.Add("@surfaceCode", SqlDbType.Int).Value = surfaceCode;
-                        cmd.Connection = connectionString;
-                        connectionString.Open();
-                        cmd.ExecuteNonQuery();
-                        connectionString.Close();
-                    }
+                    cmd.CommandText = "INSERT Product (productName, productArticle, productWidth, productLenght, productBoxWeight, productCountInBox, productCostCount, productCostArea, productImage, productDescription, productCollectionCode, availabilityStatusCode, productTypeCode, surfaceCode) " +
+                           "VALUES (@name, @article, @width, @lenght, @boxWeight, @countInBox, @countCost, @areaCost, @image, @description, @collectionCode, @statusCode, @typeCode, @surfaceCode)";
+                    cmd.Parameters.Add("@name", SqlDbType.VarChar).Value = productNameField.Text;
+                    cmd.Parameters.Add("@article", SqlDbType.VarChar).Value = productArticleField.Text;
+                    cmd.Parameters.Add("@width", SqlDbType.Float).Value = Convert.ToDouble(productWidth.Text);
+                    cmd.Parameters.Add("@lenght", SqlDbType.Float).Value = Convert.ToDouble(productLenght.Text);
+                    cmd.Parameters.Add("@boxWeight", SqlDbType.Float).Value = Convert.ToDouble(boxWeightField.Text);
+                    cmd.Parameters.Add("@countInBox", SqlDbType.Int).Value = Convert.ToInt32(productCountInBox.Text);
+                    cmd.Parameters.Add("@countCost", SqlDbType.Float).Value = Convert.ToDouble(productCostCountField.Text);
+                    cmd.Parameters.Add("@areaCost", SqlDbType.Float).Value = Convert.ToDouble(productCostAreaField.Text);
+                    cmd.Parameters.Add("@image", SqlDbType.VarChar).Value = productImage.Source.ToString();
+                    cmd.Parameters.Add("@description", SqlDbType.VarChar).Value = productDescriptionField.Text;
+                    cmd.Parameters.Add("@collectionCode", SqlDbType.Int).Value = collectionCode;
+                    cmd.Parameters.Add("@statusCode", SqlDbType.Int).Value = statusCode;
+                    cmd.Parameters.Add("@typeCode", SqlDbType.Int).Value = typeCode;
+                    cmd.Parameters.Add("@surfaceCode", SqlDbType.Int).Value = surfaceCode;
+                    cmd.Connection = connectionString;
+                    connectionString.Open();
+                    cmd.ExecuteNonQuery();
+                    connectionString.Close();
                     MessageBox.Show("Добавление изделия прошло успешно.", "Уведомление", MessageBoxButton.OK, MessageBoxImage.Information);
                     ClearFields();
                 }
@@ -344,15 +312,69 @@ namespace KeraminStore.UI.Windows
         }
 
         private void productCostCountField_TextChanged(object sender, TextChangedEventArgs e)
-        {           
-            if (productCostCountField.Text != string.Empty) productCostAreaField.IsEnabled = false;
-            else productCostAreaField.IsEnabled = true;
+        {
+            //if (productCostCountField.Text != string.Empty) productCostAreaField.IsEnabled = false;
+            //else productCostAreaField.IsEnabled = true;
+            if (productCostCountField.Text != string.Empty)
+            {
+                if (productLenght.Text != Product.CheckProductLenght(productLenght.Text, "Вы не указали длину изделия.", "Длина изделия может составлять от 98 до 900 мм.", "В длине изделия указаны недопустимые символы."))
+                {
+                    MessageBox.Show(Product.CheckProductLenght(productLenght.Text, "Вы не указали длину изделия.", "Длина изделия может составлять от 98 до 900 мм.", "В длине изделия указаны недопустимые символы."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    productCostCountField.Clear();
+                    return;
+                }
+                if (productWidth.Text != Product.CheckProductWidth(productWidth.Text, "Вы не указали ширину изделия.", "Ширина изделия может составлять от 20 до 400 мм.", "В ширине изделия указаны недопустимые символы."))
+                {
+                    MessageBox.Show(Product.CheckProductWidth(productWidth.Text, "Вы не указали ширину изделия.", "Ширина изделия может составлять от 20 до 400 мм.", "В ширине изделия указаны недопустимые символы."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    productCostCountField.Clear();
+                    return;
+                }
+                if (productCostCountField.Text != Product.CheckProductCostOrWeight(productCostCountField.Text, "Стоимость изделия не может быть отрицательной.", "Вы указали недопустимые символы в стоимости изделия."))
+                {
+                    MessageBox.Show(Product.CheckProductCostOrWeight(productCostCountField.Text, "Стоимость изделия не может быть отрицательной.", "Вы указали недопустимые символы в стоимости изделия."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    productCostCountField.Clear();
+                    return;
+                }
+                if (productCostCountField.Text != string.Empty)
+                {
+                    double areaCost = Math.Round(1 / (Convert.ToDouble(productWidth.Text) * Convert.ToDouble(productLenght.Text) / 1000000) * Convert.ToDouble(productCostCountField.Text), 2);
+                    if (areaCost == 0) productCostAreaField.Clear();
+                    else productCostAreaField.Text = areaCost.ToString();
+                }
+            }    
         }
 
-        private void productCostAreaField_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (productCostAreaField.Text != string.Empty) productCostCountField.IsEnabled = false;
-            else productCostCountField.IsEnabled = true;
-        }
+        //private void productCostAreaField_TextChanged(object sender, TextChangedEventArgs e)
+        //{
+        //    if (productCostAreaField.Text != string.Empty) productCostCountField.IsEnabled = false;
+        //    else productCostCountField.IsEnabled = true;
+        //    if (productCostAreaField.Text != string.Empty)
+        //    {
+        //        if (productLenght.Text != Product.CheckProductLenght(productLenght.Text, "Вы не указали длину изделия.", "Длина изделия может составлять от 98 до 900 мм.", "В длине изделия указаны недопустимые символы."))
+        //        {
+        //            MessageBox.Show(Product.CheckProductLenght(productLenght.Text, "Вы не указали длину изделия.", "Длина изделия может составлять от 98 до 900 мм.", "В длине изделия указаны недопустимые символы."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+        //            productCostAreaField.Clear();
+        //            return;
+        //        }
+        //        if (productWidth.Text != Product.CheckProductWidth(productWidth.Text, "Вы не указали ширину изделия.", "Ширина изделия может составлять от 20 до 400 мм.", "В ширине изделия указаны недопустимые символы."))
+        //        {
+        //            MessageBox.Show(Product.CheckProductWidth(productWidth.Text, "Вы не указали ширину изделия.", "Ширина изделия может составлять от 20 до 400 мм.", "В ширине изделия указаны недопустимые символы."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+        //            productCostAreaField.Clear();
+        //            return;
+        //        }
+        //        if (productCostAreaField.Text != Product.CheckProductCostOrWeight(productCostAreaField.Text, "Стоимость изделия не может быть отрицательной.", "Вы указали недопустимые символы в стоимости изделия."))
+        //        {
+        //            MessageBox.Show(Product.CheckProductCostOrWeight(productCostAreaField.Text, "Стоимость изделия не может быть отрицательной.", "Вы указали недопустимые символы в стоимости изделия."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+        //            productCostAreaField.Clear();
+        //            return;
+        //        }
+        //        if (productCostAreaField.Text != string.Empty)
+        //        {
+        //            double countCost = Math.Round(Convert.ToDouble(productCostAreaField.Text) / (1 / (Convert.ToDouble(productWidth.Text) * Convert.ToDouble(productLenght.Text) / 1000000)), 2);
+        //            if (countCost == 0) productCostCountField.Clear();
+        //            else productCostAreaField.Text = countCost.ToString();
+        //        }
+        //    }
+        //}
     }
 }

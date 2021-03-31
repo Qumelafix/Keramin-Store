@@ -54,7 +54,7 @@
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0 147 0 0">
                 <!--<iconPacks:PackIconMaterial Kind="Flag" VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="Black" Margin="10 20 0 0"/>-->
-                <TextBox x:Name="productCostAreaField" materialDesign:HintAssist.Hint="Цена руб./м²" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="20 -10 0 0" Foreground="Black" Background="Transparent" Width="235" Style="{StaticResource MaterialDesignFloatingHintTextBox}" TextChanged="productCostAreaField_TextChanged"/>
+                <TextBox x:Name="productCostAreaField" materialDesign:HintAssist.Hint="Цена руб./м²" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="20 -10 0 0" Foreground="Black" Background="Transparent" Width="235" Style="{StaticResource MaterialDesignFloatingHintTextBox}" IsEnabled="False"/> <!--TextChanged="productCostAreaField_TextChanged"-->
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0 210 0 0">
                 <!--<iconPacks:PackIconMaterial Kind="Flag" VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="Black" Margin="10 20 0 0"/>-->

@@ -27,8 +27,8 @@ namespace KeraminStore.Data.Models
             if (productWidth == string.Empty) return emptyProductWidth;
             else
             {
-                double width = 0;
-                bool isNum = double.TryParse(productWidth, out width);
+                int width = 0;
+                bool isNum = int.TryParse(productWidth, out width);
                 if (isNum)
                 {
                     if (width <= 20 || width > 400) return wrongValue;
@@ -43,8 +43,8 @@ namespace KeraminStore.Data.Models
             if (productLenght == string.Empty) return emptyProductLenght;
             else
             {
-                double lenght = 0;
-                bool isNum = double.TryParse(productLenght, out lenght);
+                int lenght = 0;
+                bool isNum = int.TryParse(productLenght, out lenght);
                 if (isNum)
                 {
                     if (lenght <= 98 || lenght > 900) return wrongValue;
@@ -74,7 +74,7 @@ namespace KeraminStore.Data.Models
             bool isNum = double.TryParse(productCostOrWeight, out cost);
             if (isNum)
             {
-                if (cost <= 0) return wrongValue;
+                if (cost < 0) return wrongValue;
             }
             else return invalidSymbols;
             return productCostOrWeight;
@@ -100,6 +100,18 @@ namespace KeraminStore.Data.Models
         {
             if (productDescription.Length > 300) return invalidLenght;
             else return productDescription;
+        }
+
+        public static string CheckCostForSearch(string costStr, string wrongValue, string invalidSymbols)
+        {
+            int cost = 0;
+            bool isNum = int.TryParse(costStr, out cost);
+            if (isNum)
+            {
+                if (cost <= 0) return wrongValue;
+            }
+            else return invalidSymbols;
+            return costStr;
         }
     }
 }
