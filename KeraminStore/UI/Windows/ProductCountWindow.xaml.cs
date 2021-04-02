@@ -27,9 +27,9 @@ namespace KeraminStore.UI.Windows
             }
             if (countButton.IsChecked == true)
             {
-                if (countField.Text != Product.CheckCountInBox(countField.Text, "Вы не указали количество изделий для покупки.", "Количество изделий для покупки не может быть отрицательным.", "Вы указали недопустимые символы в количестве изделий."))
+                if (countField.Text != Product.CheckCountInBox(countField.Text, "Вы не указали количество изделий для добавления.", "Количество изделий для добавления не может быть отрицательным.", "Вы указали недопустимые символы в количестве изделий."))
                 {
-                    MessageBox.Show(Product.CheckCountInBox(countField.Text, "Вы не указали количество изделий для покупки.", "Количество изделий для покупки не может быть отрицательным.", "Вы указали недопустимые символы в количестве изделий."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(Product.CheckCountInBox(countField.Text, "Вы не указали количество изделий для добавления.", "Количество изделий для добавления не может быть отрицательным.", "Вы указали недопустимые символы в количестве изделий."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 prdctCnt = Convert.ToInt32(countField.Text);
@@ -38,7 +38,7 @@ namespace KeraminStore.UI.Windows
             {
                 if (areaField.Text == string.Empty)
                 {
-                    MessageBox.Show("Вы не указали количество квадратных метров изделия для покупки.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Вы не указали количество квадратных метров изделия для добавления.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 else if (areaField.Text != Product.CheckProductCostOrWeight(areaField.Text, "Количество квадратных метров изделия не может быть отрицательным.", "Вы указали недопустимые символы в количестве квадратных метров изделия."))

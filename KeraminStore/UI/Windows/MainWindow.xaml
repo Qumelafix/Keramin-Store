@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KeraminStore"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        mc:Ignorable="d" Height="790" Width="1362" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="None" Foreground="White">
+        mc:Ignorable="d" Height="790" Width="1362" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="None" Foreground="White" BorderBrush="Black" BorderThickness="1">
 
     <Window.Resources>
         <Storyboard x:Key="MenuOpen">
@@ -39,7 +39,7 @@
                 <materialDesign:PopupBox Margin="10" PlacementMode="BottomAndAlignRightEdges" StaysOpen="False">
                     <StackPanel Width="150">
                         <Button Content="Настройки" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Click="SettingsButton_Click"/>
-                        <Button x:Name="HelpButton" Content="Помощь" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                        <Button x:Name="HelpButton" Content="Помощь" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Click="HelpButton_Click"/>
                         <Button x:Name="ChangeAccButton" Content="Сменить аккаунт" Click="ChangeAccButton_Click" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                         <Separator/>
                         <Button x:Name="ButtonPopUpLogout" Content="Выйти" Click="ButtonPopUpLogout_Click" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
@@ -61,13 +61,13 @@
                 <ListView x:Name="Menu" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Foreground="White" SelectionChanged="Menu_SelectionChanged">
                     <ListViewItem x:Name="MainPage" Height="60">
                         <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="ViewGrid" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
+                            <materialDesign:PackIcon Kind="ViewAgenda" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
                             <TextBlock Text="Главная" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                         </StackPanel>
                     </ListViewItem>
                     <ListViewItem x:Name="Catalog" Height="60">
                         <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="ViewGrid" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
+                            <materialDesign:PackIcon Kind="AddShoppingCart" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
                             <TextBlock Text="Каталог" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                         </StackPanel>
                     </ListViewItem>
@@ -85,13 +85,13 @@
                     </ListViewItem>
                     <ListViewItem x:Name="ProductsList" Height="60">
                         <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="AssignmentReturnedOutline" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
+                            <materialDesign:PackIcon Kind="ViewList" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
                             <TextBlock Text="Список изделий" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                         </StackPanel>
                     </ListViewItem>
                     <ListViewItem x:Name="CreateOrder" Height="60">
                         <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="BankPlus" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
+                            <materialDesign:PackIcon Kind="Basket" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
                             <TextBlock Text="Корзина" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                         </StackPanel>
                     </ListViewItem>
@@ -109,7 +109,7 @@
                     </ListViewItem>
                     <ListViewItem x:Name="StaffList" Height="60">
                         <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="AccountCog" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
+                            <materialDesign:PackIcon Kind="AccountGroup" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
                             <TextBlock Text="Список сотрудников" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                         </StackPanel>
                     </ListViewItem>

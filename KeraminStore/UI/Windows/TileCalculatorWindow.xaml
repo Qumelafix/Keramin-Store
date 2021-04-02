@@ -29,7 +29,7 @@
         </Grid>
         <Rectangle Width="1" Height="290" Fill="#FFB2B2B2" Margin="809,170,492,270"/>
         <Grid Width="270" Height="380" HorizontalAlignment="Right" Margin="0,135,200,215">
-            <TextBlock Text="Незакладываемый участок" HorizontalAlignment="Center" VerticalAlignment="Top" Width="250" Height="30" Foreground="Black" FontSize="20" FontWeight="Normal" FontFamily="Helvetica"/>
+            <TextBlock Text="Не закладываемый участок" HorizontalAlignment="Center" VerticalAlignment="Top" Width="250" Height="30" Foreground="Black" FontSize="20" FontWeight="Normal" FontFamily="Helvetica"/>
             <TextBox x:Name="areaWidth" materialDesign:HintAssist.Hint="Ширина участка, м" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0 35 5 0" Foreground="Black" Background="Transparent" Width="235" Style="{StaticResource MaterialDesignFloatingHintTextBox}" IsReadOnly="True"/>
             <TextBox x:Name="areaLenght" materialDesign:HintAssist.Hint="Длина участка, м" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0 99 5 0" Foreground="Black" Background="Transparent" Width="235" Style="{StaticResource MaterialDesignFloatingHintTextBox}" IsReadOnly="True"/>
             <!--<TextBox x:Name="areaHeight" materialDesign:HintAssist.Hint="Высота участка, м" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="12,163,17,0" Foreground="Black" Background="Transparent" Width="235" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Visibility="Visible"/>

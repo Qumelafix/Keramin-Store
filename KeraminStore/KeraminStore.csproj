@@ -224,9 +224,6 @@
     <Compile Include="UI\Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\Windows\BasketWindow.xaml.cs">
-      <DependentUpon>BasketWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="UI\Windows\OrderNumberWindow.xaml.cs">
       <DependentUpon>OrderNumberWindow.xaml</DependentUpon>
     </Compile>
@@ -264,6 +261,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="ClassDiagram.cd" />
     <None Include="KeraminStoreDataSet.xsc">
       <DependentUpon>KeraminStoreDataSet.xsd</DependentUpon>
     </None>
@@ -321,10 +319,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\Windows\BasketWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="UI\Windows\OrderNumberWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -356,7 +350,9 @@
   <ItemGroup>
     <Resource Include="Images\MainPageImage.jpg" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="ProductImages\mari_ermi_d_dots1_250x750.jpg" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="ProductImages\classic_black_300x938_0.jpg" />
   </ItemGroup>

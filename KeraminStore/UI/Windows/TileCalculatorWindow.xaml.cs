@@ -302,7 +302,7 @@ namespace KeraminStore.UI.Windows
             double areaWidthValue = 0;
             if (areaWidth.Text == string.Empty)
             {
-                MessageBox.Show("Вы не указали ширину незакладываемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Вы не указали ширину не закладываемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             else
@@ -312,18 +312,18 @@ namespace KeraminStore.UI.Windows
                 {
                     if (areaWidthValue <= 0)
                     {
-                        MessageBox.Show("Ширина незакладываемого участка не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Ширина не закладываемого участка не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Вы указали недопустимые символы в ширине незаклыдваемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Вы указали недопустимые символы в ширине не заклыдваемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 if (areaWidthValue > surfaceWidthValue)
                 {
-                    MessageBox.Show("Ширина незакладываемого участка не может быть больше ширины комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Ширина не закладываемого участка не может быть больше ширины комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }
@@ -331,7 +331,7 @@ namespace KeraminStore.UI.Windows
             double areaLenghtValue = 0;
             if (areaLenght.Text == string.Empty)
             {
-                MessageBox.Show("Вы не указали длину незакладываемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Вы не указали длину не закладываемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             else
@@ -341,18 +341,18 @@ namespace KeraminStore.UI.Windows
                 {
                     if (areaLenghtValue <= 0)
                     {
-                        MessageBox.Show("Длина незакладываемого участка не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Длина не закладываемого участка не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Вы указали недопустимые символы в длине незаклыдваемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Вы указали недопустимые символы в длине не заклыдваемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 if (areaLenghtValue > surfaceLenghtValue)
                 {
-                    MessageBox.Show("Длина незакладываемого участка не может быть больше длины комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Длина не закладываемого участка не может быть больше длины комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }
@@ -366,24 +366,24 @@ namespace KeraminStore.UI.Windows
                 {
                     if (areaHeightValue <= 0)
                     {
-                        MessageBox.Show("Высота незакладываемого участка не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Высота не закладываемого участка не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Вы указали недопустимые символы в высоте незаклыдваемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Вы указали недопустимые символы в высоте не заклыдваемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 if (areaHeightValue > surfaceHeightValue)
                 {
-                    MessageBox.Show("Высота незакладываемого участка не может быть больше высоты комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Высота не закладываемого участка не может быть больше высоты комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 areaArea = (areaLenghtValue * 2 + areaWidthValue * 2) * areaHeightValue;
                 if (surfaceArea < areaArea || surfaceArea < (areaArea + double.Parse(area.Text)))
                 {
-                    MessageBox.Show("Площадь незакладываемого участка не может быть больше площади комнаты.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Площадь не закладываемого участка не может быть больше площади комнаты.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 else
@@ -396,7 +396,7 @@ namespace KeraminStore.UI.Windows
                 areaArea = areaLenghtValue * areaWidthValue;
                 if (surfaceArea < areaArea || surfaceArea < (areaArea + double.Parse(area.Text)))
                 {
-                    MessageBox.Show("Площадь незакладываемого участка не может быть больше площади комнаты.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Площадь не закладываемого участка не может быть больше площади комнаты.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 else

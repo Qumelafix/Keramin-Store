@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="KeraminStore.Employee" Collapsed="true">
+    <Position X="11" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAACAAAAAAAAAAAAAAACAAAAAAAAgBAAAAAABAA=</HashCode>
+      <FileName>Data\Models\Employee.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KeraminStore.Data.Models.Product" Collapsed="true">
+    <Position X="11" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAQAQAAAAAAAAACIAAAIAABAAAAAEAAAQAAAAAAAAA=</HashCode>
+      <FileName>Data\Models\Product.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KeraminStore.UI.Windows.AccountSettingsWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="4" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAAAAAAAAAAAAgAAAAAAAAAAAAIAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>UI\Windows\AccountSettingsWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="KeraminStore.UI.Windows.AddNewProductWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="5.75" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAABAAAACAAACgAgQAAAAAAAAAAACAABAAAEAAAAAA=</HashCode>
+      <FileName>UI\Windows\AddNewProductWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="KeraminStore.UI.Windows.CatalogWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="9.25" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABAAAAAAAAAgIAQAAAAEAEAAAAAAABAAAAgAAgAA=</HashCode>
+      <FileName>UI\Windows\CatalogWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="KeraminStore.UI.Windows.ChangeEmployeeInfoWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="4" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAAABAAAAAIAAgAAAAAAAAAAAAIAAAAAAAAAAAAAIA=</HashCode>
+      <FileName>UI\Windows\ChangeEmployeeInfoWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="KeraminStore.UI.Windows.ChangeProductInfoWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="5.75" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>RAAABBAAACAIAAgAgQAAAAAAAAAAAAAABAAAEAAAAAA=</HashCode>
+      <FileName>UI\Windows\ChangeProductInfoWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="KeraminStore.UI.Windows.CreateOrderWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="7.5" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAoABAgAACIAAgCAAAAAACEAAAgIAAAAAAgAAAAgAA=</HashCode>
+      <FileName>UI\Windows\CreateOrderWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="KeraminStore.UI.Windows.MainPage" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="9.25" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>UI\Windows\MainPage.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="KeraminStore.UI.Windows.OrderNumberWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="5.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAIAAgAAAAAAAAAAAAQAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>UI\Windows\OrderNumberWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="KeraminStore.UI.Windows.ProductCountWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="7.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAABAIAAAIAAiIAAAAAAAAAAAAACAAAAAAAAAAAIA=</HashCode>
+      <FileName>UI\Windows\ProductCountWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="KeraminStore.UI.Windows.ProductsListWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="9.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAABABAAAIAAgAAAAAAAAEAAAAAAAAAAAAAAAAgAA=</HashCode>
+      <FileName>UI\Windows\ProductsListWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="KeraminStore.UI.Windows.StaffWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="5.75" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAABABAAAIAAgAAAAAAAAEAAAAAAAAAAAAAAAAgAA=</HashCode>
+      <FileName>UI\Windows\StaffWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="KeraminStore.UI.Windows.TileCalculatorWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="7.5" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAAAAAAAAAgAAAAAAAIIQAAAAAAAAAAACAAA=</HashCode>
+      <FileName>UI\Windows\TileCalculatorWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="KeraminStore.AutorizationWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="7.5" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAABAAAAAIAAgAAAAAAAAAAAAAAAAAAACAAAAAAAA=</HashCode>
+      <FileName>UI\Windows\AutorizationWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="KeraminStore.MainWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="4" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgABAAAAAAgAAAAAAAAAAAAAARBAEAABAAAAAAA=</HashCode>
+      <FileName>UI\Windows\MainWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="KeraminStore.RegistrationWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="4" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAACgAAAAAAAAgAAAIAAAAAAAAAAAAAIA=</HashCode>
+      <FileName>UI\Windows\RegistrationWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

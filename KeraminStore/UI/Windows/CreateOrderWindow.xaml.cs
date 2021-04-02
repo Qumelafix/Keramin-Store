@@ -117,7 +117,7 @@ namespace KeraminStore.UI.Windows
             StreamReader streamReader = new StreamReader("BasketNumber.txt");
             string basketNumber = streamReader.ReadLine();
             streamReader.Close();
-            string productsInfoQuery = "SELECT productName, productImage, productArticle, productCostCount, productCostArea, boxesCount, CONCAT(boxesCount, ' | ', productCostCount, ' | ', productCostArea) as 'count', productsCount, productsArea, productsWeight, generalSum " +
+            string productsInfoQuery = "SELECT productName, productImage, productArticle, productCostCount, productCostArea, boxesCount, CONCAT(boxesCount, ' | ', productsCount, ' | ', productsArea) as 'count', productsCount, productsArea, productsWeight, generalSum " +
                                        "FROM Basket " +
                                        "JOIN Product ON Basket.productCode = Product.productCode WHERE basketNumber = '" + basketNumber + "'";
             using (SqlDataAdapter adapter = new SqlDataAdapter(productsInfoQuery, connectionString))
@@ -399,13 +399,13 @@ namespace KeraminStore.UI.Windows
             {
                 if (deliveryTown.Text == string.Empty)
                 {
-                    MessageBox.Show("Необходимо указать город для самовывоза.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Необходимо указать город.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
                 if (deliveryStreet.Text == string.Empty)
                 {
-                    MessageBox.Show("Необходимо указать улицу для самовывоза.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Необходимо указать улицу.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
@@ -602,7 +602,7 @@ namespace KeraminStore.UI.Windows
                             cmd1.ExecuteNonQuery();
                             connectionString.Close();
                         }
-                        MessageBox.Show("Добавление изделия прошло успешно.", "Уведомление", MessageBoxButton.OK, MessageBoxImage.Information);
+                        MessageBox.Show("Заказ успешно оформлен.", "Уведомление", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                 }
             }
@@ -737,7 +737,7 @@ namespace KeraminStore.UI.Windows
                             cmd1.ExecuteNonQuery();
                             connectionString.Close();
                         }
-                        MessageBox.Show("Добавление изделия прошло успешно.", "Уведомление", MessageBoxButton.OK, MessageBoxImage.Information);
+                        MessageBox.Show("Заказ успешно оформлен.", "Уведомление", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                 }
             }

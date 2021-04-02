@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Input;
 
 namespace KeraminStore
@@ -21,7 +22,6 @@ namespace KeraminStore
             int employeeCode = Convert.ToInt32(file.ReadLine());
             file.Close();
 
-            string status = string.Empty;
             string selectEmployeeStatusQuery = "SELECT employeeAdminStatus FROM Employee WHERE employeeCode = " + employeeCode + "";
             using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectEmployeeStatusQuery, connectionString))
             {
@@ -37,7 +37,7 @@ namespace KeraminStore
 
         private void ButtonPopUpLogout_Click(object sender, RoutedEventArgs e)
         {
-            Application.Current.Shutdown();
+            System.Windows.Application.Current.Shutdown();
             File.WriteAllText(@"UserCode.txt", string.Empty);
         }
 
@@ -137,6 +137,30 @@ namespace KeraminStore
 
                 default:
                     break;
+            }
+        }
+
+        private void HelpButton_Click(object sender, RoutedEventArgs e)
+        {
+            StreamReader file = new StreamReader("UserCode.txt");
+            int employeeCode = Convert.ToInt32(file.ReadLine());
+            file.Close();
+
+            string selectEmployeeStatusQuery = "SELECT employeeAdminStatus FROM Employee WHERE employeeCode = " + employeeCode + "";
+            using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectEmployeeStatusQuery, connectionString))
+            {
+                DataTable table = new DataTable();
+                dataAdapter.Fill(table);
+                if (table.Rows.Count > 0 && Convert.ToBoolean(table.Rows[0]["employeeAdminStatus"].ToString()) == true)
+                {
+                    HelpNavigator navigator = HelpNavigator.Topic;
+                    Help.ShowHelp(null, "help.chm", navigator, "rukovodstvo_administratora.htm");
+                }
+                else if (table.Rows.Count > 0 && Convert.ToBoolean(table.Rows[0]["employeeAdminStatus"].ToString()) == false)
+                {
+                    HelpNavigator navigator = HelpNavigator.Topic;
+                    Help.ShowHelp(null, "help.chm", navigator, "rukovodstvo_sotrudnika.htm");
+                }
             }
         }
     }
