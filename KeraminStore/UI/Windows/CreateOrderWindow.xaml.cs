@@ -3,8 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
@@ -153,6 +155,7 @@ namespace KeraminStore.UI.Windows
             }
             else
             {
+                ProductsInfoGrid.Columns[11].Visibility = Visibility.Hidden;
                 double calculateSum = 0;
                 if (sum.Text == string.Empty) sum.Text = "0";
                 for (int i = 0; i < ProductsInfoGrid.Items.Count; i++)
@@ -191,6 +194,9 @@ namespace KeraminStore.UI.Windows
                 MessageBox.Show("Удаление успешно выполнено.", "Уведомление", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
+
+        [DllImport("user32")]
+        static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId0);
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
@@ -471,6 +477,18 @@ namespace KeraminStore.UI.Windows
             StreamReader file = new StreamReader("UserCode.txt");
             int employeeCode = Convert.ToInt32(file.ReadLine());
             file.Close();
+
+            Microsoft.Office.Interop.Excel.Workbooks excelappworkbooks;
+            Microsoft.Office.Interop.Excel.Workbook excelappworkbook;
+            Microsoft.Office.Interop.Excel.Sheets excelsheets;
+            Microsoft.Office.Interop.Excel.Worksheet excelworksheet;
+            Microsoft.Office.Interop.Excel.Range excelcells;
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            Microsoft.Office.Interop.Excel.Application excelapp = new Microsoft.Office.Interop.Excel.Application();
+            excelapp.Interactive = false;
+            uint processId;
+            GetWindowThreadProcessId((IntPtr)excelapp.Hwnd, out processId);
+
             if (usualCustomer.IsChecked == true)
             {
                 if (delivery.SelectedItem.ToString() == "Самовывоз")
@@ -605,6 +623,118 @@ namespace KeraminStore.UI.Windows
                         MessageBox.Show("Заказ успешно оформлен.", "Уведомление", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                 }
+                int q = 14;
+                try
+                {
+                    excelappworkbooks = excelapp.Workbooks;
+                    excelappworkbook = excelapp.Workbooks.Open(Path.GetFullPath(@"SalesReceiptExample.xls"));
+                    excelsheets = excelappworkbook.Worksheets;
+                    excelworksheet = (Microsoft.Office.Interop.Excel.Worksheet)excelsheets.get_Item(1);
+                    excelcells = excelworksheet.get_Range("D5");
+                    excelcells.Value = basketNumber;
+                    excelcells = excelworksheet.get_Range("F5");
+                    excelcells.Value = DateTime.Now.ToShortDateString();
+                    string infoQuery = "SELECT customerName, customerSurname, customerPatronymic, phone, mail, productName, productCostCount, productCostArea, productsCount, Basket.generalSum, CustomerOrder.generalSum, employeeSurname, employeeName, employeePatronymic FROM CustomerOrder " +
+                                       "JOIN Basket ON CustomerOrder.basketCode = Basket.basketCode " +
+                                       "JOIN Product ON Basket.productCode = Product.productCode " +
+                                       "JOIN Customer ON CustomerOrder.customerCode = Customer.customerCode " +
+                                       "JOIN Employee ON CustomerOrder.employeeCode = Employee.employeeCode " +
+                                       "WHERE CustomerOrder.orderNumber = " + basketNumber + "";
+                    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(infoQuery, connectionString))
+                    {
+                        int position = 1;
+                        int k = 5;
+                        string ed = "шт.";
+                        DataTable table = new DataTable();
+                        dataAdapter.Fill(table);
+                        if (table.Rows.Count > 0)
+                        {
+                            for (int rows = 0; rows < table.Rows.Count; ++rows, ++position)
+                            {
+                                for (int j = 2; j < 9; j++)
+                                {
+                                    excelcells = (Microsoft.Office.Interop.Excel.Range)excelworksheet.Cells[q, j];
+                                    excelcells.Borders.ColorIndex = 0;
+                                    excelcells.Font.Size = 9;
+                                    excelcells.Borders.LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
+                                    if (j == 2) excelcells.Value2 = position.ToString();
+                                    else if (j == 3)
+                                    {
+                                        excelcells.WrapText = true;
+                                        excelcells.EntireRow.AutoFit();
+                                        excelcells.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlLeft;
+                                        excelcells.Value = table.Rows[rows][k].ToString();
+                                        ++k;
+                                    }
+                                    else if (j == 4) excelcells.Value2 = ed.ToString();
+                                    else
+                                    {
+                                        excelcells.Value = table.Rows[rows][k].ToString();
+                                        ++k;
+                                    }
+                                }
+                                ++q;
+                                k = 5;
+                            }
+                            excelcells = excelworksheet.get_Range("C7");
+                            excelcells.Value = "    " + table.Rows[0]["customerSurname"].ToString() + " " + table.Rows[0]["customerName"].ToString() + " " + table.Rows[0]["customerPatronymic"].ToString();
+
+                            excelcells = excelworksheet.get_Range("C9");
+                            excelcells.Value = "    " + table.Rows[0]["phone"].ToString();
+
+                            excelcells = excelworksheet.get_Range("C11");
+                            excelcells.Value = "    " + table.Rows[0]["mail"].ToString();
+
+                            for (int j = 2; j < 9; j++)
+                            {
+                                excelcells.Font.Size = 9;
+                                excelcells = (Microsoft.Office.Interop.Excel.Range)excelworksheet.Cells[q, j];
+                                excelcells.Borders.ColorIndex = 0;
+                                excelcells.Borders.LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
+                                if (j == 2)
+                                {
+                                    excelcells.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
+                                    excelcells.Value2 = "ИТОГО";
+                                }
+                                else if (j == 7) { }
+                                else if (j == 8)
+                                {
+                                    excelcells.Font.Size = 9;
+                                    excelcells.Value2 = table.Rows[0][10].ToString();
+                                }
+                                else excelcells.Value2 = "х";
+                            }
+
+                            q = q + 2;
+                            excelcells = (Microsoft.Office.Interop.Excel.Range)excelworksheet.Cells[q, 1];
+                            excelcells = excelworksheet.Range[excelworksheet.Cells[q, 1], excelworksheet.Cells[q, 2]];
+                            excelcells.Merge(true);
+                            excelcells.Font.Size = 9;
+                            excelcells.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlRight;
+                            excelcells.Value2 = "ФИО сотрудника:";
+                            excelcells = (Microsoft.Office.Interop.Excel.Range)excelworksheet.Cells[q, 6];
+                            excelcells.Font.Size = 9;
+                            excelcells.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlRight;
+                            excelcells.Value2 = "Подпись:";
+                            excelcells = (Microsoft.Office.Interop.Excel.Range)excelworksheet.Cells[q, 7];
+                            excelcells.Borders.get_Item(Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeBottom).LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
+                            excelcells.Value2 = " ";
+                            excelcells = (Microsoft.Office.Interop.Excel.Range)excelworksheet.Cells[q, 3];
+                            string employeeInfo = table.Rows[0]["employeeSurname"].ToString() + " " + table.Rows[0]["employeeName"].ToString() + " " + table.Rows[0]["employeePatronymic"].ToString();
+                            excelcells.Borders.get_Item(Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeBottom).LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
+                            excelcells.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlLeft;
+                            excelcells.Font.Size = 9;
+                            excelcells.Value2 = "    " + employeeInfo;
+                        }
+                    }
+                    path += @"\Чек №" + basketNumber.ToString() + ".xls";
+                    excelappworkbooks = excelapp.Workbooks;
+                    excelappworkbook = excelappworkbooks[1];
+                    excelappworkbook.SaveAs(path);
+                    MessageBox.Show("Чек был успешно создан.", "Уведомление", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception m) { MessageBox.Show(m.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                finally { Process.GetProcessById((int)processId).Kill(); }
             }
             else if (legalCustomer.IsChecked == true)
             {
@@ -740,6 +870,121 @@ namespace KeraminStore.UI.Windows
                         MessageBox.Show("Заказ успешно оформлен.", "Уведомление", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                 }
+                int q = 16;
+                try
+                {
+                    excelappworkbooks = excelapp.Workbooks;
+                    excelappworkbook = excelapp.Workbooks.Open(Path.GetFullPath(@"LegalSalesReceiptExample.xls"));
+                    excelsheets = excelappworkbook.Worksheets;
+                    excelworksheet = (Microsoft.Office.Interop.Excel.Worksheet)excelsheets.get_Item(1);
+                    excelcells = excelworksheet.get_Range("D5");
+                    excelcells.Value = basketNumber;
+                    excelcells = excelworksheet.get_Range("F5");
+                    excelcells.Value = DateTime.Now.ToShortDateString();
+                    string infoQuery = "SELECT legalName, UTN, phone, mail, productName, productCostCount, productCostArea, productsCount, Basket.generalSum, CustomerOrder.generalSum, employeeSurname, employeeName, employeePatronymic FROM CustomerOrder " +
+                                       "JOIN Basket ON CustomerOrder.basketCode = Basket.basketCode " +
+                                       "JOIN Product ON Basket.productCode = Product.productCode " +
+                                       "JOIN Customer ON CustomerOrder.customerCode = Customer.customerCode " +
+                                       "JOIN Employee ON CustomerOrder.employeeCode = Employee.employeeCode " +
+                                       "WHERE CustomerOrder.orderNumber = " + basketNumber + "";
+                    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(infoQuery, connectionString))
+                    {
+                        int position = 1;
+                        int k = 4;
+                        string ed = "шт.";
+                        DataTable table = new DataTable();
+                        dataAdapter.Fill(table);
+                        if (table.Rows.Count > 0)
+                        {
+                            for (int rows = 0; rows < table.Rows.Count; ++rows, ++position)
+                            {
+                                for (int j = 2; j < 9; j++)
+                                {
+                                    excelcells = (Microsoft.Office.Interop.Excel.Range)excelworksheet.Cells[q, j];
+                                    excelcells.Borders.ColorIndex = 0;
+                                    excelcells.Font.Size = 9;
+                                    excelcells.Borders.LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
+                                    if (j == 2) excelcells.Value2 = position.ToString();
+                                    else if (j == 3)
+                                    {
+                                        excelcells.WrapText = true;
+                                        excelcells.EntireRow.AutoFit();
+                                        excelcells.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlLeft;
+                                        excelcells.Value = table.Rows[rows][k].ToString();
+                                        ++k;
+                                    }
+                                    else if (j == 4) excelcells.Value2 = ed.ToString();
+                                    else
+                                    {
+                                        excelcells.Value = table.Rows[rows][k].ToString();
+                                        ++k;
+                                    }
+                                }
+                                ++q;
+                                k = 4;
+                            }
+                            excelcells = excelworksheet.get_Range("C7");
+                            excelcells.Value = "    " + table.Rows[0]["legalName"].ToString();
+
+                            excelcells = excelworksheet.get_Range("C9");
+                            excelcells.Value = "    " + table.Rows[0]["UTN"].ToString();
+
+                            excelcells = excelworksheet.get_Range("C11");
+                            excelcells.Value = "    " + table.Rows[0]["phone"].ToString();
+
+                            excelcells = excelworksheet.get_Range("C13");
+                            excelcells.Value = "    " + table.Rows[0]["mail"].ToString();
+
+                            for (int j = 2; j < 9; j++)
+                            {
+                                excelcells.Font.Size = 9;
+                                excelcells = (Microsoft.Office.Interop.Excel.Range)excelworksheet.Cells[q, j];
+                                excelcells.Borders.ColorIndex = 0;
+                                excelcells.Borders.LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
+                                if (j == 2)
+                                {
+                                    excelcells.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlCenter;
+                                    excelcells.Value2 = "ИТОГО";
+                                }
+                                else if (j == 7) { }
+                                else if (j == 8)
+                                {
+                                    excelcells.Font.Size = 9;
+                                    excelcells.Value2 = table.Rows[0][9].ToString();
+                                }
+                                else excelcells.Value2 = "х";
+                            }
+
+                            q = q + 2;
+                            excelcells = (Microsoft.Office.Interop.Excel.Range)excelworksheet.Cells[q, 1];
+                            excelcells = excelworksheet.Range[excelworksheet.Cells[q, 1], excelworksheet.Cells[q, 2]];
+                            excelcells.Merge(true);
+                            excelcells.Font.Size = 9;
+                            excelcells.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlRight;
+                            excelcells.Value2 = "ФИО сотрудника:";
+                            excelcells = (Microsoft.Office.Interop.Excel.Range)excelworksheet.Cells[q, 6];
+                            excelcells.Font.Size = 9;
+                            excelcells.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlRight;
+                            excelcells.Value2 = "Подпись:";
+                            excelcells = (Microsoft.Office.Interop.Excel.Range)excelworksheet.Cells[q, 7];
+                            excelcells.Borders.get_Item(Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeBottom).LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
+                            excelcells.Value2 = " ";
+                            excelcells = (Microsoft.Office.Interop.Excel.Range)excelworksheet.Cells[q, 3];
+                            string employeeInfo = table.Rows[0]["employeeSurname"].ToString() + " " + table.Rows[0]["employeeName"].ToString() + " " + table.Rows[0]["employeePatronymic"].ToString();
+                            excelcells.Borders.get_Item(Microsoft.Office.Interop.Excel.XlBordersIndex.xlEdgeBottom).LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous;
+                            excelcells.HorizontalAlignment = Microsoft.Office.Interop.Excel.Constants.xlLeft;
+                            excelcells.Font.Size = 9;
+                            excelcells.Value2 = "    " + employeeInfo;
+                        }
+                    }
+                    path += @"\Чек №" + basketNumber.ToString() + ".xls";
+                    excelappworkbooks = excelapp.Workbooks;
+                    excelappworkbook = excelappworkbooks[1];
+                    excelappworkbook.SaveAs(path);
+                    MessageBox.Show("Чек был успешно создан.", "Уведомление", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception m) { MessageBox.Show(m.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                finally { Process.GetProcessById((int)processId).Kill(); }
             }
             ProductsInfoGrid.ItemsSource = null;
             ProductsInfoGrid.Items.Refresh();

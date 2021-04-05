@@ -58,9 +58,7 @@ namespace KeraminStore.UI.Windows
 
                 double lenght = 0;
                 double width = 0;
-                double weight = 0;
-                int countInBox = 0;
-                string selectProductInfoQuery = "SELECT productLenght, productWidth, productBoxWeight, productCountInBox FROM Product WHERE productCode = " + prdctCode + "";
+                string selectProductInfoQuery = "SELECT productLenght, productWidth FROM Product WHERE productCode = " + prdctCode + "";
                 using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectProductInfoQuery, connectionString))
                 {
                     DataTable table = new DataTable();
@@ -69,8 +67,6 @@ namespace KeraminStore.UI.Windows
                     {
                         lenght = double.Parse(table.Rows[0]["productLenght"].ToString());
                         width = double.Parse(table.Rows[0]["productWidth"].ToString());
-                        weight = double.Parse(table.Rows[0]["productBoxWeight"].ToString());
-                        countInBox = int.Parse(table.Rows[0]["productCountInBox"].ToString());
                     }
                 }
                 prdctCnt = Convert.ToInt32(Convert.ToDouble(areaField.Text) / (lenght * width / 1000000));
@@ -98,7 +94,6 @@ namespace KeraminStore.UI.Windows
             if (countButton.IsChecked == true)
             {
                 countField.IsEnabled = true;
-                areaField.Clear();
                 areaField.IsEnabled = false;
             }
         }
@@ -108,7 +103,6 @@ namespace KeraminStore.UI.Windows
             if (areaButton.IsChecked == true)
             {
                 countField.IsEnabled = false;
-                countField.Clear();
                 areaField.IsEnabled = true;
             }
         }
@@ -130,9 +124,7 @@ namespace KeraminStore.UI.Windows
 
                 double lenght = 0;
                 double width = 0;
-                double weight = 0;
-                int countInBox = 0;
-                string selectProductInfoQuery = "SELECT productLenght, productWidth, productBoxWeight, productCountInBox FROM Product WHERE productCode = " + prdctCode + "";
+                string selectProductInfoQuery = "SELECT productLenght, productWidth FROM Product WHERE productCode = " + prdctCode + "";
                 using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectProductInfoQuery, connectionString))
                 {
                     DataTable table = new DataTable();
@@ -141,12 +133,11 @@ namespace KeraminStore.UI.Windows
                     {
                         lenght = double.Parse(table.Rows[0]["productLenght"].ToString());
                         width = double.Parse(table.Rows[0]["productWidth"].ToString());
-                        weight = double.Parse(table.Rows[0]["productBoxWeight"].ToString());
-                        countInBox = int.Parse(table.Rows[0]["productCountInBox"].ToString());
                     }
                 }
-                double realArea = Convert.ToInt32(Convert.ToDouble(areaField.Text) / (lenght * width / 1000000)) * (lenght * width / 1000000);
+                double realArea = (Convert.ToInt32(Convert.ToDouble(areaField.Text) / (lenght * width / 1000000) + 1) * (lenght * width / 1000000));
                 areaField.Text = realArea.ToString();
+                countField.Text = Convert.ToInt32(realArea / (lenght * width / 1000000)).ToString();
             }
         }
 
@@ -161,6 +152,25 @@ namespace KeraminStore.UI.Windows
                     return;
                 }
             }
+            StreamReader reader = new StreamReader("ProductCode.txt");
+            int prdctCode = int.Parse(reader.ReadLine());
+            reader.Close();
+
+            double lenght = 0;
+            double width = 0;
+            string selectProductInfoQuery = "SELECT productLenght, productWidth FROM Product WHERE productCode = " + prdctCode + "";
+            using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectProductInfoQuery, connectionString))
+            {
+                DataTable table = new DataTable();
+                dataAdapter.Fill(table);
+                if (table.Rows.Count > 0)
+                {
+                    lenght = double.Parse(table.Rows[0]["productLenght"].ToString());
+                    width = double.Parse(table.Rows[0]["productWidth"].ToString());
+                }
+            }
+            double realArea = Convert.ToInt32(countField.Text) * (lenght * width / 1000000);
+            areaField.Text = realArea.ToString();
         }
     }
 }

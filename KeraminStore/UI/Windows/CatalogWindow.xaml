@@ -58,13 +58,13 @@
                     </DataGridTextColumn.CellStyle>
                 </DataGridTextColumn>
                 <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding productName}" Header="Наименование" Width="140" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productArticle}" Header="Артикул" Width="140" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                 <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding productTypeName}" Header="Тип" Width="110" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                 <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productCollectionName}" Header="Коллекция" Width="110" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Visibility="Hidden"/>
                 <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productLenght}" Width="0" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Visibility="Hidden"/>
                 <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productWidth}" Width="0" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Visibility="Hidden"/>
                 <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productParametrs}" Header="Размер, мм" Width="105" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                 <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding surfaceName}" Header="Поверхность" Width="130" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Visibility="Hidden"/>
-                <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productArticle}" Header="Артикул" Width="140" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                 <!--<DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productBoxWeight}" Header="Вес ящика, кг" Width="120" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                 <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productCountInBox}" Header="В ящике, шт." Width="110" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>-->
                 <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productCostCount, StringFormat=f}" Header="Цена руб./шт." Width="118" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>

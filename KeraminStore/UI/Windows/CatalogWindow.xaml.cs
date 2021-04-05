@@ -297,7 +297,7 @@ namespace KeraminStore.UI.Windows
                         ProductsInfoGrid.ScrollIntoView(ProductsInfoGrid.Items[i]);
                         row = (DataGridRow)ProductsInfoGrid.ItemContainerGenerator.ContainerFromIndex(i);
                     }
-                    TextBlock cellcontent = ProductsInfoGrid.Columns[0].GetCellContent(row) as TextBlock;
+                    TextBlock cellcontent = ProductsInfoGrid.Columns[2].GetCellContent(row) as TextBlock;
                     if (cellcontent != null && cellcontent.Text.ToString().Contains(searchField.Text))
                     {
                         object item = ProductsInfoGrid.Items[i];
