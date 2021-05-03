@@ -11,10 +11,34 @@ namespace KeraminStore.UI.Windows
     public partial class ProductCountWindow : Window
     {
         readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
+        int prdctCode = 0;
 
         public ProductCountWindow()
         {
             InitializeComponent();
+
+            StreamReader reader = new StreamReader("ProductCode.txt");
+            prdctCode = int.Parse(reader.ReadLine());
+            reader.Close();
+
+            string chooseItemType = "SELECT productTypeName FROM Product " +
+                                    "JOIN ProductType ON Product.productTypeCode = ProductType.productTypeCode " +
+                                    "WHERE productCode = " + prdctCode + "";
+            using (SqlDataAdapter dataAdapter = new SqlDataAdapter(chooseItemType, connectionString))
+            {
+                DataTable table = new DataTable();
+                dataAdapter.Fill(table);
+
+                if (table.Rows[0]["productTypeName"].ToString() != "Настенная плитка" && table.Rows[0]["productTypeName"].ToString() != "Напольная плитка")
+                {
+                    description.Content = "Введите количество изделий в штуках";
+                    septum.Visibility = Visibility.Hidden;
+                    areaButton.Visibility = Visibility.Hidden;
+                    areaField.Visibility = Visibility.Hidden;
+                    countButton.Margin = new Thickness(162, 105, 0, 0);
+                    countField.Margin = new Thickness(93, 86, 40, 119);
+                }
+            }
         }
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
@@ -71,17 +95,33 @@ namespace KeraminStore.UI.Windows
                 }
                 prdctCnt = Convert.ToInt32(Convert.ToDouble(areaField.Text) / (lenght * width / 1000000));
             }
-            File.WriteAllText(@"ProductCode.txt", string.Empty);
-            StreamWriter productFile = new StreamWriter("ProductCount.txt");
-            productFile.Write(prdctCnt.ToString());
-            productFile.Close();
+
+            string selectProductCount = "SELECT productCount FROM Product WHERE productCode = " + prdctCode + "";
+            using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectProductCount, connectionString))
+            {
+                int currentProductCount = 0;
+                DataTable table = new DataTable();
+                dataAdapter.Fill(table);
+                if (table.Rows.Count > 0)
+                {
+                    currentProductCount = int.Parse(table.Rows[0]["productCount"].ToString());
+                    if (currentProductCount < prdctCnt)
+                    {
+                        MessageBox.Show("Данного количества изделий нет в наличии.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    else
+                    {
+                        StreamWriter productFile = new StreamWriter("ProductCount.txt");
+                        productFile.Write(prdctCnt.ToString());
+                        productFile.Close();
+                    }
+                }
+            }
             this.Close();
         }
 
-        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            this.DragMove();
-        }
+        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) => this.DragMove();
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
@@ -111,9 +151,46 @@ namespace KeraminStore.UI.Windows
         {
             if (areaField.Text != string.Empty)
             {
-                if (areaField.Text != Product.CheckProductCostOrWeight(areaField.Text, "Количество квадратных метров изделия не может быть отрицательным.", "Вы указали недопустимые символы в количестве квадратных метров изделия."))
+                if (areaField.Text != CheckArea(areaField.Text, "Количество квадратных метров изделия не может быть меньше 0.01 м².", "Вы указали недопустимые символы в количестве квадратных метров изделия."))
                 {
-                    MessageBox.Show(Product.CheckProductCostOrWeight(areaField.Text, "Количество квадратных метров изделия не может быть отрицательным.", "Вы указали недопустимые символы в количестве квадратных метров изделия."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(CheckArea(areaField.Text, "Количество квадратных метров изделия не может быть меньше 0.01 м².", "Вы указали недопустимые символы в количестве квадратных метров изделия."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    areaField.Clear();
+                    countField.Clear();
+                    return;
+                }
+
+                StreamReader reader = new StreamReader("ProductCode.txt");
+                int prdctCode = int.Parse(reader.ReadLine());
+                reader.Close();
+
+                double lenght = 0;
+                double width = 0;
+                string selectProductInfoQuery = "SELECT productLenght, productWidth FROM Product WHERE productCode = " + prdctCode + "";
+                using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectProductInfoQuery, connectionString))
+                {
+                    DataTable table = new DataTable();
+                    dataAdapter.Fill(table);
+                    if (table.Rows.Count > 0)
+                    {
+                        lenght = double.Parse(table.Rows[0]["productLenght"].ToString());
+                        width = double.Parse(table.Rows[0]["productWidth"].ToString());
+                    }
+                }
+                double realArea = Convert.ToInt32(Convert.ToDouble(areaField.Text) / (lenght * width / 1000000) + 1) * (lenght * width / 1000000);
+                areaField.Text = realArea.ToString();
+                countField.Text = Convert.ToInt32(realArea / (lenght * width / 1000000)).ToString();
+            }
+            else countField.Clear();
+        }
+
+        private void countField_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (countField.Text != string.Empty)
+            {
+                if (countField.Text != CheckCount(countField.Text, "Количество изделий не может быть меньше 1 штуки.", "Вы указали недопустимые символы в количестве изделий."))
+                {
+                    MessageBox.Show(CheckCount(countField.Text, "Количество изделий не может быть меньше 1 штуки.", "Вы указали недопустимые символы в количестве изделий."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    countField.Clear();
                     areaField.Clear();
                     return;
                 }
@@ -135,42 +212,34 @@ namespace KeraminStore.UI.Windows
                         width = double.Parse(table.Rows[0]["productWidth"].ToString());
                     }
                 }
-                double realArea = (Convert.ToInt32(Convert.ToDouble(areaField.Text) / (lenght * width / 1000000) + 1) * (lenght * width / 1000000));
+                double realArea = Convert.ToInt32(countField.Text) * (lenght * width / 1000000);
                 areaField.Text = realArea.ToString();
-                countField.Text = Convert.ToInt32(realArea / (lenght * width / 1000000)).ToString();
             }
+            else areaField.Clear();
         }
 
-        private void countField_MouseLeave(object sender, MouseEventArgs e)
+        private string CheckCount(string count, string wrongValue, string invalidSymbols)
         {
-            if (countField.Text != string.Empty)
+            int inputCount = 0;
+            bool isNum = int.TryParse(count, out inputCount);
+            if (isNum)
             {
-                if (countField.Text != Product.CheckProductCostOrWeight(countField.Text, "Количество изделий не может быть отрицательным.", "Вы указали недопустимые символы в количестве изделий."))
-                {
-                    MessageBox.Show(Product.CheckProductCostOrWeight(countField.Text, "Количество изделий не может быть отрицательным.", "Вы указали недопустимые символы в количестве изделий."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    countField.Clear();
-                    return;
-                }
+                if (inputCount <= 0) return wrongValue;
             }
-            StreamReader reader = new StreamReader("ProductCode.txt");
-            int prdctCode = int.Parse(reader.ReadLine());
-            reader.Close();
+            else return invalidSymbols;
+            return count;
+        }
 
-            double lenght = 0;
-            double width = 0;
-            string selectProductInfoQuery = "SELECT productLenght, productWidth FROM Product WHERE productCode = " + prdctCode + "";
-            using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectProductInfoQuery, connectionString))
+        private string CheckArea(string area, string wrongValue, string invalidSymbols)
+        {
+            double inputArea = 0;
+            bool isNum = double.TryParse(area, out inputArea);
+            if (isNum)
             {
-                DataTable table = new DataTable();
-                dataAdapter.Fill(table);
-                if (table.Rows.Count > 0)
-                {
-                    lenght = double.Parse(table.Rows[0]["productLenght"].ToString());
-                    width = double.Parse(table.Rows[0]["productWidth"].ToString());
-                }
+                if (inputArea <= 0) return wrongValue;
             }
-            double realArea = Convert.ToInt32(countField.Text) * (lenght * width / 1000000);
-            areaField.Text = realArea.ToString();
+            else return invalidSymbols;
+            return area;
         }
     }
 }

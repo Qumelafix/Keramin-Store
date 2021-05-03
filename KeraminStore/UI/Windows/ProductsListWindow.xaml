@@ -29,6 +29,10 @@
             <Grid.RowDefinitions>
                 <RowDefinition/>
             </Grid.RowDefinitions>
+            <!--<iconPacks:PackIconMaterial Height="20" Width="20" Kind="TextSearch" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Black" Margin="97,53,1603,27"/>
+            <TextBox x:Name="searchField" materialDesign:HintAssist.Hint="Поиск" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,26,1302,0" Foreground="Black" Background="Transparent" Width="168" Style="{StaticResource MaterialDesignFloatingHintTextBox}" TextChanged="searchField_TextChanged"/>-->
+            <iconPacks:PackIconMaterial Height="20" Width="20" Kind="TextSearch" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Black" Margin="1492,-556,208,636"/>
+            <TextBox x:Name="searchField" materialDesign:HintAssist.Hint="Поиск" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="1520,-583,32,0" Foreground="Black" Background="Transparent" Width="168" Style="{StaticResource MaterialDesignFloatingHintTextBox}" TextChanged="searchField_TextChanged"/>
             <Button x:Name="ChangeButton" Width="110" Height="40" HorizontalAlignment="Center" VerticalAlignment="Center" Content="ИЗМЕНИТЬ" Margin="0 13 150 0" Click="ChangeButton_Click"/>
             <Rectangle Width="1" Height="50" Fill="#FFB2B2B2" Margin="1 13 0 0"/>
             <Button x:Name="DeleteButton" Width="110" Height="40" HorizontalAlignment="Center" VerticalAlignment="Center" Content="УДАЛИТЬ" Margin="150 13 0 0" Click="DeleteButton_Click"/>
@@ -53,8 +57,8 @@
                 </DataGridTextColumn>
                 <!--<DataGridTextColumn Binding="{Binding productImage}" Header="Изображение" Width="140" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>-->
                 <DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding productName}" Header="Наименование" Width="140" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
-                <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding productTypeName}" Header="Тип" Width="110" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
-                <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding productCollectionName}" Header="Коллекция" Width="110" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding productTypeName}" Header="Тип" Width="115" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding productCollectionName}" Header="Коллекция" Width="100" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                 <DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding productLenght}" Width="0" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Visibility="Hidden"/>
                 <DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding productWidth}" Width="0" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Visibility="Hidden"/>
                 <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding productParametrs}" Header="Размер, мм" Width="110" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
@@ -63,8 +67,10 @@
                 <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding productBoxWeight}" Header="Вес ящика, кг" Width="120" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                 <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding productCountInBox}" Header="В ящике, шт." Width="110" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                 <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding productCostCount}" Header="Цена руб./шт." Width="120" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
-                <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding productCostArea}" Header="Цена руб./м²" Width="120" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
-                <DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding productDescription}" Header="Описание" Width="200" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding productCostArea}" Header="Цена руб./м²" Width="115" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                <!--<DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding productDescription}" Header="Описание" Width="200" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>-->
+                <DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding colorName}" Header="Цвет" Width="100" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding productCount}" Header="Количество" Width="110" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                 <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding availabilityStatusName}" Header="Статус наличия" Width="130" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
             </DataGrid.Columns>
         </DataGrid>

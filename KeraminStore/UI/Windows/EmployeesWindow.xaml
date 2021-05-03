@@ -1,15 +1,13 @@
-﻿<Window x:Class="KeraminStore.UI.Windows.StaffWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:KeraminStore.UI.Windows"
-        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        mc:Ignorable="d"
-        Width="1302" Height="730" BorderThickness="1" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="None" Foreground="White" Background="#FFEAEAEA" MouseLeftButtonDown="Window_MouseLeftButtonDown">
+﻿<UserControl x:Class="KeraminStore.UI.Windows.EmployeesWindow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:KeraminStore.UI.Windows"
+             mc:Ignorable="d" 
+             Width="1302" Height="730" BorderThickness="1" Foreground="White" Background="#FFEAEAEA">
 
-    <Window.Resources>
+    <UserControl.Resources>
         <Style x:Key="ElementStyle" TargetType="TextBlock">
             <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -19,12 +17,11 @@
             <Setter Property="TextAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
-    </Window.Resources>
+    </UserControl.Resources>
 
     <Grid>
         <Label Content="Список сотрудников" FontSize="30" FontWeight="Bold" FontFamily="Helvetica" Margin="20 20 0 0"/>
         <Label x:Name="Description" Content="Для удаления/изменения данных о сотруднике необходимо выделить строку, а затем нажать на соответствующую кнопку снизу" FontSize="20" FontWeight="Light" FontFamily="Helvetica" Margin="21 60 0 0"/>
-        <Button x:Name="CloseButton" Style="{StaticResource MaterialDesignFlatButton}" Click="CloseButton_Click" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="5" Content="Закрыть" ToolTip="MaterialDesignFlatButton"/>
         <Grid Width="1302" Height="100" HorizontalAlignment="Left" VerticalAlignment="Bottom">
             <Grid.RowDefinitions>
                 <RowDefinition/>
@@ -33,18 +30,16 @@
             <Rectangle Width="1" Height="50" Fill="#FFB2B2B2" Margin="1 13 0 0"/>
             <Button x:Name="DeleteButton" Width="110" Height="40" HorizontalAlignment="Center" VerticalAlignment="Center" Content="УДАЛИТЬ" Margin="150 13 0 0" Click="DeleteButton_Click"/>
         </Grid>
-        <DataGrid x:Name="EmployeesInfoGrid" Width="1250" Height="532" HorizontalAlignment="Center" Margin="25,110,27,88" BorderThickness="1" AutoGenerateColumns="False" ScrollViewer.HorizontalScrollBarVisibility="Hidden" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" GridLinesVisibility="All">
+        <DataGrid x:Name="EmployeesInfoGrid" Width="995" Height="532" HorizontalAlignment="Center" Margin="25,110,27,88" BorderThickness="1" AutoGenerateColumns="False" ScrollViewer.HorizontalScrollBarVisibility="Hidden" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" GridLinesVisibility="All">
             <DataGrid.Columns>
                 <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding employeeName}" Header="Имя" Width="140" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                 <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding employeeSurname}" Header="Фамилия" Width="140" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                 <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding employeePatronymic}" Header="Отчество" Width="140" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
-                <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding employeePasportNumber}" Header="Номер паспорта" Width="135" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                 <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding employeeDateOfBirth, StringFormat=\{0:dd/MM/yyyy\}}" Header="Дата рождения" Width="130" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
-                <DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding educationName}" Header="Образование" Width="130" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                 <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding employeeLogin}" Header="Логин" Width="140" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                 <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding employeePassword}" Header="Пароль" Width="140" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                 <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding postName}" Header="Должность" Width="150" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>
-</Window>
+</UserControl>

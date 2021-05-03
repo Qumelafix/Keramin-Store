@@ -9,13 +9,6 @@
  constraint postCodePK primary key (postCode))
  insert into Post(postName) values ('Администратор'), ('Штатный сотрудник')
 
- create table Education
- (educationCode int not null identity,
- educationName varchar(100) not null,
- constraint educationNameUniq unique (educationName),
- constraint educationCodePK primary key (educationCode))
- insert into Education(educationName) values ('Среднее образование'), ('Высшее образование'), ('Средне-специальное образование')
-
  create table Employee
  (employeeCode int not null identity,
  employeeLogin varchar(30) not null,
@@ -25,14 +18,11 @@
  employeeName varchar(50) not null,
  employeeSurname varchar(50) not null,
  employeePatronymic varchar(50) not null,
- employeePasportNumber varchar(9) not null,
  employeeDateOfBirth date not null,
  constraint employeeCodePK primary key (employeeCode),
  postCode int not null,
- constraint postCodeFK foreign key (postCode) references Post (postCode) on delete cascade,
- educationCode int not null,
- constraint educationCodeFK foreign key (educationCode) references Education (educationCode) on delete cascade)
- insert into Employee(employeeLogin, employeePassword, employeeName, employeeSurname, employeePatronymic, employeePasportNumber, employeeDateOfBirth, postCode, employeeAdminStatus, educationCode) values ('Admin', 'qwerty', 'Александр', 'Ритвинский', 'Николаевич', 'MP3939129', '19.10.2001', 1, 1, 3)
+ constraint postCodeFK foreign key (postCode) references Post (postCode) on delete cascade)
+ insert into Employee(employeeLogin, employeePassword, employeeName, employeeSurname, employeePatronymic, employeeDateOfBirth, postCode, employeeAdminStatus) values ('Admin', 'qwerty', 'Александр', 'Ритвинский', 'Николаевич', '19.10.2001', 1, 1)
 
  create table ProductCollection
  (productCollectionCode int not null identity,
@@ -53,14 +43,21 @@
  productTypeName varchar(100) not null,
  constraint productTypeNameUniq unique (productTypeName),
  constraint productTypeCodePK primary key (productTypeCode))
- insert into ProductType (productTypeName) values ('Настенная плитка'), ('Напольная плитка'), ('Настенный декор'), ('Напольный декор'), ('Мозаика'), ('Ступени'), ('Плинтус')
+ insert into ProductType (productTypeName) values ('Настенная плитка'), ('Напольная плитка'), ('Настенный декор'), ('Напольный декор'), ('Мозаика'), ('Бордюр')
 
  create table Surface
  (surfaceCode int not null identity,
  surfaceName varchar(100) not null,
  constraint surfaceNameUniq unique (surfaceName),
  constraint surfaceCodePK primary key (surfaceCode))
- insert into Surface (surfaceName) values ('Глянцевая'), ('Матовая'), ('Подполированная'), ('Структурированная'), ('Мозаика'), ('Ступени'), ('Плинтус')
+ insert into Surface (surfaceName) values ('Глянцевая'), ('Матовая')
+
+ create table Color
+ (colorCode int not null identity,
+ colorName varchar(100) not null,
+ constraint colorNameUniq unique (colorName),
+ constraint colorCodePK primary key (colorCode))
+ insert into Color (colorName) values ('Разноцветный'), ('Светло-бежевый'), ('Светло-серый'), ('Синий'), ('Темно-бежевый'), ('Темно-серый'), ('Серый'), ('Черный'), ('Бежевый'), ('Кориченевый'), ('Зеленый'), ('Голубой'), ('Розовый'), ('Красный'), ('Фиолетовый'), ('Желтый'), ('Оранжевый')
 
  create table Product 
  (productCode int not null identity,
@@ -70,6 +67,7 @@
  productWidth float not null,
  productLenght float not null,
  productBoxWeight float not null,
+ productCount int not null,
  productCountInBox int null,
  productCostCount float null,
  productCostArea float null,
@@ -80,10 +78,25 @@
  availabilityStatusCode int not null,
  productTypeCode int not null,
  surfaceCode int not null,
+ colorCode int not null,
  constraint productCollectionCodeFK foreign key (productCollectionCode) references ProductCollection (productCollectionCode) on delete cascade,
  constraint availabilityStatusCodeFK foreign key (availabilityStatusCode) references AvailabilityStatus (availabilityStatusCode) on delete cascade,
  constraint productTypeCodeFK foreign key (productTypeCode) references ProductType (productTypeCode) on delete cascade,
+ constraint colorCodeFK foreign key (colorCode) references Color (colorCode) on delete cascade,
  constraint surfaceCodeFK foreign key (surfaceCode) references Surface (surfaceCode) on delete cascade)
+
+ create table Basket
+ (basketCode int not null identity,
+ basketNumber int not null,
+ productsCount int not null,
+ boxesCount int not null, 
+ productsArea float not null,
+ productsWeight float not null,
+ generalSum float not null,
+ paymentStatus bit not null,
+ constraint basketNumberPK primary key (basketCode),
+ productCode int not null,
+ constraint productCodeFK foreign key (productCode) references Product (productCode) on delete cascade)
 
  create table Arrival
  (arrivalCode int not null identity,
@@ -105,58 +118,65 @@
  paymentType varchar(100) not null,
  constraint paymentTypeUniq unique (paymentType),
  constraint paymentCodePK primary key (paymentCode))
- insert into Payment (paymentType) values ('Наличными'), ('Банковской картой через платежный терминал'), ('Онлайн оплата картой Visa, Master Card или Белкарт'), ('Через систему "Расчет" (ЕРИП)'), ('Оплата по частям через сервис "ZABIRAY.BY"')
+ insert into Payment (paymentType) values ('Наличными'), ('Банковской картой через платежный терминал'), ('Онлайн оплата картой Visa, Master Card или Белкарт'), ('Через систему "Расчет" (ЕРИП)')
 
  create table Town
  (townCode int not null identity,
  townName varchar(100) not null,
  constraint townNameUniq unique (townName),
  constraint townCodePK primary key (townCode))
+ insert into Town (townName) values ('Минск'), ('Витебск'), ('Брест'), ('Гродно'), ('Гомель'), ('Могилев'), ('Барановичи'), ('Бобруйск'), ('Борисов'), ('Горки'), ('Лида'), ('Мозырь'), ('Молодечно'), ('Пинск'), ('Солигорск')
 
  create table Street
  (streetCode int not null identity,
  streetName varchar(100) not null,
  constraint streetNameUniq unique (streetName),
  constraint streetCodePK primary key (streetCode))
+ insert into Street (streetName) values ('Зеленая'), ('Новая'), ('Железнодорожная'), ('Колесникова')
 
  create table Customer 
  (customerCode int not null identity,
  customerName varchar(50) null,
  customerSurname varchar(50) null,
- customerPhone varchar(17) not null,
- customerMail varchar(40) not null,
- customerBuilding int null,
- customeFloor int null,
- customerApartment int null,
+ customerPatronymic varchar(50) null,
+ phone varchar(17) not null,
+ mail varchar(40) not null,
+ building int null,
+ floor_ int null,
+ apartment int null,
  legalName varchar(100) null, 
  UTN int null,
- townCode int not null,
- streetCode int not null,
+ townCode int null,
+ streetCode int null,
+ orderNumber int null,
  constraint townCodeFK foreign key (townCode) references Town (townCode) on delete cascade,
  constraint streetCodeFK foreign key (streetCode) references Street (streetCode) on delete cascade,
  constraint customerCodePK primary key (customerCode))
 
+ create table Pickup
+ (pickupCode int not null identity,
+ streetName varchar(100) not null,
+ building int null,
+ townCode int not null,
+ constraint townFK foreign key (townCode) references Town (townCode) on delete cascade,
+ constraint pickupCodePK primary key (pickupCode))
+
  create table CustomerOrder
  (customerOrderCode int not null identity,
- customerOrderNumber varchar(9) not null,
+ orderNumber int not null,
  issueDate date not null, 
+ generalSum float not null,
  deliveryCost float null,
  constraint customerOrderCodePK primary key (customerOrderCode),
  deliveryCode int not null,
  constraint deliveryCodeFK foreign key (deliveryCode) references Delivery (deliveryCode) on delete cascade,
+ basketCode int not null,
+ constraint basketCodeFK foreign key (basketCode) references Basket (basketCode) on delete cascade,
  customerCode int not null,
  constraint customerCodeFK foreign key (customerCode) references Customer (customerCode) on delete cascade,
  employeeCode int not null,
  constraint employeeCodeFK foreign key (employeeCode) references Employee (employeeCode) on delete cascade,
  paymentCode int not null,
- constraint paymentCodeFK foreign key (paymentCode) references Payment (paymentCode) on delete cascade)
-
- create table Basket
- (basketCode int not null identity,
- productsCount int not null,
- generalSum float not null,
- constraint basketCodePK primary key (basketCode),
- productCode int not null,
- constraint productCodeFK foreign key (productCode) references Product (productCode) on delete cascade,
- customerOrderCode int not null,
- constraint customerOrderCodeFK foreign key (customerOrderCode) references CustomerOrder (customerOrderCode) on delete cascade)
+ constraint paymentCodeFK foreign key (paymentCode) references Payment (paymentCode) on delete cascade,
+ pickupCode int null,
+ constraint pickupCodeFK foreign key (pickupCode) references Pickup (pickupCode) on delete no action)

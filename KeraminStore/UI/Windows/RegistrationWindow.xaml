@@ -27,20 +27,16 @@
                 <TextBox x:Name="patronymicField" materialDesign:HintAssist.Hint="Отчество" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="45 -10 0 0" Foreground="Black" Background="Transparent" Width="235" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0 210 0 0">
-                <!--<iconPacks:PackIconMaterial Kind="Key" VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="Black" Margin="10 20 0 0"/>-->
-                <TextBox x:Name="pasportField" materialDesign:HintAssist.Hint="Номер паспорта" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="45 -10 0 0" Foreground="Black" Background="Transparent" Width="235" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0 273 0 0">
-                <!--<iconPacks:PackIconMaterial Kind="Flag" VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="Black" Margin="10 20 0 0"/>-->
-                <ComboBox x:Name="educationField" materialDesign:HintAssist.Hint="Образование" MaxDropDownHeight="120" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="45 -10 0 0" Foreground="Black" Background="Transparent" Width="235" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0 336 0 0">
                 <!--<iconPacks:PackIconMaterial Kind="Account" VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="Black" Margin="10 20 0 0"/>-->
                 <TextBox x:Name="loginField" materialDesign:HintAssist.Hint="Логин" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="45 -10 0 0" Foreground="Black" Background="Transparent" Width="235" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0 400 0 0">
+            <StackPanel Orientation="Horizontal" Margin="0 273 0 0">
                 <!--<iconPacks:PackIconMaterial Kind="Key" VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="Black" Margin="10 20 0 0"/>-->
                 <PasswordBox x:Name="passwordField" materialDesign:HintAssist.Hint="Пароль" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="45 -10 0 0" Foreground="Black" Background="Transparent" Width="235" Style="{StaticResource MaterialDesignFloatingHintPasswordBox}"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0 336 0 0">
+                <!--<iconPacks:PackIconMaterial Kind="Flag" VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="Black" Margin="10 20 0 0"/>-->
+                <ComboBox x:Name="postField" materialDesign:HintAssist.Hint="Должность" MaxDropDownHeight="120" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="45 -10 0 0" Foreground="Black" Background="Transparent" Width="235" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
             </StackPanel>
         </Grid>
         <Grid Width="300" Height="460" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="700,130,0,0">
@@ -53,11 +49,7 @@
                 <PasswordBox x:Name="passwordField" materialDesign:HintAssist.Hint="Пароль" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="20 -3 0 0" Foreground="Black" Background="Transparent" Width="235" Style="{StaticResource MaterialDesignFloatingHintPasswordBox}"/>
             </StackPanel>-->
             <StackPanel Orientation="Horizontal" Margin="0 20 0 0">
-                <!--<iconPacks:PackIconMaterial Kind="Flag" VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="Black" Margin="10 20 0 0"/>-->
-                <ComboBox x:Name="postField" materialDesign:HintAssist.Hint="Должность" MaxDropDownHeight="120" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="45 -10 0 0" Foreground="Black" Background="Transparent" Width="235" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0 67 0 0">
-                <DatePicker x:Name="birthdayDateField" Language="ru-RU" Width="235" Margin="46 0 0 313" materialDesign:HintAssist.Hint="Дата рождения" materialDesign:HintAssist.HelperText="Укажите дату рождения нажав на иконку справа" materialDesign:HintAssist.HelperTextFontSize="11" FontFamily="Helvetica" FontWeight="Light" FontSize="20" IsTodayHighlighted="False" Style="{StaticResource MaterialDesignDatePicker}" Foreground="Black"/>
+                <DatePicker x:Name="birthdayDateField" Language="ru-RU" Width="235" Margin="46 0 0 393" materialDesign:HintAssist.Hint="Дата рождения" materialDesign:HintAssist.HelperText="Укажите дату рождения нажав на иконку справа" materialDesign:HintAssist.HelperTextFontSize="11" FontFamily="Helvetica" FontWeight="Light" FontSize="20" IsTodayHighlighted="False" Style="{StaticResource MaterialDesignDatePicker}" Foreground="Black"/>
                 <!--<Calendar x:Name="birthdayDateField" Language="ru-RU" IsTodayHighlighted="False" Margin="11 0 0 0" materialDesign:HintAssist.Hint="Дата рождения" Width="269" Height="360" HorizontalAlignment="Right"/>-->
             </StackPanel>
         </Grid>

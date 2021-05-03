@@ -218,14 +218,14 @@
     <Compile Include="UI\Windows\CreateOrderWindow.xaml.cs">
       <DependentUpon>CreateOrderWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\Windows\EmployeesWindow.xaml.cs">
+      <DependentUpon>EmployeesWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\Windows\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI\Windows\OrderNumberWindow.xaml.cs">
-      <DependentUpon>OrderNumberWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\Windows\ProductCountWindow.xaml.cs">
       <DependentUpon>ProductCountWindow.xaml</DependentUpon>
@@ -235,9 +235,6 @@
     </Compile>
     <Compile Include="UI\Windows\RegistrationWindow.xaml.cs">
       <DependentUpon>RegistrationWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="UI\Windows\StaffWindow.xaml.cs">
-      <DependentUpon>StaffWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\Windows\TileCalculatorWindow.xaml.cs">
       <DependentUpon>TileCalculatorWindow.xaml</DependentUpon>
@@ -261,7 +258,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="ClassDiagram.cd" />
     <None Include="KeraminStoreDataSet.xsc">
       <DependentUpon>KeraminStoreDataSet.xsd</DependentUpon>
     </None>
@@ -311,15 +307,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UI\Windows\EmployeesWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\Windows\MainPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\Windows\MainWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\Windows\OrderNumberWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -332,10 +328,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\Windows\RegistrationWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\Windows\StaffWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

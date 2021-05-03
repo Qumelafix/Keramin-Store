@@ -33,12 +33,13 @@
         <ComboBox x:Name="productTypeField" MaxDropDownHeight="120" materialDesign:HintAssist.Hint="Тип" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="34,205,1072,0" Foreground="Black" Background="Transparent" Width="196" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
         <ComboBox x:Name="productCollectionField" MaxDropDownHeight="120" materialDesign:HintAssist.Hint="Коллекция" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="34,270,1072,0" Foreground="Black" Background="Transparent" Width="196" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
         <ComboBox x:Name="productSurfaceField" MaxDropDownHeight="120" materialDesign:HintAssist.Hint="Поверхность" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="34,335,1072,0" Foreground="Black" Background="Transparent" Width="196" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
-        <Label Width="64" Height="35" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Цена:" FontSize="20" FontWeight="Light" FontFamily="Helvetica" Margin="30,7,0,0" Grid.Row="1"/>
-        <TextBox x:Name="firstCost" materialDesign:HintAssist.Hint="От" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="94,395,1158,0" Foreground="Black" Background="Transparent" Width="50" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Height="51" Grid.RowSpan="2"/>
-        <TextBox x:Name="lastCost" materialDesign:HintAssist.Hint="До" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="179,396,1072,0" Foreground="Black" Background="Transparent" Width="51" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Grid.RowSpan="2"/>
-        <Button x:Name="ApplyButton" Content="ПРИМЕНИТЬ" FontSize="11" Margin="27,80,1172,208" Click="ApplyButton_Click" Grid.Row="1"/>
-        <Button x:Name="ClearButton" Content="ОЧИСТИТЬ" FontSize="11" Margin="148,80,1064,208" Click="ClearButton_Click" Grid.Row="1"/>
-        <Rectangle Width="1" Height="40" Fill="#FF787878" Margin="138,76,1163,204" Grid.Row="1"/>
+        <ComboBox x:Name="colorField" MaxDropDownHeight="120" materialDesign:HintAssist.Hint="Цвет" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="34,400,1072,0" Foreground="Black" Background="Transparent" Width="196" Style="{StaticResource MaterialDesignFloatingHintComboBox}" Height="50" Grid.RowSpan="2"/>
+        <Label Width="64" Height="35" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Цена:" FontSize="20" FontWeight="Light" FontFamily="Helvetica" Margin="30,72,0,0" Grid.Row="1"/>
+        <TextBox x:Name="firstCost" materialDesign:HintAssist.Hint="От" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="94,465,1158,0" Foreground="Black" Background="Transparent" Width="50" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Height="51" Grid.RowSpan="2"/>
+        <TextBox x:Name="lastCost" materialDesign:HintAssist.Hint="До" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="179,466,1072,0" Foreground="Black" Background="Transparent" Width="51" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Grid.RowSpan="2"/>
+        <Button x:Name="ApplyButton" Content="ПРИМЕНИТЬ" FontSize="11" Margin="27,145,1172,143" Click="ApplyButton_Click" Grid.Row="1"/>
+        <Button x:Name="ClearButton" Content="ОЧИСТИТЬ" FontSize="11" Margin="148,145,1064,143" Click="ClearButton_Click" Grid.Row="1"/>
+        <Rectangle Width="1" Height="40" Fill="#FF787878" Margin="138,141,1163,139" Grid.Row="1"/>
         <DataGrid x:Name="ProductsInfoGrid" Width="1005" HorizontalAlignment="Center" Margin="270,140,27,70" BorderThickness="1" AutoGenerateColumns="False" ScrollViewer.HorizontalScrollBarVisibility="Hidden" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" GridLinesVisibility="All" Grid.RowSpan="2">
             <DataGrid.Columns>
                 <DataGridTextColumn  Header="Изображение">
@@ -59,7 +60,7 @@
                 </DataGridTextColumn>
                 <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding productName}" Header="Наименование" Width="140" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                 <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productArticle}" Header="Артикул" Width="140" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
-                <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding productTypeName}" Header="Тип" Width="110" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productTypeName}" Header="Тип" Width="115" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                 <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productCollectionName}" Header="Коллекция" Width="110" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Visibility="Hidden"/>
                 <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productLenght}" Width="0" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Visibility="Hidden"/>
                 <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productWidth}" Width="0" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Visibility="Hidden"/>
@@ -79,7 +80,7 @@
                                     <ControlTemplate TargetType="DataGridCell">
                                         <Grid Background="{TemplateBinding Background}" Width="110">
                                             <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                            <Button Grid.Column="0" Width="100" Height="30" Content="ДОБАВИТЬ" FontSize="11" HorizontalAlignment="Center" Click="Button_Click"/>
+                                            <Button Grid.Column="0" Width="100" Height="30" Content="КУПИТЬ" FontSize="11" HorizontalAlignment="Center" Click="Button_Click"/>
                                         </Grid>
                                     </ControlTemplate>
                                 </Setter.Value>

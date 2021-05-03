@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 
 namespace KeraminStore
@@ -24,20 +23,6 @@ namespace KeraminStore
             }
         }
 
-        public static string CheckEmployeePasportNumber(string pasportNumber, string emptyPasportNumber, string invalidSymbol, string invalidLength)
-        {
-            if (pasportNumber == string.Empty) return emptyPasportNumber;
-            else
-            {
-                if (pasportNumber.Length == 9)
-                {
-                    if (!Regex.IsMatch(pasportNumber, @"([AB|BM|HB|KH|MP|MC|KB]\d{7})")) return invalidSymbol;
-                }
-                else return invalidLength;
-                return pasportNumber;
-            }
-        }
-
         public static string CheckEmployeeLogin(string login, string emptyLogin, string invalidSymbol, string invalidLength)
         {
             if (login == string.Empty) return emptyLogin;
@@ -56,20 +41,13 @@ namespace KeraminStore
             }
         }
 
-        public static string CheckEmployeePassword(string password, string emptyPassword, string invalidSymbol, string invalidLength)
+        public static string CheckEmployeePassword(string password, string emptyPassword, string invalidPassword)
         {
             if (password == string.Empty) return emptyPassword;
             else
             {
-                if (password.Length >= 6 && password.Length <= 30)
-                {
-                    char[] passwordArray = password.ToCharArray();
-                    for (int i = 0; i < passwordArray.Length; i++)
-                    {
-                        if (!char.IsLetter(passwordArray[i]) && !char.IsDigit(passwordArray[i]) && passwordArray[i] != '_' && passwordArray[i] != '*') return invalidSymbol;
-                    }
-                }
-                else return invalidLength;
+                Regex regex = new Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,30}$");
+                if (!regex.IsMatch(password)) return invalidPassword;
                 return password;
             }
         }

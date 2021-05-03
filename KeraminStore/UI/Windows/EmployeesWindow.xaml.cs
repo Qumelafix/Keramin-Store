@@ -3,15 +3,15 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Windows;
-using System.Windows.Input;
+using System.Windows.Controls;
 
 namespace KeraminStore.UI.Windows
 {
-    public partial class StaffWindow : Window
+    public partial class EmployeesWindow : UserControl
     {
         readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
 
-        public StaffWindow()
+        public EmployeesWindow()
         {
             InitializeComponent();
 
@@ -26,10 +26,9 @@ namespace KeraminStore.UI.Windows
             int userCode = Convert.ToInt32(file.ReadLine());
             file.Close();
 
-            string employeesInfoQuery = "SELECT employeeName, employeeSurname, employeePatronymic, employeeLogin, employeePassword, employeePasportNumber, employeeDateOfBirth, postName, educationName " +
+            string employeesInfoQuery = "SELECT employeeName, employeeSurname, employeePatronymic, employeeLogin, employeePassword, employeeDateOfBirth, postName " +
                                          "FROM Employee " +
-                                         "JOIN Post ON Employee.postCode = Post.postCode " +
-                                         "JOIN Education On Employee.educationCode = Education.educationCode WHERE employeeCode != '" + userCode + "'";
+                                         "JOIN Post ON Employee.postCode = Post.postCode WHERE employeeCode != '" + userCode + "'";
 
             DataTable table = new DataTable();
             using (SqlCommand cmd = new SqlCommand(employeesInfoQuery, connectionString))
@@ -70,12 +69,14 @@ namespace KeraminStore.UI.Windows
                 changeEmployeeInfo.nameField.Text = employeeInfo["employeeName"].ToString();
                 changeEmployeeInfo.surnameField.Text = employeeInfo["employeeSurname"].ToString();
                 changeEmployeeInfo.patronymicField.Text = employeeInfo["employeePatronymic"].ToString();
-                changeEmployeeInfo.pasportField.Text = employeeInfo["employeePasportNumber"].ToString();
                 changeEmployeeInfo.birthdayDateField.Text = employeeInfo["employeeDateOfBirth"].ToString();
                 changeEmployeeInfo.postField.Text = employeeInfo["postName"].ToString();
-                changeEmployeeInfo.educationField.Text = employeeInfo["educationName"].ToString();
-                this.Close();
-                changeEmployeeInfo.ShowDialog();             
+                changeEmployeeInfo.ShowDialog();
+                EmployeesInfoGrid.ItemsSource = null;
+                EmployeesInfoGrid.Items.Refresh();
+                connectionString.Open();
+                FillDataGrid();
+                connectionString.Close();
             }
         }
 
@@ -100,16 +101,6 @@ namespace KeraminStore.UI.Windows
                 connectionString.Close();
                 MessageBox.Show("Удаление успешно выполнено.", "Уведомление", MessageBoxButton.OK, MessageBoxImage.Information);
             }
-        }
-
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close();
-        }
-
-        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            this.DragMove();
         }
     }
 }

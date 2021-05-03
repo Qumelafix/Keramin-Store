@@ -16,10 +16,7 @@ namespace KeraminStore
             InitializeComponent();
         }
 
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            Application.Current.Shutdown();
-        }
+        private void CloseButton_Click(object sender, RoutedEventArgs e) => Application.Current.Shutdown();
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
@@ -40,7 +37,6 @@ namespace KeraminStore
                         loginFile.Close();
 
                         MainWindow mainWindow = new MainWindow();
-                        //mainWindow.login.Text = table.Rows[0]["employeeLogin"].ToString();
                         mainWindow.WorkPlace.Children.Add(new MainPage());
                         mainWindow.Show();
                         this.Close();
@@ -59,9 +55,6 @@ namespace KeraminStore
             }
         }
 
-        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            this.DragMove();
-        }
+        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) => this.DragMove();
     }
 }

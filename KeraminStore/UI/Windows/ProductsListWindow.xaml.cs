@@ -3,6 +3,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
@@ -22,12 +23,13 @@ namespace KeraminStore.UI.Windows
 
         private void FillDataGrid()
         {
-            string productsInfoQuery = "SELECT productName, productArticle, CONCAT(productLenght, 'x', productWidth) as 'productParametrs', productLenght, productWidth, productBoxWeight, productCountInBox, productCostCount, productCostArea, productImage, productDescription, surfaceName, productTypeName, availabilityStatusName, productCollectionName " +
+            string productsInfoQuery = "SELECT productName, productArticle, CONCAT(productLenght, 'x', productWidth) as 'productParametrs', productLenght, productCount, colorName, productWidth, productBoxWeight, productCountInBox, productCostCount, productCostArea, productImage, surfaceName, productTypeName, availabilityStatusName, productCollectionName " +
                                        "FROM Product " +
                                        "JOIN ProductCollection ON Product.productCollectionCode = ProductCollection.productCollectionCode " +
                                        "JOIN AvailabilityStatus On Product.availabilityStatusCode = AvailabilityStatus.availabilityStatusCode " +
                                        "JOIN Surface On Product.surfaceCode = Surface.surfaceCode " +
-                                       "JOIN ProductType On Product.productTypeCode = ProductType.productTypeCode";
+                                       "JOIN ProductType On Product.productTypeCode = ProductType.productTypeCode " +
+                                       "JOIN Color On Product.colorCode = Color.colorCode";
 
             DataTable table = new DataTable();
             using (SqlCommand cmd = new SqlCommand(productsInfoQuery, connectionString))
@@ -63,8 +65,32 @@ namespace KeraminStore.UI.Windows
             }
         }
 
+        private void searchField_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (searchField.Text == string.Empty) ProductsInfoGrid.SelectedIndex = -1;
+            else
+            {
+                for (int i = 0; i < ProductsInfoGrid.Items.Count; i++)
+                {
+                    DataGridRow row = (DataGridRow)ProductsInfoGrid.ItemContainerGenerator.ContainerFromIndex(i);
+                    if (row == null)
+                    {
+                        ProductsInfoGrid.ScrollIntoView(ProductsInfoGrid.Items[i]);
+                        row = (DataGridRow)ProductsInfoGrid.ItemContainerGenerator.ContainerFromIndex(i);
+                    }
+                    TextBlock cellcontent = ProductsInfoGrid.Columns[8].GetCellContent(row) as TextBlock;
+                    if (cellcontent != null && cellcontent.Text.ToString().Contains(searchField.Text.ToUpper()))
+                    {
+                        object item = ProductsInfoGrid.Items[i];
+                        ProductsInfoGrid.SelectedItem = item;
+                        break;
+                    }
+                }
+            }
+        }
         private void ChangeButton_Click(object sender, RoutedEventArgs e)
         {
+            string description = string.Empty;
             if (ProductsInfoGrid.SelectedItem == null)
             {
                 MessageBox.Show("Невозможно изменить информацию об изделии, так как оно не было выбрано.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -74,11 +100,12 @@ namespace KeraminStore.UI.Windows
             {
                 DataRowView productInfo = (DataRowView)ProductsInfoGrid.SelectedItems[0];
                 ChangeProductInfoWindow changeProductInfoWindow = new ChangeProductInfoWindow();
-                string selectEmployeeInfoQuery = "SELECT productCode FROM Product " +
+                string selectEmployeeInfoQuery = "SELECT productCode, productDescription FROM Product " +
                     "JOIN ProductCollection ON Product.productCollectionCode = ProductCollection.productCollectionCode " +
                     "JOIN AvailabilityStatus On Product.availabilityStatusCode = AvailabilityStatus.availabilityStatusCode " +
                     "JOIN Surface On Product.surfaceCode = Surface.surfaceCode " +
                     "JOIN ProductType On Product.productTypeCode = ProductType.productTypeCode " +
+                    "JOIN Color On Product.colorCode = Color.colorCode " +
                     "WHERE productArticle = '" + productInfo["productArticle"].ToString() + "'";
                 using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectEmployeeInfoQuery, connectionString))
                 {
@@ -89,6 +116,7 @@ namespace KeraminStore.UI.Windows
                         StreamWriter productCode = new StreamWriter("ChangingProduct.txt");
                         productCode.Write(table.Rows[0]["productCode"].ToString());
                         productCode.Close();
+                        description = table.Rows[0]["productDescription"].ToString();
                     }
                 }
                 changeProductInfoWindow.productNameField.Text = productInfo["productName"].ToString();
@@ -98,11 +126,13 @@ namespace KeraminStore.UI.Windows
                 changeProductInfoWindow.productWidth.Text = productInfo["productWidth"].ToString();
                 changeProductInfoWindow.productSurfaceField.Text = productInfo["surfaceName"].ToString();
                 changeProductInfoWindow.productArticleField.Text = productInfo["productArticle"].ToString();
+                changeProductInfoWindow.colorField.Text = productInfo["colorName"].ToString();
+                changeProductInfoWindow.countField.Text = productInfo["productCount"].ToString();
                 changeProductInfoWindow.boxWeightField.Text = productInfo["productBoxWeight"].ToString();
                 changeProductInfoWindow.productCountInBox.Text = productInfo["productCountInBox"].ToString();
                 changeProductInfoWindow.productCostAreaField.Text = productInfo["productCostArea"].ToString();
                 changeProductInfoWindow.productCostCountField.Text = productInfo["productCostCount"].ToString();
-                changeProductInfoWindow.productDescriptionField.Text = productInfo["productDescription"].ToString();
+                changeProductInfoWindow.productDescriptionField.Text = description;
                 changeProductInfoWindow.productStatusField.Text = productInfo["availabilityStatusName"].ToString();
                 changeProductInfoWindow.productImage.Source = new BitmapImage(new Uri(@"" + productInfo["productImage"].ToString() + ""));
                 this.Close();
@@ -110,14 +140,8 @@ namespace KeraminStore.UI.Windows
             }
         }
 
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close();
-        }
+        private void CloseButton_Click(object sender, RoutedEventArgs e) => this.Close();
 
-        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            this.DragMove();
-        }
+        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) => this.DragMove();
     }
 }

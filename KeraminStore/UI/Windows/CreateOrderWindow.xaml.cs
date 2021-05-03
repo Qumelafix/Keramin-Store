@@ -20,15 +20,32 @@ namespace KeraminStore.UI.Windows
         public CreateOrderWindow()
         {
             InitializeComponent();
-            File.WriteAllText(@"BasketNumber.txt", string.Empty);
-            OrderNumberWindow ordr = new OrderNumberWindow();
-            ordr.ShowDialog();
             GetDeliveryInfo();
             GetTownInfo();
             GetStreetInfo();
             GetPaymentInfo();
             connectionString.Open();
             FillDataGrid();
+            connectionString.Close();
+        }
+
+        private void selfDeliveryTown_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            List<string> adress = new List<string>();
+            connectionString.Open();
+            string query = @"SELECT streetName, building FROM Pickup JOIN Town ON Pickup.townCode = Town.townCode WHERE townName = '" + selfDeliveryTown.SelectedItem.ToString() + "'";
+            SqlCommand sqlCommand = new SqlCommand(query, connectionString);
+            SqlDataReader dataReader = sqlCommand.ExecuteReader();
+            if (dataReader.HasRows)
+            {
+                while (dataReader.Read())
+                {
+                    adress.Add("ул. " + dataReader["streetName"].ToString() + ", " + dataReader["building"].ToString());
+                    var newList = from i in adress orderby i select i;
+                    selfDeliveryAdress.ItemsSource = newList;
+                }
+            }
+            dataReader.Close();
             connectionString.Close();
         }
 
@@ -53,6 +70,7 @@ namespace KeraminStore.UI.Windows
             connectionString.Close();
         }
 
+
         private void GetStreetInfo()
         {
             List<string> streetNames = new List<string>();
@@ -66,7 +84,7 @@ namespace KeraminStore.UI.Windows
                 {
                     streetNames.Add(dataReader["streetName"].ToString());
                     var newList = from i in streetNames orderby i select i;
-                    selfDeliveryStreet.ItemsSource = newList;
+                    //selfDeliveryStreet.ItemsSource = newList;
                     deliveryStreet.ItemsSource = newList;
                 }
             }
@@ -155,13 +173,15 @@ namespace KeraminStore.UI.Windows
             }
             else
             {
+                windowName.Content = "Оформление заказа";
+                windowDescription.Content = "Заполните все необходимые поля для оформления заказа";
                 ProductsInfoGrid.Columns[11].Visibility = Visibility.Hidden;
                 double calculateSum = 0;
                 if (sum.Text == string.Empty) sum.Text = "0";
                 for (int i = 0; i < ProductsInfoGrid.Items.Count; i++)
                 {
                     DataRowView productInfo = (DataRowView)ProductsInfoGrid.Items[i];
-                    calculateSum = double.Parse(sum.Text) + double.Parse(productInfo["generalSum"].ToString());
+                    calculateSum = Math.Round(double.Parse(sum.Text) + double.Parse(productInfo["generalSum"].ToString()), 2);
                     sum.Text = calculateSum.ToString();
                 }
                 Height = 1000;
@@ -181,14 +201,38 @@ namespace KeraminStore.UI.Windows
             else
             {
                 DataRowView productInfo = (DataRowView)ProductsInfoGrid.SelectedItems[0];
-                SqlCommand cmd = new SqlCommand();
-                cmd.CommandType = CommandType.Text;
-                cmd.CommandText = "DELETE Basket FROM Basket INNER JOIN Product ON Basket.productCode = Product.productCode WHERE productArticle = @article AND basketNumber = @number";
-                cmd.Parameters.Add("@article", SqlDbType.VarChar).Value = productInfo["productArticle"].ToString();
-                cmd.Parameters.Add("@number", SqlDbType.Int).Value = basketNumber;
-                cmd.Connection = connectionString;
+                string selectProductCount = "SELECT productsCount, productCount FROM Basket " +
+                                            "JOIN Product ON Basket.productCode = Product.productCode " +
+                                            "WHERE productArticle = '" + productInfo["productArticle"].ToString() + "' AND basketNumber = '" + basketNumber + "'";
+                using (SqlDataAdapter countAdapter = new SqlDataAdapter(selectProductCount, connectionString))
+                {
+                    DataTable dataTable = new DataTable();
+                    countAdapter.Fill(dataTable);
+                    if (dataTable.Rows.Count > 0)
+                    {
+                        int productCount = int.Parse(dataTable.Rows[0]["productCount"].ToString());
+                        int productsCount = int.Parse(dataTable.Rows[0]["productsCount"].ToString());
+                        SqlCommand updateProductInfoCmd = new SqlCommand();
+                        updateProductInfoCmd.CommandType = CommandType.Text;
+                        updateProductInfoCmd.CommandText = "UPDATE Product SET productCount = @count, availabilityStatusCode = @status WHERE productArticle = @article";
+                        updateProductInfoCmd.Parameters.Add("@count", SqlDbType.Int).Value = productCount + productsCount;
+                        updateProductInfoCmd.Parameters.Add("@status", SqlDbType.Int).Value = 1;
+                        updateProductInfoCmd.Parameters.Add("@article", SqlDbType.VarChar).Value = productInfo["productArticle"].ToString();
+                        updateProductInfoCmd.Connection = connectionString;
+                        connectionString.Open();
+                        updateProductInfoCmd.ExecuteNonQuery();
+                        connectionString.Close();
+                    }
+                }
+
+                SqlCommand deleteCmd = new SqlCommand();
+                deleteCmd.CommandType = CommandType.Text;
+                deleteCmd.CommandText = "DELETE Basket FROM Basket INNER JOIN Product ON Basket.productCode = Product.productCode WHERE productArticle = @article AND basketNumber = @number";
+                deleteCmd.Parameters.Add("@article", SqlDbType.VarChar).Value = productInfo["productArticle"].ToString();
+                deleteCmd.Parameters.Add("@number", SqlDbType.Int).Value = basketNumber;
+                deleteCmd.Connection = connectionString;
                 connectionString.Open();
-                cmd.ExecuteNonQuery();
+                deleteCmd.ExecuteNonQuery();
                 FillDataGrid();
                 connectionString.Close();
                 MessageBox.Show("Удаление успешно выполнено.", "Уведомление", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -200,7 +244,7 @@ namespace KeraminStore.UI.Windows
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            File.WriteAllText(@"BasketNumber.txt", string.Empty);
+            //File.WriteAllText(@"BasketNumber.txt", string.Empty);
             this.Close();
         }
 
@@ -269,7 +313,7 @@ namespace KeraminStore.UI.Windows
 
                 if (legalCustomerUTN.Text == string.Empty)
                 {
-                    MessageBox.Show("Вы не указали УНП.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Вы не указали ИНН.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 else
@@ -281,14 +325,14 @@ namespace KeraminStore.UI.Windows
                         {
                             if (!char.IsDigit(UTNArray[i]))
                             {
-                                MessageBox.Show("Вы указали неверные символы в УНП.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                                MessageBox.Show("Вы указали неверные символы в ИНН.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                                 return;
                             }
                         }
                     }
                     else
                     {
-                        MessageBox.Show("Длина УНП может составлять 9 символов.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Длина ИНН может составлять 9 символов.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
@@ -351,7 +395,7 @@ namespace KeraminStore.UI.Windows
                 }
                 else
                 {
-                    Regex regex = new Regex(@"^(\+375|80)\(\s?(44|25|33|17|29)\s?\)\d{3}-?\s?\d{2}-?\s?\d{2}$");
+                    Regex regex = new Regex(@"^(\+375|80)\(\s?(44|25|33|17|29)\s?\)\d{3}\-?\s?\d{2}\-?\s?\d{2}$");
                     if (!regex.IsMatch(customerPhone.Text))
                     {
                         MessageBox.Show("Телефон(должен быть записан в формате [код оператора] [2 цифры индентификатора] XXX-XX-XX.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -388,16 +432,9 @@ namespace KeraminStore.UI.Windows
                     return;
                 }
 
-                if (selfDeliveryStreet.Text == string.Empty)
+                if (selfDeliveryAdress.Text == string.Empty)
                 {
-                    MessageBox.Show("Необходимо указать улицу для самовывоза.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                Regex regex = new Regex(@"^\d{1,3}$");
-                if (!regex.IsMatch(selfDeliveryBuilding.Text))
-                {
-                    MessageBox.Show("Максимальная длина номера дома 3 символа.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Необходимо указать адрес для самовывоза.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }
@@ -469,6 +506,7 @@ namespace KeraminStore.UI.Windows
             int paymentCode = 0;
             int productCode = 0;
             int basketCode = 0;
+            int pickupCode = 0;
 
             StreamReader streamReader = new StreamReader("BasketNumber.txt");
             string basketNumber = streamReader.ReadLine();
@@ -493,18 +531,6 @@ namespace KeraminStore.UI.Windows
             {
                 if (delivery.SelectedItem.ToString() == "Самовывоз")
                 {
-                    string selectAdressCodesQuery = "SELECT townCode, streetCode FROM Town, Street WHERE townName = '" + selfDeliveryTown.Text + "' AND streetName = '" + selfDeliveryStreet.Text + "'";
-                    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectAdressCodesQuery, connectionString))
-                    {
-                        DataTable table = new DataTable();
-                        dataAdapter.Fill(table);
-                        if (table.Rows.Count > 0)
-                        {
-                            townCode = int.Parse(table.Rows[0]["townCode"].ToString());
-                            streetCode = int.Parse(table.Rows[0]["streetCode"].ToString());
-                        }
-                    }
-
                     SqlCommand cmd = new SqlCommand();
                     cmd.CommandType = CommandType.Text;
                     cmd.CommandText = "INSERT Customer (orderNumber, customerName, customerSurname, customerPatronymic, legalName, UTN, phone, mail, building, floor_, apartment, townCode, streetCode) " +
@@ -517,11 +543,11 @@ namespace KeraminStore.UI.Windows
                     cmd.Parameters.Add("@utn", SqlDbType.Int).Value = DBNull.Value;
                     cmd.Parameters.Add("@phone", SqlDbType.VarChar).Value = customerPhone.Text;
                     cmd.Parameters.Add("@mail", SqlDbType.VarChar).Value = customerMail.Text;
-                    cmd.Parameters.Add("@building", SqlDbType.Int).Value = int.Parse(selfDeliveryBuilding.Text);
+                    cmd.Parameters.Add("@building", SqlDbType.Int).Value = DBNull.Value;
                     cmd.Parameters.Add("@floor", SqlDbType.Int).Value = DBNull.Value;
                     cmd.Parameters.Add("@apartment", SqlDbType.Int).Value = DBNull.Value;
-                    cmd.Parameters.Add("@townCode", SqlDbType.Int).Value = townCode;
-                    cmd.Parameters.Add("@streetCode", SqlDbType.Int).Value = streetCode;
+                    cmd.Parameters.Add("@townCode", SqlDbType.Int).Value = DBNull.Value;
+                    cmd.Parameters.Add("@streetCode", SqlDbType.Int).Value = DBNull.Value;
                     cmd.Connection = connectionString;
                     connectionString.Open();
                     cmd.ExecuteNonQuery();
@@ -564,66 +590,141 @@ namespace KeraminStore.UI.Windows
                     connectionString.Close();
                 }
 
-                string selectCustomerCodeQuery = "SELECT customerCode, deliveryCode, paymentCode FROM Customer, Delivery, Payment WHERE phone= '" + customerPhone.Text + "' AND orderNumber = '" + basketNumber + "' " +
-                                                 "AND deliveryName = '" + delivery.SelectedItem.ToString() + "' AND paymentType = '" + payment.SelectedItem.ToString() + "'";
-                using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectCustomerCodeQuery, connectionString))
+                if (delivery.SelectedItem.ToString() == "Самовывоз")
                 {
-                    DataTable table = new DataTable();
-                    dataAdapter.Fill(table);
-                    if (table.Rows.Count > 0)
-                    {
-                        customerCode = int.Parse(table.Rows[0]["customerCode"].ToString());
-                        deliveryCode = int.Parse(table.Rows[0]["deliveryCode"].ToString());
-                        paymentCode = int.Parse(table.Rows[0]["paymentCode"].ToString());
-                        for (int i = 0; i < ProductsInfoGrid.Items.Count; i++)
-                        {
-                            DataRowView productInfo = (DataRowView)ProductsInfoGrid.Items[i];
-                            string selectProductCodeQuery = "SELECT productCode FROM Product WHERE productArticle= '" + productInfo["productArticle"].ToString() + "'";
-                            using (SqlDataAdapter dataAdapter1 = new SqlDataAdapter(selectProductCodeQuery, connectionString))
-                            {
-                                DataTable table1 = new DataTable();
-                                dataAdapter1.Fill(table1);
-                                if (table1.Rows.Count > 0) productCode = int.Parse(table1.Rows[0]["productCode"].ToString());
-                            }
-                            string selectBasketCodeQuery = "SELECT basketCode FROM Basket WHERE productCode= " + productCode + " AND basketNumber = '" + basketNumber + "'";
-                            using (SqlDataAdapter dataAdapter2 = new SqlDataAdapter(selectBasketCodeQuery, connectionString))
-                            {
-                                DataTable table2 = new DataTable();
-                                dataAdapter2.Fill(table2);
-                                if (table2.Rows.Count > 0) basketCode = int.Parse(table2.Rows[0]["basketCode"].ToString());
-                            }
-                            SqlCommand cmd = new SqlCommand();
-                            cmd.CommandText = "INSERT CustomerOrder (orderNumber, issueDate, deliveryCost, deliveryCode, basketCode, customerCode, employeeCode, paymentCode, generalSum) " +
-                                              "VALUES (@number, @date, @devCost, @devCode, @bsktCode, @customerCode, @empCode, @paymentCode, @sum)";
-                            cmd.Parameters.Add("@number", SqlDbType.Int).Value = basketNumber;
-                            cmd.Parameters.Add("@date", SqlDbType.Date).Value = DateTime.Now.ToShortDateString();
-                            cmd.Parameters.Add("@devCost", SqlDbType.Float).Value = Convert.ToDouble(deliveryCost.Text);
-                            cmd.Parameters.Add("@devCode", SqlDbType.Int).Value = deliveryCode;
-                            cmd.Parameters.Add("@bsktCode", SqlDbType.Int).Value = basketCode;
-                            cmd.Parameters.Add("@customerCode", SqlDbType.Int).Value = customerCode;
-                            cmd.Parameters.Add("@empCode", SqlDbType.Int).Value = employeeCode;
-                            cmd.Parameters.Add("@paymentCode", SqlDbType.Int).Value = paymentCode;
-                            cmd.Parameters.Add("@sum", SqlDbType.Float).Value = Convert.ToDouble(generalSum.Text);
-                            cmd.Connection = connectionString;
-                            connectionString.Open();
-                            cmd.ExecuteNonQuery();
-                            connectionString.Close();
+                    string adress = selfDeliveryAdress.Text.ToString().Replace("ул. ", "");
+                    adress = adress.Replace(", ", ",");
+                    string[] adressArray = adress.Split(',');
 
-                            SqlCommand cmd1 = new SqlCommand();
-                            cmd1.CommandType = CommandType.Text;
-                            cmd1.CommandText = "UPDATE Basket SET paymentStatus = @payment WHERE basketCode = @code AND basketNumber = @number";
-                            cmd1.Parameters.Add("@code", SqlDbType.Int).Value = basketCode;
-                            cmd1.Parameters.Add("@number", SqlDbType.Int).Value = basketNumber;
-                            cmd1.Parameters.Add("@payment", SqlDbType.Bit).Value = true;
-                            cmd1.Connection = connectionString;
-                            connectionString.Open();
-                            cmd1.ExecuteNonQuery();
-                            connectionString.Close();
+                    string selectCustomerCodeQuery = "SELECT customerCode, deliveryCode, paymentCode, pickupCode FROM Customer, Delivery, Payment, Pickup " +
+                                                 "JOIN Town ON Pickup.townCode = Town.townCode " +
+                                                 "WHERE phone = '" + customerPhone.Text + "' AND orderNumber = '" + basketNumber + "' AND townName = '" + selfDeliveryTown.Text + "' AND Pickup.streetName = '" + adressArray[0] + "' " +
+                                                 "AND Pickup.building = " + int.Parse(adressArray[1]) + " AND deliveryName = '" + delivery.SelectedItem.ToString() + "' AND paymentType = '" + payment.SelectedItem.ToString() + "'";
+                    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectCustomerCodeQuery, connectionString))
+                    {
+                        DataTable table = new DataTable();
+                        dataAdapter.Fill(table);
+                        if (table.Rows.Count > 0)
+                        {
+                            customerCode = int.Parse(table.Rows[0]["customerCode"].ToString());
+                            deliveryCode = int.Parse(table.Rows[0]["deliveryCode"].ToString());
+                            paymentCode = int.Parse(table.Rows[0]["paymentCode"].ToString());
+
+                            pickupCode = int.Parse(table.Rows[0]["pickupCode"].ToString());
+                            for (int i = 0; i < ProductsInfoGrid.Items.Count; i++)
+                            {
+                                DataRowView productInfo = (DataRowView)ProductsInfoGrid.Items[i];
+                                string selectProductCodeQuery = "SELECT productCode FROM Product WHERE productArticle = '" + productInfo["productArticle"].ToString() + "'";
+                                using (SqlDataAdapter dataAdapter1 = new SqlDataAdapter(selectProductCodeQuery, connectionString))
+                                {
+                                    DataTable table1 = new DataTable();
+                                    dataAdapter1.Fill(table1);
+                                    if (table1.Rows.Count > 0) productCode = int.Parse(table1.Rows[0]["productCode"].ToString());
+                                }
+                                string selectBasketCodeQuery = "SELECT basketCode FROM Basket WHERE productCode = " + productCode + " AND basketNumber = '" + basketNumber + "'";
+                                using (SqlDataAdapter dataAdapter2 = new SqlDataAdapter(selectBasketCodeQuery, connectionString))
+                                {
+                                    DataTable table2 = new DataTable();
+                                    dataAdapter2.Fill(table2);
+                                    if (table2.Rows.Count > 0) basketCode = int.Parse(table2.Rows[0]["basketCode"].ToString());
+                                }
+                                SqlCommand cmd = new SqlCommand();
+                                cmd.CommandText = "INSERT CustomerOrder (orderNumber, issueDate, deliveryCost, deliveryCode, basketCode, pickupCode, customerCode, employeeCode, paymentCode, generalSum) " +
+                                                  "VALUES (@number, @date, @devCost, @devCode, @bsktCode, @pckpCode, @customerCode, @empCode, @paymentCode, @sum)";
+                                cmd.Parameters.Add("@number", SqlDbType.Int).Value = basketNumber;
+                                cmd.Parameters.Add("@date", SqlDbType.Date).Value = DateTime.Now.ToShortDateString();
+                                cmd.Parameters.Add("@devCost", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(deliveryCost.Text), 2);
+                                cmd.Parameters.Add("@devCode", SqlDbType.Int).Value = deliveryCode;
+                                cmd.Parameters.Add("@bsktCode", SqlDbType.Int).Value = basketCode;
+                                cmd.Parameters.Add("@pckpCode", SqlDbType.Int).Value = pickupCode;
+                                cmd.Parameters.Add("@customerCode", SqlDbType.Int).Value = customerCode;
+                                cmd.Parameters.Add("@empCode", SqlDbType.Int).Value = employeeCode;
+                                cmd.Parameters.Add("@paymentCode", SqlDbType.Int).Value = paymentCode;
+                                cmd.Parameters.Add("@sum", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(generalSum.Text), 2);
+                                cmd.Connection = connectionString;
+                                connectionString.Open();
+                                cmd.ExecuteNonQuery();
+                                connectionString.Close();
+
+                                SqlCommand cmd1 = new SqlCommand();
+                                cmd1.CommandType = CommandType.Text;
+                                cmd1.CommandText = "UPDATE Basket SET paymentStatus = @payment WHERE basketCode = @code AND basketNumber = @number";
+                                cmd1.Parameters.Add("@code", SqlDbType.Int).Value = basketCode;
+                                cmd1.Parameters.Add("@number", SqlDbType.Int).Value = basketNumber;
+                                cmd1.Parameters.Add("@payment", SqlDbType.Bit).Value = true;
+                                cmd1.Connection = connectionString;
+                                connectionString.Open();
+                                cmd1.ExecuteNonQuery();
+                                connectionString.Close();
+                            }
                         }
-                        MessageBox.Show("Заказ успешно оформлен.", "Уведомление", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                 }
-                int q = 14;
+                else
+                {
+                    string selectCustomerCodeQuery = "SELECT customerCode, deliveryCode, paymentCode FROM Customer, Delivery, Payment WHERE phone = '" + customerPhone.Text + "' AND orderNumber = '" + basketNumber + "' " +
+                                                     "AND deliveryName = '" + delivery.SelectedItem.ToString() + "' AND paymentType = '" + payment.SelectedItem.ToString() + "'";
+                    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectCustomerCodeQuery, connectionString))
+                    {
+                        DataTable table = new DataTable();
+                        dataAdapter.Fill(table);
+                        if (table.Rows.Count > 0)
+                        {
+                            customerCode = int.Parse(table.Rows[0]["customerCode"].ToString());
+                            deliveryCode = int.Parse(table.Rows[0]["deliveryCode"].ToString());
+                            paymentCode = int.Parse(table.Rows[0]["paymentCode"].ToString());
+
+                            for (int i = 0; i < ProductsInfoGrid.Items.Count; i++)
+                            {
+                                DataRowView productInfo = (DataRowView)ProductsInfoGrid.Items[i];
+                                string selectProductCodeQuery = "SELECT productCode FROM Product WHERE productArticle = '" + productInfo["productArticle"].ToString() + "'";
+                                using (SqlDataAdapter dataAdapter1 = new SqlDataAdapter(selectProductCodeQuery, connectionString))
+                                {
+                                    DataTable table1 = new DataTable();
+                                    dataAdapter1.Fill(table1);
+                                    if (table1.Rows.Count > 0) productCode = int.Parse(table1.Rows[0]["productCode"].ToString());
+                                }
+                                string selectBasketCodeQuery = "SELECT basketCode FROM Basket WHERE productCode = " + productCode + " AND basketNumber = '" + basketNumber + "'";
+                                using (SqlDataAdapter dataAdapter2 = new SqlDataAdapter(selectBasketCodeQuery, connectionString))
+                                {
+                                    DataTable table2 = new DataTable();
+                                    dataAdapter2.Fill(table2);
+                                    if (table2.Rows.Count > 0) basketCode = int.Parse(table2.Rows[0]["basketCode"].ToString());
+                                }
+                                SqlCommand cmd = new SqlCommand();
+                                cmd.CommandText = "INSERT CustomerOrder (orderNumber, issueDate, deliveryCost, deliveryCode, basketCode, pickupCode, customerCode, employeeCode, paymentCode, generalSum) " +
+                                                  "VALUES (@number, @date, @devCost, @devCode, @bsktCode, @pckpCode, @customerCode, @empCode, @paymentCode, @sum)";
+                                cmd.Parameters.Add("@number", SqlDbType.Int).Value = basketNumber;
+                                cmd.Parameters.Add("@date", SqlDbType.Date).Value = DateTime.Now.ToShortDateString();
+                                cmd.Parameters.Add("@devCost", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(deliveryCost.Text), 2);
+                                cmd.Parameters.Add("@devCode", SqlDbType.Int).Value = deliveryCode;
+                                cmd.Parameters.Add("@bsktCode", SqlDbType.Int).Value = basketCode;
+                                cmd.Parameters.Add("@pckpCode", SqlDbType.Int).Value = DBNull.Value;
+                                cmd.Parameters.Add("@customerCode", SqlDbType.Int).Value = customerCode;
+                                cmd.Parameters.Add("@empCode", SqlDbType.Int).Value = employeeCode;
+                                cmd.Parameters.Add("@paymentCode", SqlDbType.Int).Value = paymentCode;
+                                cmd.Parameters.Add("@sum", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(generalSum.Text), 2);
+                                cmd.Connection = connectionString;
+                                connectionString.Open();
+                                cmd.ExecuteNonQuery();
+                                connectionString.Close();
+
+                                SqlCommand cmd1 = new SqlCommand();
+                                cmd1.CommandType = CommandType.Text;
+                                cmd1.CommandText = "UPDATE Basket SET paymentStatus = @payment WHERE basketCode = @code AND basketNumber = @number";
+                                cmd1.Parameters.Add("@code", SqlDbType.Int).Value = basketCode;
+                                cmd1.Parameters.Add("@number", SqlDbType.Int).Value = basketNumber;
+                                cmd1.Parameters.Add("@payment", SqlDbType.Bit).Value = true;
+                                cmd1.Connection = connectionString;
+                                connectionString.Open();
+                                cmd1.ExecuteNonQuery();
+                                connectionString.Close();
+                            }
+                        }
+                    }
+                }
+                MessageBox.Show("Заказ успешно оформлен.", "Уведомление", MessageBoxButton.OK, MessageBoxImage.Information);
+                int q = 16;
                 try
                 {
                     excelappworkbooks = excelapp.Workbooks;
@@ -634,6 +735,8 @@ namespace KeraminStore.UI.Windows
                     excelcells.Value = basketNumber;
                     excelcells = excelworksheet.get_Range("F5");
                     excelcells.Value = DateTime.Now.ToShortDateString();
+                    excelcells = excelworksheet.get_Range("C13");
+                    excelcells.Value = "    ОАО \"Керамин\"";
                     string infoQuery = "SELECT customerName, customerSurname, customerPatronymic, phone, mail, productName, productCostCount, productCostArea, productsCount, Basket.generalSum, CustomerOrder.generalSum, employeeSurname, employeeName, employeePatronymic FROM CustomerOrder " +
                                        "JOIN Basket ON CustomerOrder.basketCode = Basket.basketCode " +
                                        "JOIN Product ON Basket.productCode = Product.productCode " +
@@ -740,18 +843,6 @@ namespace KeraminStore.UI.Windows
             {
                 if (delivery.SelectedItem.ToString() == "Самовывоз")
                 {
-                    string selectAdressCodesQuery = "SELECT townCode, streetCode FROM Town, Street WHERE townName = '" + selfDeliveryTown.Text + "' AND streetName = '" + selfDeliveryStreet.Text + "'";
-                    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectAdressCodesQuery, connectionString))
-                    {
-                        DataTable table = new DataTable();
-                        dataAdapter.Fill(table);
-                        if (table.Rows.Count > 0)
-                        {
-                            townCode = int.Parse(table.Rows[0]["townCode"].ToString());
-                            streetCode = int.Parse(table.Rows[0]["streetCode"].ToString());
-                        }
-                    }
-
                     SqlCommand cmd = new SqlCommand();
                     cmd.CommandType = CommandType.Text;
                     cmd.CommandText = "INSERT Customer (orderNumber, customerName, customerSurname, customerPatronymic, legalName, UTN, phone, mail, building, floor_, apartment, townCode, streetCode) " +
@@ -764,11 +855,11 @@ namespace KeraminStore.UI.Windows
                     cmd.Parameters.Add("@utn", SqlDbType.Int).Value = int.Parse(legalCustomerUTN.Text);
                     cmd.Parameters.Add("@phone", SqlDbType.VarChar).Value = legalCustomerPhone.Text;
                     cmd.Parameters.Add("@mail", SqlDbType.VarChar).Value = legalCustomerMail.Text;
-                    cmd.Parameters.Add("@building", SqlDbType.Int).Value = int.Parse(selfDeliveryBuilding.Text);
+                    cmd.Parameters.Add("@building", SqlDbType.Int).Value = DBNull.Value;
                     cmd.Parameters.Add("@floor", SqlDbType.Int).Value = DBNull.Value;
                     cmd.Parameters.Add("@apartment", SqlDbType.Int).Value = DBNull.Value;
-                    cmd.Parameters.Add("@townCode", SqlDbType.Int).Value = townCode;
-                    cmd.Parameters.Add("@streetCode", SqlDbType.Int).Value = streetCode;
+                    cmd.Parameters.Add("@townCode", SqlDbType.Int).Value = DBNull.Value;
+                    cmd.Parameters.Add("@streetCode", SqlDbType.Int).Value = DBNull.Value;
                     cmd.Connection = connectionString;
                     connectionString.Open();
                     cmd.ExecuteNonQuery();
@@ -811,66 +902,141 @@ namespace KeraminStore.UI.Windows
                     connectionString.Close();
                 }
 
-                string selectCustomerCodeQuery = "SELECT customerCode, deliveryCode, paymentCode FROM Customer, Delivery, Payment WHERE phone= '" + legalCustomerPhone.Text + "' AND orderNumber = '" + basketNumber + "' " +
-                                                 "AND deliveryName = '" + delivery.SelectedItem.ToString() + "' AND paymentType = '" + payment.SelectedItem.ToString() + "'";
-                using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectCustomerCodeQuery, connectionString))
+                if (delivery.SelectedItem.ToString() == "Самовывоз")
                 {
-                    DataTable table = new DataTable();
-                    dataAdapter.Fill(table);
-                    if (table.Rows.Count > 0)
-                    {
-                        customerCode = int.Parse(table.Rows[0]["customerCode"].ToString());
-                        deliveryCode = int.Parse(table.Rows[0]["deliveryCode"].ToString());
-                        paymentCode = int.Parse(table.Rows[0]["paymentCode"].ToString());
-                        for (int i = 0; i < ProductsInfoGrid.Items.Count; i++)
-                        {
-                            DataRowView productInfo = (DataRowView)ProductsInfoGrid.Items[i];
-                            string selectProductCodeQuery = "SELECT productCode FROM Product WHERE productArticle= '" + productInfo["productArticle"].ToString() + "'";
-                            using (SqlDataAdapter dataAdapter1 = new SqlDataAdapter(selectProductCodeQuery, connectionString))
-                            {
-                                DataTable table1 = new DataTable();
-                                dataAdapter1.Fill(table1);
-                                if (table1.Rows.Count > 0) productCode = int.Parse(table1.Rows[0]["productCode"].ToString());
-                            }
-                            string selectBasketCodeQuery = "SELECT basketCode FROM Basket WHERE productCode= " + productCode + " AND basketNumber = '" + basketNumber + "'";
-                            using (SqlDataAdapter dataAdapter2 = new SqlDataAdapter(selectBasketCodeQuery, connectionString))
-                            {
-                                DataTable table2 = new DataTable();
-                                dataAdapter2.Fill(table2);
-                                if (table2.Rows.Count > 0) basketCode = int.Parse(table2.Rows[0]["basketCode"].ToString());
-                            }
-                            SqlCommand cmd = new SqlCommand();
-                            cmd.CommandText = "INSERT CustomerOrder (orderNumber, issueDate, deliveryCost, deliveryCode, basketCode, customerCode, employeeCode, paymentCode, generalSum) " +
-                                              "VALUES (@number, @date, @devCost, @devCode, @bsktCode, @customerCode, @empCode, @paymentCode, @sum)";
-                            cmd.Parameters.Add("@number", SqlDbType.Int).Value = basketNumber;
-                            cmd.Parameters.Add("@date", SqlDbType.Date).Value = DateTime.Now.ToShortDateString();
-                            cmd.Parameters.Add("@devCost", SqlDbType.Float).Value = Convert.ToDouble(deliveryCost.Text);
-                            cmd.Parameters.Add("@devCode", SqlDbType.Int).Value = deliveryCode;
-                            cmd.Parameters.Add("@bsktCode", SqlDbType.Int).Value = basketCode;
-                            cmd.Parameters.Add("@customerCode", SqlDbType.Int).Value = customerCode;
-                            cmd.Parameters.Add("@empCode", SqlDbType.Int).Value = employeeCode;
-                            cmd.Parameters.Add("@paymentCode", SqlDbType.Int).Value = paymentCode;
-                            cmd.Parameters.Add("@sum", SqlDbType.Float).Value = Convert.ToDouble(generalSum.Text);
-                            cmd.Connection = connectionString;
-                            connectionString.Open();
-                            cmd.ExecuteNonQuery();
-                            connectionString.Close();
+                    string adress = selfDeliveryAdress.Text.ToString().Replace("ул. ", "");
+                    adress = adress.Replace(", ", ",");
+                    string[] adressArray = adress.Split(',');
 
-                            SqlCommand cmd1 = new SqlCommand();
-                            cmd1.CommandType = CommandType.Text;
-                            cmd1.CommandText = "UPDATE Basket SET paymentStatus = @payment WHERE basketCode = @code AND basketNumber = @number";
-                            cmd1.Parameters.Add("@code", SqlDbType.Int).Value = basketCode;
-                            cmd1.Parameters.Add("@number", SqlDbType.Int).Value = basketNumber;
-                            cmd1.Parameters.Add("@payment", SqlDbType.Bit).Value = true;
-                            cmd1.Connection = connectionString;
-                            connectionString.Open();
-                            cmd1.ExecuteNonQuery();
-                            connectionString.Close();
+                    string selectCustomerCodeQuery = "SELECT customerCode, deliveryCode, paymentCode, pickupCode FROM Customer, Delivery, Payment, Pickup " +
+                                                     "JOIN Town ON Pickup.townCode = Town.townCode " +
+                                                     "WHERE phone = '" + legalCustomerPhone.Text + "' AND orderNumber = '" + basketNumber + "' AND townName = '" + selfDeliveryTown.Text + "' AND Pickup.streetName = '" + adressArray[0] + "' " +
+                                                     "AND Pickup.building = " + int.Parse(adressArray[1]) + " AND deliveryName = '" + delivery.SelectedItem.ToString() + "' AND paymentType = '" + payment.SelectedItem.ToString() + "'";
+                    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectCustomerCodeQuery, connectionString))
+                    {
+                        DataTable table = new DataTable();
+                        dataAdapter.Fill(table);
+                        if (table.Rows.Count > 0)
+                        {
+                            customerCode = int.Parse(table.Rows[0]["customerCode"].ToString());
+                            deliveryCode = int.Parse(table.Rows[0]["deliveryCode"].ToString());
+                            paymentCode = int.Parse(table.Rows[0]["paymentCode"].ToString());
+
+                            pickupCode = int.Parse(table.Rows[0]["pickupCode"].ToString());
+                            for (int i = 0; i < ProductsInfoGrid.Items.Count; i++)
+                            {
+                                DataRowView productInfo = (DataRowView)ProductsInfoGrid.Items[i];
+                                string selectProductCodeQuery = "SELECT productCode FROM Product WHERE productArticle = '" + productInfo["productArticle"].ToString() + "'";
+                                using (SqlDataAdapter dataAdapter1 = new SqlDataAdapter(selectProductCodeQuery, connectionString))
+                                {
+                                    DataTable table1 = new DataTable();
+                                    dataAdapter1.Fill(table1);
+                                    if (table1.Rows.Count > 0) productCode = int.Parse(table1.Rows[0]["productCode"].ToString());
+                                }
+                                string selectBasketCodeQuery = "SELECT basketCode FROM Basket WHERE productCode = " + productCode + " AND basketNumber = '" + basketNumber + "'";
+                                using (SqlDataAdapter dataAdapter2 = new SqlDataAdapter(selectBasketCodeQuery, connectionString))
+                                {
+                                    DataTable table2 = new DataTable();
+                                    dataAdapter2.Fill(table2);
+                                    if (table2.Rows.Count > 0) basketCode = int.Parse(table2.Rows[0]["basketCode"].ToString());
+                                }
+                                SqlCommand cmd = new SqlCommand();
+                                cmd.CommandText = "INSERT CustomerOrder (orderNumber, issueDate, deliveryCost, deliveryCode, basketCode, pickupCode, customerCode, employeeCode, paymentCode, generalSum) " +
+                                                  "VALUES (@number, @date, @devCost, @devCode, @bsktCode, @pckpCode, @customerCode, @empCode, @paymentCode, @sum)";
+                                cmd.Parameters.Add("@number", SqlDbType.Int).Value = basketNumber;
+                                cmd.Parameters.Add("@date", SqlDbType.Date).Value = DateTime.Now.ToShortDateString();
+                                cmd.Parameters.Add("@devCost", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(deliveryCost.Text), 2);
+                                cmd.Parameters.Add("@devCode", SqlDbType.Int).Value = deliveryCode;
+                                cmd.Parameters.Add("@bsktCode", SqlDbType.Int).Value = basketCode;
+                                cmd.Parameters.Add("@pckpCode", SqlDbType.Int).Value = pickupCode;
+                                cmd.Parameters.Add("@customerCode", SqlDbType.Int).Value = customerCode;
+                                cmd.Parameters.Add("@empCode", SqlDbType.Int).Value = employeeCode;
+                                cmd.Parameters.Add("@paymentCode", SqlDbType.Int).Value = paymentCode;
+                                cmd.Parameters.Add("@sum", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(generalSum.Text), 2);
+                                cmd.Connection = connectionString;
+                                connectionString.Open();
+                                cmd.ExecuteNonQuery();
+                                connectionString.Close();
+
+                                SqlCommand cmd1 = new SqlCommand();
+                                cmd1.CommandType = CommandType.Text;
+                                cmd1.CommandText = "UPDATE Basket SET paymentStatus = @payment WHERE basketCode = @code AND basketNumber = @number";
+                                cmd1.Parameters.Add("@code", SqlDbType.Int).Value = basketCode;
+                                cmd1.Parameters.Add("@number", SqlDbType.Int).Value = basketNumber;
+                                cmd1.Parameters.Add("@payment", SqlDbType.Bit).Value = true;
+                                cmd1.Connection = connectionString;
+                                connectionString.Open();
+                                cmd1.ExecuteNonQuery();
+                                connectionString.Close();
+                            }
                         }
-                        MessageBox.Show("Заказ успешно оформлен.", "Уведомление", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                 }
-                int q = 16;
+                else
+                {
+                    string selectCustomerCodeQuery = "SELECT customerCode, deliveryCode, paymentCode FROM Customer, Delivery, Payment WHERE phone = '" + legalCustomerPhone.Text + "' AND orderNumber = '" + basketNumber + "' " +
+                                                     "AND deliveryName = '" + delivery.SelectedItem.ToString() + "' AND paymentType = '" + payment.SelectedItem.ToString() + "'";
+                    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectCustomerCodeQuery, connectionString))
+                    {
+                        DataTable table = new DataTable();
+                        dataAdapter.Fill(table);
+                        if (table.Rows.Count > 0)
+                        {
+                            customerCode = int.Parse(table.Rows[0]["customerCode"].ToString());
+                            deliveryCode = int.Parse(table.Rows[0]["deliveryCode"].ToString());
+                            paymentCode = int.Parse(table.Rows[0]["paymentCode"].ToString());
+
+                            for (int i = 0; i < ProductsInfoGrid.Items.Count; i++)
+                            {
+                                DataRowView productInfo = (DataRowView)ProductsInfoGrid.Items[i];
+                                string selectProductCodeQuery = "SELECT productCode FROM Product WHERE productArticle = '" + productInfo["productArticle"].ToString() + "'";
+                                using (SqlDataAdapter dataAdapter1 = new SqlDataAdapter(selectProductCodeQuery, connectionString))
+                                {
+                                    DataTable table1 = new DataTable();
+                                    dataAdapter1.Fill(table1);
+                                    if (table1.Rows.Count > 0) productCode = int.Parse(table1.Rows[0]["productCode"].ToString());
+                                }
+                                string selectBasketCodeQuery = "SELECT basketCode FROM Basket WHERE productCode = " + productCode + " AND basketNumber = '" + basketNumber + "'";
+                                using (SqlDataAdapter dataAdapter2 = new SqlDataAdapter(selectBasketCodeQuery, connectionString))
+                                {
+                                    DataTable table2 = new DataTable();
+                                    dataAdapter2.Fill(table2);
+                                    if (table2.Rows.Count > 0) basketCode = int.Parse(table2.Rows[0]["basketCode"].ToString());
+                                }
+                                SqlCommand cmd = new SqlCommand();
+                                cmd.CommandText = "INSERT CustomerOrder (orderNumber, issueDate, deliveryCost, deliveryCode, basketCode, pickupCode, customerCode, employeeCode, paymentCode, generalSum) " +
+                                                  "VALUES (@number, @date, @devCost, @devCode, @bsktCode, @pckpCode, @customerCode, @empCode, @paymentCode, @sum)";
+                                cmd.Parameters.Add("@number", SqlDbType.Int).Value = basketNumber;
+                                cmd.Parameters.Add("@date", SqlDbType.Date).Value = DateTime.Now.ToShortDateString();
+                                cmd.Parameters.Add("@devCost", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(deliveryCost.Text), 2);
+                                cmd.Parameters.Add("@devCode", SqlDbType.Int).Value = deliveryCode;
+                                cmd.Parameters.Add("@bsktCode", SqlDbType.Int).Value = basketCode;
+                                cmd.Parameters.Add("@pckpCode", SqlDbType.Int).Value = DBNull.Value;
+                                cmd.Parameters.Add("@customerCode", SqlDbType.Int).Value = customerCode;
+                                cmd.Parameters.Add("@empCode", SqlDbType.Int).Value = employeeCode;
+                                cmd.Parameters.Add("@paymentCode", SqlDbType.Int).Value = paymentCode;
+                                cmd.Parameters.Add("@sum", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(generalSum.Text), 2);
+                                cmd.Connection = connectionString;
+                                connectionString.Open();
+                                cmd.ExecuteNonQuery();
+                                connectionString.Close();
+
+                                SqlCommand cmd1 = new SqlCommand();
+                                cmd1.CommandType = CommandType.Text;
+                                cmd1.CommandText = "UPDATE Basket SET paymentStatus = @payment WHERE basketCode = @code AND basketNumber = @number";
+                                cmd1.Parameters.Add("@code", SqlDbType.Int).Value = basketCode;
+                                cmd1.Parameters.Add("@number", SqlDbType.Int).Value = basketNumber;
+                                cmd1.Parameters.Add("@payment", SqlDbType.Bit).Value = true;
+                                cmd1.Connection = connectionString;
+                                connectionString.Open();
+                                cmd1.ExecuteNonQuery();
+                                connectionString.Close();
+                            }
+                        }
+                    }
+                }
+                MessageBox.Show("Заказ успешно оформлен.", "Уведомление", MessageBoxButton.OK, MessageBoxImage.Information);
+                int q = 18;
                 try
                 {
                     excelappworkbooks = excelapp.Workbooks;
@@ -881,6 +1047,8 @@ namespace KeraminStore.UI.Windows
                     excelcells.Value = basketNumber;
                     excelcells = excelworksheet.get_Range("F5");
                     excelcells.Value = DateTime.Now.ToShortDateString();
+                    excelcells = excelworksheet.get_Range("C15");
+                    excelcells.Value = "    ОАО \"Керамин\"";
                     string infoQuery = "SELECT legalName, UTN, phone, mail, productName, productCostCount, productCostArea, productsCount, Basket.generalSum, CustomerOrder.generalSum, employeeSurname, employeeName, employeePatronymic FROM CustomerOrder " +
                                        "JOIN Basket ON CustomerOrder.basketCode = Basket.basketCode " +
                                        "JOIN Product ON Basket.productCode = Product.productCode " +
@@ -927,7 +1095,7 @@ namespace KeraminStore.UI.Windows
                             excelcells.Value = "    " + table.Rows[0]["legalName"].ToString();
 
                             excelcells = excelworksheet.get_Range("C9");
-                            excelcells.Value = "    " + table.Rows[0]["UTN"].ToString();
+                            excelcells.Value = ("    " + table.Rows[0]["UTN"].ToString()).ToString();
 
                             excelcells = excelworksheet.get_Range("C11");
                             excelcells.Value = "    " + table.Rows[0]["phone"].ToString();
@@ -986,13 +1154,17 @@ namespace KeraminStore.UI.Windows
                 catch (Exception m) { MessageBox.Show(m.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
                 finally { Process.GetProcessById((int)processId).Kill(); }
             }
+            File.WriteAllText(@"BasketNumber.txt", string.Empty);
             ProductsInfoGrid.ItemsSource = null;
             ProductsInfoGrid.Items.Refresh();
+            windowName.Content = "Корзина";
+            windowDescription.Content = "Здесь вы можете оформить заказ";
             Height = 530;
         }
 
         private void deliveryCost_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
+            if (deliveryCost.Text == string.Empty) deliveryCost.Text = "0";
             generalSum.Text = (double.Parse(deliveryCost.Text) + double.Parse(sum.Text)).ToString();
         }
     }

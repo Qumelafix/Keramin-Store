@@ -13,6 +13,7 @@ namespace KeraminStore.UI.Windows
     public partial class CatalogWindow : UserControl
     {
         readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
+        int orderNumber = 0;
 
         public CatalogWindow()
         {
@@ -23,6 +24,37 @@ namespace KeraminStore.UI.Windows
             GetSurfaceName();
             GetProductType();
             GetCollectionName();
+            GetColorName();
+            string createOrderNumber = "SELECT basketNumber FROM Basket WHERE paymentStatus = " + 0 + "";
+            using (SqlDataAdapter dataAdapter = new SqlDataAdapter(createOrderNumber, connectionString))
+            {
+                DataTable table = new DataTable();
+                dataAdapter.Fill(table);
+                if (table.Rows.Count > 0)
+                {
+                    orderNumber = int.Parse(table.Rows[0]["basketNumber"].ToString());
+                }
+                else
+                {
+                    string findOrderNumber = "SELECT TOP 1 basketNumber FROM Basket WHERE paymentStatus = " + 1 + " ORDER BY basketNumber DESC";
+                    using (SqlDataAdapter orderNumberAdapter = new SqlDataAdapter(findOrderNumber, connectionString))
+                    {
+                        DataTable orderNumberTable = new DataTable();
+                        orderNumberAdapter.Fill(orderNumberTable);
+                        if (orderNumberTable.Rows.Count > 0)
+                        {
+                            orderNumber = int.Parse(orderNumberTable.Rows[0]["basketNumber"].ToString()) + 1;
+                        }
+                        else
+                        {
+                            orderNumber = 1;
+                        }
+                    }
+                }
+            }
+            StreamWriter numberFile = new StreamWriter("BasketNumber.txt");
+            numberFile.Write(orderNumber.ToString());
+            numberFile.Close();
         }
 
         private void FillDataGrid()
@@ -43,6 +75,26 @@ namespace KeraminStore.UI.Windows
                 }
             }
             ProductsInfoGrid.ItemsSource = table.DefaultView;
+        }
+
+        private void GetColorName()
+        {
+            List<string> colorNames = new List<string>();
+            connectionString.Open();
+            string query = @"SELECT colorName FROM Color";
+            SqlCommand sqlCommand = new SqlCommand(query, connectionString);
+            SqlDataReader dataReader = sqlCommand.ExecuteReader();
+            if (dataReader.HasRows)
+            {
+                while (dataReader.Read())
+                {
+                    colorNames.Add(dataReader["colorName"].ToString());
+                    var newList = from i in colorNames orderby i select i;
+                    colorField.ItemsSource = newList;
+                }
+            }
+            dataReader.Close();
+            connectionString.Close();
         }
 
         private void GetCollectionName()
@@ -110,6 +162,7 @@ namespace KeraminStore.UI.Windows
             productTypeField.SelectedIndex = -1;
             productCollectionField.SelectedIndex = -1;
             productSurfaceField.SelectedIndex = -1;
+            colorField.SelectedIndex = -1;
             firstCost.Clear();
             lastCost.Clear();
             connectionString.Open();
@@ -119,11 +172,12 @@ namespace KeraminStore.UI.Windows
 
         private void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
-            string productsInfoQuery = "SELECT productImage, productName, productArticle, CONCAT(productLenght, 'x', productWidth) as 'productParametrs', productLenght, productWidth, productBoxWeight, productCountInBox, productCostCount, productCostArea, productDescription, surfaceName, productTypeName, availabilityStatusName, productCollectionName " +
+            string productsInfoQuery = "SELECT productImage, productName, productArticle, CONCAT(productLenght, 'x', productWidth) as 'productParametrs', productLenght, productWidth, productBoxWeight, productCountInBox, productCostCount, productCostArea, productDescription, surfaceName, productTypeName, availabilityStatusName, productCollectionName, colorName " +
                                        "FROM Product " +
                                        "JOIN ProductCollection ON Product.productCollectionCode = ProductCollection.productCollectionCode " +
                                        "JOIN AvailabilityStatus On Product.availabilityStatusCode = AvailabilityStatus.availabilityStatusCode " +
                                        "JOIN Surface On Product.surfaceCode = Surface.surfaceCode " +
+                                       "JOIN Color ON Product.colorCode = Color.colorCode " +
                                        "JOIN ProductType On Product.productTypeCode = ProductType.productTypeCode ";
             if (firstCost.Text != string.Empty)
             {
@@ -146,130 +200,258 @@ namespace KeraminStore.UI.Windows
                 MessageBox.Show("Начальная цена не может быть больше конечной.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            if (productCollectionField.Text == string.Empty && productSurfaceField.Text == string.Empty && productTypeField.Text == string.Empty && firstCost.Text == string.Empty && lastCost.Text == string.Empty)
+            if (productCollectionField.Text == string.Empty && productSurfaceField.Text == string.Empty && productTypeField.Text == string.Empty && firstCost.Text == string.Empty && lastCost.Text == string.Empty && colorField.Text == string.Empty)
             {
                 MessageBox.Show("Невозможно применить фильтр, так как вы не выбрали ни одного критерия.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            else if (productTypeField.Text != string.Empty && productSurfaceField.Text == string.Empty && productCollectionField.Text == string.Empty && firstCost.Text == string.Empty && lastCost.Text == string.Empty)
+            else if (productTypeField.Text != string.Empty && productSurfaceField.Text == string.Empty && productCollectionField.Text == string.Empty && firstCost.Text == string.Empty && lastCost.Text == string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE productTypeName = '" + productTypeField.Text + "'";
             }
-            else if (productCollectionField.Text != string.Empty && productTypeField.Text == string.Empty && productSurfaceField.Text == string.Empty && firstCost.Text == string.Empty && lastCost.Text == string.Empty)
+            else if (productCollectionField.Text != string.Empty && productTypeField.Text == string.Empty && productSurfaceField.Text == string.Empty && firstCost.Text == string.Empty && lastCost.Text == string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE productCollectionName = '" + productCollectionField.Text + "'";
             }
-            else if (productSurfaceField.Text != string.Empty && productTypeField.Text == string.Empty && productCollectionField.Text == string.Empty && firstCost.Text == string.Empty && lastCost.Text == string.Empty)
+            else if (productSurfaceField.Text != string.Empty && productTypeField.Text == string.Empty && productCollectionField.Text == string.Empty && firstCost.Text == string.Empty && lastCost.Text == string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE surfaceName = '" + productSurfaceField.Text + "'";
             }
-            else if (firstCost.Text != string.Empty && productTypeField.Text == string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text == string.Empty && lastCost.Text == string.Empty)
+            else if (firstCost.Text != string.Empty && productTypeField.Text == string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text == string.Empty && lastCost.Text == string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + "";
             }
-            else if (lastCost.Text != string.Empty && productTypeField.Text == string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text == string.Empty && firstCost.Text == string.Empty)
+            else if (lastCost.Text != string.Empty && productTypeField.Text == string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text == string.Empty && firstCost.Text == string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + "";
             }
-            else if (productTypeField.Text != string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text == string.Empty && firstCost.Text == string.Empty && lastCost.Text == string.Empty)
+            else if (productTypeField.Text != string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text == string.Empty && firstCost.Text == string.Empty && lastCost.Text == string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE productTypeName = '" + productTypeField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "'";
             }
-            else if (productTypeField.Text != string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text == string.Empty && lastCost.Text == string.Empty)
+            else if (productTypeField.Text != string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text == string.Empty && lastCost.Text == string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE productTypeName = '" + productTypeField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "'";
             }
-            else if (productTypeField.Text != string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text == string.Empty && firstCost.Text != string.Empty && lastCost.Text == string.Empty)
+            else if (productTypeField.Text != string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text == string.Empty && firstCost.Text != string.Empty && lastCost.Text == string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE productTypeName = '" + productTypeField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ")";
             }
-            else if (productTypeField.Text != string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text == string.Empty && firstCost.Text == string.Empty && lastCost.Text != string.Empty)
+            else if (productTypeField.Text != string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text == string.Empty && firstCost.Text == string.Empty && lastCost.Text != string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE productTypeName = '" + productTypeField.Text + "' AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
             }
-            else if (productTypeField.Text == string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text == string.Empty && lastCost.Text == string.Empty)
+            else if (productTypeField.Text == string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text == string.Empty && lastCost.Text == string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE productCollectionName = '" + productCollectionField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "'";
             }
-            else if (productTypeField.Text == string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text == string.Empty && firstCost.Text != string.Empty && lastCost.Text == string.Empty)
+            else if (productTypeField.Text == string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text == string.Empty && firstCost.Text != string.Empty && lastCost.Text == string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE productCollectionName = '" + productCollectionField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ")";
             }
-            else if (productTypeField.Text == string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text == string.Empty && firstCost.Text == string.Empty && lastCost.Text != string.Empty)
+            else if (productTypeField.Text == string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text == string.Empty && firstCost.Text == string.Empty && lastCost.Text != string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE productCollectionName = '" + productCollectionField.Text + "' AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
             }
-            else if (productTypeField.Text == string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text != string.Empty && lastCost.Text == string.Empty)
+            else if (productTypeField.Text == string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text != string.Empty && lastCost.Text == string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE surfaceName = '" + productSurfaceField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ")";
             }
-            else if (productTypeField.Text == string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text == string.Empty && lastCost.Text != string.Empty)
+            else if (productTypeField.Text == string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text == string.Empty && lastCost.Text != string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE surfaceName = '" + productSurfaceField.Text + "' AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
             }
-            else if (productTypeField.Text == string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text == string.Empty && firstCost.Text != string.Empty && lastCost.Text != string.Empty)
+            else if (productTypeField.Text == string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text == string.Empty && firstCost.Text != string.Empty && lastCost.Text != string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ") AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
             }
-            else if (productTypeField.Text != string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text == string.Empty && lastCost.Text == string.Empty)
+            else if (productTypeField.Text != string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text == string.Empty && lastCost.Text == string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE productTypeName = '" + productTypeField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "'";
             }
-            else if (productTypeField.Text != string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text == string.Empty && firstCost.Text != string.Empty && lastCost.Text == string.Empty)
+            else if (productTypeField.Text != string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text == string.Empty && firstCost.Text != string.Empty && lastCost.Text == string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE productTypeName = '" + productTypeField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ")";
             }
-            else if (productTypeField.Text != string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text == string.Empty && firstCost.Text == string.Empty && lastCost.Text != string.Empty)
+            else if (productTypeField.Text != string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text == string.Empty && firstCost.Text == string.Empty && lastCost.Text != string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE productTypeName = '" + productTypeField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "' AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
             }
-            else if (productTypeField.Text != string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text != string.Empty && lastCost.Text == string.Empty)
+            else if (productTypeField.Text != string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text != string.Empty && lastCost.Text == string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE productTypeName = '" + productTypeField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ")";
             }
-            else if (productTypeField.Text != string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text == string.Empty && lastCost.Text != string.Empty)
+            else if (productTypeField.Text != string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text == string.Empty && lastCost.Text != string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE productTypeName = '" + productTypeField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "' AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
             }
-            else if (productTypeField.Text != string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text == string.Empty && firstCost.Text != string.Empty && lastCost.Text != string.Empty)
+            else if (productTypeField.Text != string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text == string.Empty && firstCost.Text != string.Empty && lastCost.Text != string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE productTypeName = '" + productTypeField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ") AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
             }
-            else if (productTypeField.Text == string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text != string.Empty && lastCost.Text == string.Empty)
+            else if (productTypeField.Text == string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text != string.Empty && lastCost.Text == string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE productCollectionName = '" + productCollectionField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ")";
             }
-            else if (productTypeField.Text == string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text == string.Empty && lastCost.Text != string.Empty)
+            else if (productTypeField.Text == string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text == string.Empty && lastCost.Text != string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE productCollectionName = '" + productCollectionField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "' AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
             }
-            else if (productTypeField.Text == string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text != string.Empty && lastCost.Text != string.Empty)
+            else if (productTypeField.Text == string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text != string.Empty && lastCost.Text != string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE surfaceName = '" + productSurfaceField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ") AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
             }
-            else if (productTypeField.Text != string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text != string.Empty && lastCost.Text == string.Empty)
+            else if (productTypeField.Text != string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text != string.Empty && lastCost.Text == string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE productTypeName = '" + productTypeField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ")";
             }
-            else if (productTypeField.Text != string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text == string.Empty && lastCost.Text != string.Empty)
+            else if (productTypeField.Text != string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text == string.Empty && lastCost.Text != string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE productTypeName = '" + productTypeField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "' AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
             }
-            else if (productTypeField.Text != string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text == string.Empty && firstCost.Text != string.Empty && lastCost.Text != string.Empty)
+            else if (productTypeField.Text != string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text == string.Empty && firstCost.Text != string.Empty && lastCost.Text != string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE productTypeName = '" + productTypeField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ") AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
             }
-            else if (productTypeField.Text == string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text != string.Empty && lastCost.Text != string.Empty)
+            else if (productTypeField.Text == string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text != string.Empty && lastCost.Text != string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE surfaceName = '" + productSurfaceField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ") AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
             }
-            else if (productTypeField.Text != string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text != string.Empty && lastCost.Text != string.Empty)
+            else if (productTypeField.Text != string.Empty && productCollectionField.Text == string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text != string.Empty && lastCost.Text != string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE productTypeName = '" + productTypeField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ") AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
             }
-            else if (productTypeField.Text != string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text != string.Empty && lastCost.Text != string.Empty)
+            else if (productTypeField.Text != string.Empty && productCollectionField.Text != string.Empty && productSurfaceField.Text != string.Empty && firstCost.Text != string.Empty && lastCost.Text != string.Empty && colorField.Text == string.Empty)
             {
                 productsInfoQuery += "WHERE productTypeName = '" + productTypeField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ") AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
+            }
+            else if (productTypeField.Text == string.Empty && productSurfaceField.Text == string.Empty && productCollectionField.Text == string.Empty && firstCost.Text == string.Empty && lastCost.Text == string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "'";
+            }
+            else if (productTypeField.Text != string.Empty && productSurfaceField.Text == string.Empty && productCollectionField.Text == string.Empty && firstCost.Text == string.Empty && lastCost.Text == string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND productTypeName = '" + productTypeField.Text + "'";
+            }
+            else if (productTypeField.Text == string.Empty && productSurfaceField.Text != string.Empty && productCollectionField.Text == string.Empty && firstCost.Text == string.Empty && lastCost.Text == string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "'";
+            }
+            else if (productTypeField.Text == string.Empty && productSurfaceField.Text == string.Empty && productCollectionField.Text != string.Empty && firstCost.Text == string.Empty && lastCost.Text == string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "'";
+            }
+            else if (productTypeField.Text == string.Empty && productSurfaceField.Text == string.Empty && productCollectionField.Text == string.Empty && firstCost.Text != string.Empty && lastCost.Text == string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ")";
+            }
+            else if (productTypeField.Text == string.Empty && productSurfaceField.Text == string.Empty && productCollectionField.Text == string.Empty && firstCost.Text == string.Empty && lastCost.Text != string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
+            }
+            else if (productTypeField.Text != string.Empty && productSurfaceField.Text != string.Empty && productCollectionField.Text == string.Empty && firstCost.Text == string.Empty && lastCost.Text == string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND productTypeName = '" + productTypeField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "'";
+            }
+            else if (productTypeField.Text != string.Empty && productSurfaceField.Text == string.Empty && productCollectionField.Text != string.Empty && firstCost.Text == string.Empty && lastCost.Text == string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND productTypeName = '" + productTypeField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "'";
+            }
+            else if (productTypeField.Text != string.Empty && productSurfaceField.Text == string.Empty && productCollectionField.Text == string.Empty && firstCost.Text != string.Empty && lastCost.Text == string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND productTypeName = '" + productTypeField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ")";
+            }
+            else if (productTypeField.Text != string.Empty && productSurfaceField.Text == string.Empty && productCollectionField.Text == string.Empty && firstCost.Text == string.Empty && lastCost.Text != string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND productTypeName = '" + productTypeField.Text + "' AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
+            }
+            else if (productTypeField.Text == string.Empty && productSurfaceField.Text != string.Empty && productCollectionField.Text != string.Empty && firstCost.Text == string.Empty && lastCost.Text == string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "'";
+            }
+            else if (productTypeField.Text == string.Empty && productSurfaceField.Text != string.Empty && productCollectionField.Text == string.Empty && firstCost.Text != string.Empty && lastCost.Text == string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ")";
+            }
+            else if (productTypeField.Text == string.Empty && productSurfaceField.Text != string.Empty && productCollectionField.Text == string.Empty && firstCost.Text == string.Empty && lastCost.Text != string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "' AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
+            }
+            else if (productTypeField.Text == string.Empty && productSurfaceField.Text == string.Empty && productCollectionField.Text != string.Empty && firstCost.Text != string.Empty && lastCost.Text == string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ")";
+            }
+            else if (productTypeField.Text == string.Empty && productSurfaceField.Text == string.Empty && productCollectionField.Text != string.Empty && firstCost.Text == string.Empty && lastCost.Text != string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "' AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
+            }
+            else if (productTypeField.Text == string.Empty && productSurfaceField.Text == string.Empty && productCollectionField.Text == string.Empty && firstCost.Text != string.Empty && lastCost.Text != string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ") AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
+            }
+            else if (productTypeField.Text != string.Empty && productSurfaceField.Text != string.Empty && productCollectionField.Text != string.Empty && firstCost.Text == string.Empty && lastCost.Text == string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND productTypeName = '" + productTypeField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "'";
+            }
+            else if (productTypeField.Text != string.Empty && productSurfaceField.Text != string.Empty && productCollectionField.Text == string.Empty && firstCost.Text != string.Empty && lastCost.Text == string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND productTypeName = '" + productTypeField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ")";
+            }
+            else if (productTypeField.Text != string.Empty && productSurfaceField.Text != string.Empty && productCollectionField.Text == string.Empty && firstCost.Text == string.Empty && lastCost.Text != string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND productTypeName = '" + productTypeField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "' AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
+            }
+            else if (productTypeField.Text != string.Empty && productSurfaceField.Text == string.Empty && productCollectionField.Text != string.Empty && firstCost.Text != string.Empty && lastCost.Text == string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND productTypeName = '" + productTypeField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ")";
+            }
+            else if (productTypeField.Text != string.Empty && productSurfaceField.Text == string.Empty && productCollectionField.Text != string.Empty && firstCost.Text == string.Empty && lastCost.Text != string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND productTypeName = '" + productTypeField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "' AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
+            }
+            else if (productTypeField.Text != string.Empty && productSurfaceField.Text == string.Empty && productCollectionField.Text == string.Empty && firstCost.Text != string.Empty && lastCost.Text != string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND productTypeName = '" + productTypeField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ") AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
+            }
+            else if (productTypeField.Text == string.Empty && productSurfaceField.Text != string.Empty && productCollectionField.Text != string.Empty && firstCost.Text != string.Empty && lastCost.Text == string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ")";
+            }
+            else if (productTypeField.Text == string.Empty && productSurfaceField.Text != string.Empty && productCollectionField.Text != string.Empty && firstCost.Text == string.Empty && lastCost.Text != string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "' AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
+            }
+            else if (productTypeField.Text == string.Empty && productSurfaceField.Text != string.Empty && productCollectionField.Text == string.Empty && firstCost.Text != string.Empty && lastCost.Text != string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ") AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
+            }
+            else if (productTypeField.Text == string.Empty && productSurfaceField.Text == string.Empty && productCollectionField.Text != string.Empty && firstCost.Text != string.Empty && lastCost.Text != string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ") AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
+            }
+            else if (productTypeField.Text != string.Empty && productSurfaceField.Text != string.Empty && productCollectionField.Text != string.Empty && firstCost.Text != string.Empty && lastCost.Text == string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND productTypeName = '" + productTypeField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ")";
+            }
+            else if (productTypeField.Text != string.Empty && productSurfaceField.Text != string.Empty && productCollectionField.Text != string.Empty && firstCost.Text == string.Empty && lastCost.Text != string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND productTypeName = '" + productTypeField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "' AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
+            }
+            else if (productTypeField.Text != string.Empty && productSurfaceField.Text != string.Empty && productCollectionField.Text == string.Empty && firstCost.Text != string.Empty && lastCost.Text != string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND productTypeName = '" + productTypeField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ") AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
+            }
+            else if (productTypeField.Text != string.Empty && productSurfaceField.Text == string.Empty && productCollectionField.Text != string.Empty && firstCost.Text != string.Empty && lastCost.Text != string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND productTypeName = '" + productTypeField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ") AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
+            }
+            else if (productTypeField.Text == string.Empty && productSurfaceField.Text != string.Empty && productCollectionField.Text != string.Empty && firstCost.Text != string.Empty && lastCost.Text != string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ") AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
+            }
+            else if (productTypeField.Text != string.Empty && productSurfaceField.Text != string.Empty && productCollectionField.Text != string.Empty && firstCost.Text != string.Empty && lastCost.Text != string.Empty && colorField.Text != string.Empty)
+            {
+                productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND productTypeName = '" + productTypeField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ") AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
             }
             connectionString.Open();
             DataTable table = new DataTable();
@@ -298,7 +480,7 @@ namespace KeraminStore.UI.Windows
                         row = (DataGridRow)ProductsInfoGrid.ItemContainerGenerator.ContainerFromIndex(i);
                     }
                     TextBlock cellcontent = ProductsInfoGrid.Columns[2].GetCellContent(row) as TextBlock;
-                    if (cellcontent != null && cellcontent.Text.ToString().Contains(searchField.Text))
+                    if (cellcontent != null && cellcontent.Text.ToString().Contains(searchField.Text.ToUpper()))
                     {
                         object item = ProductsInfoGrid.Items[i];
                         ProductsInfoGrid.SelectedItem = item;
@@ -331,6 +513,7 @@ namespace KeraminStore.UI.Windows
             File.WriteAllText(@"ProductCount.txt", string.Empty);
             ProductCountWindow productCountWindow = new ProductCountWindow(); //Открытие окна, где будет указано количество изделий для добавления в корзину
             productCountWindow.ShowDialog();
+            File.WriteAllText(@"ProductCode.txt", string.Empty);
             int count = 0;
             StreamReader countFile = new StreamReader("ProductCount.txt");
             if (countFile == null) //Проверка на пустоту файла с количеством изделий для добавления в корзину
@@ -350,9 +533,12 @@ namespace KeraminStore.UI.Windows
                     double width = 0;
                     double weight = 0;
                     int countInBox = 0;
-                    double cost = 0;
+                    double costCount = 0;
+                    double costArea = 0;
                     int code = 0;
-                    string selectProductInfoQuery = "SELECT productCode, productLenght, productWidth, productBoxWeight, productCountInBox, productCostCount FROM Product WHERE productArticle = '" + productInfo["productArticle"].ToString() + "'"; //Получение информации о выбранном изделии
+                    string selectProductInfoQuery = "SELECT productCode, productLenght, productWidth, productBoxWeight, productCountInBox, productCostCount, productCostArea, productTypeName FROM Product " +
+                                                    "JOIN ProductType ON Product.productTypeCode = ProductType.productTypeCode " +
+                                                    "WHERE productArticle = '" + productInfo["productArticle"].ToString() + "'"; //Получение информации о выбранном изделии
                     using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectProductInfoQuery, connectionString))
                     {
                         DataTable table = new DataTable();
@@ -364,56 +550,151 @@ namespace KeraminStore.UI.Windows
                             width = double.Parse(table.Rows[0]["productWidth"].ToString());
                             weight = double.Parse(table.Rows[0]["productBoxWeight"].ToString());
                             countInBox = int.Parse(table.Rows[0]["productCountInBox"].ToString());
-                            cost = double.Parse(table.Rows[0]["productCostCount"].ToString());
 
-                            string selectUniqsProductInfoQuery = "SELECT productsCount FROM Basket JOIN Product ON Basket.productCode = Product.productCode " +
+                            if (table.Rows[0]["productTypeName"].ToString() != "Настенная плитка" && table.Rows[0]["productTypeName"].ToString() != "Напольная плитка")
+                            {
+                                costCount = double.Parse(table.Rows[0]["productCostCount"].ToString());
+
+                                string selectUniqsProductInfoQuery = "SELECT productsCount FROM Basket JOIN Product ON Basket.productCode = Product.productCode " +
                                                                  "WHERE productArticle = '" + productInfo["productArticle"].ToString() + "' AND basketNumber = '" + basketNumber + "'"; //Проверка на наличие данного изделия
-                            using (SqlDataAdapter adapter = new SqlDataAdapter(selectUniqsProductInfoQuery, connectionString))
+                                using (SqlDataAdapter adapter = new SqlDataAdapter(selectUniqsProductInfoQuery, connectionString))
+                                {
+                                    DataTable dataTable = new DataTable();
+                                    adapter.Fill(dataTable);
+                                    if (dataTable.Rows.Count > 0) //В случае, если изделие имеется в корзине, его количество увеличится
+                                    {
+                                        int currentProductsCount = int.Parse(dataTable.Rows[0]["productsCount"].ToString());
+                                        currentProductsCount = currentProductsCount + count;
+                                        SqlCommand cmd = new SqlCommand();
+                                        cmd.CommandType = CommandType.Text;
+                                        cmd.CommandText = "UPDATE Basket SET productCode = @productCode, basketNumber = @number, productsCount = @count, boxesCount = @boxes, productsArea = @area, productsWeight = @weight, generalSum = @sum, paymentStatus = @status " +
+                                                          "WHERE productCode = @productCode AND basketNumber = @number";
+                                        cmd.Parameters.Add("@number", SqlDbType.VarChar).Value = basketNumber;
+                                        cmd.Parameters.Add("@count", SqlDbType.Int).Value = currentProductsCount;
+                                        cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = currentProductsCount / countInBox + 1;
+                                        cmd.Parameters.Add("@area", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(currentProductsCount * (lenght * width / 1000000)), 2);
+                                        cmd.Parameters.Add("@weight", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(weight / countInBox * currentProductsCount), 2);
+                                        cmd.Parameters.Add("@sum", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(currentProductsCount * costCount), 2);
+                                        cmd.Parameters.Add("@productCode", SqlDbType.Float).Value = code;
+                                        cmd.Parameters.Add("@status", SqlDbType.Bit).Value = false;
+                                        cmd.Connection = connectionString;
+                                        connectionString.Open();
+                                        cmd.ExecuteNonQuery();
+                                        connectionString.Close();
+                                    }
+                                    else //В случае отсутсвия изделия в корзине, случится его добавление
+                                    {
+                                        SqlCommand cmd = new SqlCommand();
+                                        cmd.CommandType = CommandType.Text;
+                                        cmd.CommandText = "INSERT Basket (basketNumber, productsCount, boxesCount, productsArea, productsWeight, generalSum, productCode, paymentStatus) " +
+                                                          "VALUES (@number, @count, @boxes, @area, @weight, @sum, @productCode, @status)";
+                                        cmd.Parameters.Add("@number", SqlDbType.VarChar).Value = basketNumber;
+                                        cmd.Parameters.Add("@count", SqlDbType.Int).Value = count;
+                                        cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = count / countInBox + 1;
+                                        cmd.Parameters.Add("@area", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(count * (lenght * width / 1000000)), 2);
+                                        cmd.Parameters.Add("@weight", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(weight / countInBox * count), 2);
+                                        cmd.Parameters.Add("@sum", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(count * costCount), 2);
+                                        cmd.Parameters.Add("@productCode", SqlDbType.Float).Value = code;
+                                        cmd.Parameters.Add("@status", SqlDbType.Bit).Value = false;
+                                        cmd.Connection = connectionString;
+                                        connectionString.Open();
+                                        cmd.ExecuteNonQuery();
+                                        connectionString.Close();
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                costArea = double.Parse(table.Rows[0]["productCostArea"].ToString());
+
+                                string selectUniqsProductInfoQuery = "SELECT productsCount FROM Basket JOIN Product ON Basket.productCode = Product.productCode " +
+                                                                 "WHERE productArticle = '" + productInfo["productArticle"].ToString() + "' AND basketNumber = '" + basketNumber + "'"; //Проверка на наличие данного изделия
+                                using (SqlDataAdapter adapter = new SqlDataAdapter(selectUniqsProductInfoQuery, connectionString))
+                                {
+                                    DataTable dataTable = new DataTable();
+                                    adapter.Fill(dataTable);
+                                    if (dataTable.Rows.Count > 0) //В случае, если изделие имеется в корзине, его количество увеличится
+                                    {
+                                        int currentProductsCount = int.Parse(dataTable.Rows[0]["productsCount"].ToString());
+                                        currentProductsCount = currentProductsCount + count;
+                                        SqlCommand cmd = new SqlCommand();
+                                        cmd.CommandType = CommandType.Text;
+                                        cmd.CommandText = "UPDATE Basket SET productCode = @productCode, basketNumber = @number, productsCount = @count, boxesCount = @boxes, productsArea = @area, productsWeight = @weight, generalSum = @sum, paymentStatus = @status " +
+                                                          "WHERE productCode = @productCode AND basketNumber = @number";
+                                        cmd.Parameters.Add("@number", SqlDbType.VarChar).Value = basketNumber;
+                                        cmd.Parameters.Add("@count", SqlDbType.Int).Value = currentProductsCount;
+                                        cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = currentProductsCount / countInBox + 1;
+                                        cmd.Parameters.Add("@area", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(currentProductsCount * (lenght * width / 1000000)), 2);
+                                        cmd.Parameters.Add("@weight", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(weight / countInBox * currentProductsCount), 2);
+                                        cmd.Parameters.Add("@sum", SqlDbType.Float).Value = Math.Round(currentProductsCount * (costArea * (lenght * width / 1000000)), 2);
+                                        cmd.Parameters.Add("@productCode", SqlDbType.Float).Value = code;
+                                        cmd.Parameters.Add("@status", SqlDbType.Bit).Value = false;
+                                        cmd.Connection = connectionString;
+                                        connectionString.Open();
+                                        cmd.ExecuteNonQuery();
+                                        connectionString.Close();
+                                    }
+                                    else //В случае отсутсвия изделия в корзине, случится его добавление
+                                    {
+                                        SqlCommand cmd = new SqlCommand();
+                                        cmd.CommandType = CommandType.Text;
+                                        cmd.CommandText = "INSERT Basket (basketNumber, productsCount, boxesCount, productsArea, productsWeight, generalSum, productCode, paymentStatus) " +
+                                                          "VALUES (@number, @count, @boxes, @area, @weight, @sum, @productCode, @status)";
+                                        cmd.Parameters.Add("@number", SqlDbType.VarChar).Value = basketNumber;
+                                        cmd.Parameters.Add("@count", SqlDbType.Int).Value = count;
+                                        cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = count / countInBox + 1;
+                                        cmd.Parameters.Add("@area", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(count * (lenght * width / 1000000)), 2);
+                                        cmd.Parameters.Add("@weight", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(weight / countInBox * count), 2);
+                                        cmd.Parameters.Add("@sum", SqlDbType.Float).Value = Math.Round(count * (costArea * (lenght * width / 1000000)), 2);
+                                        cmd.Parameters.Add("@productCode", SqlDbType.Float).Value = code;
+                                        cmd.Parameters.Add("@status", SqlDbType.Bit).Value = false;
+                                        cmd.Connection = connectionString;
+                                        connectionString.Open();
+                                        cmd.ExecuteNonQuery();
+                                        connectionString.Close();
+                                    }
+                                }
+                            }                     
+                            MessageBox.Show("Изделие добавлено в корзину.", "Уведомление", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                            string updateProductCount = "SELECT productCount FROM Product WHERE productArticle = '" + productInfo["productArticle"].ToString() + "'";
+                            using (SqlDataAdapter countAdapter = new SqlDataAdapter(updateProductCount, connectionString))
                             {
                                 DataTable dataTable = new DataTable();
-                                adapter.Fill(dataTable);
-                                if (dataTable.Rows.Count > 0) //В случае, если изделие имеется в корзине, его количество увеличится
+                                countAdapter.Fill(dataTable);
+                                if (dataTable.Rows.Count > 0)
                                 {
-                                    int currentProductsCount = int.Parse(dataTable.Rows[0]["productsCount"].ToString());
-                                    count = currentProductsCount + count;
-                                    SqlCommand cmd = new SqlCommand();
-                                    cmd.CommandType = CommandType.Text;
-                                    cmd.CommandText = "UPDATE Basket SET productCode = @productCode, basketNumber = @number, productsCount = @count, boxesCount = @boxes, productsArea = @area, productsWeight = @weight, generalSum = @sum, paymentStatus = @status " +
-                                                      "WHERE productCode = @productCode AND basketNumber = @number";
-                                    cmd.Parameters.Add("@number", SqlDbType.VarChar).Value = basketNumber;
-                                    cmd.Parameters.Add("@count", SqlDbType.Int).Value = count;
-                                    cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = count / countInBox + 1;
-                                    cmd.Parameters.Add("@area", SqlDbType.Float).Value = Convert.ToDouble(count * (lenght * width / 1000000));
-                                    cmd.Parameters.Add("@weight", SqlDbType.Float).Value = Convert.ToDouble(weight / countInBox * count);
-                                    cmd.Parameters.Add("@sum", SqlDbType.Float).Value = Convert.ToDouble(count * cost);
-                                    cmd.Parameters.Add("@productCode", SqlDbType.Float).Value = code;
-                                    cmd.Parameters.Add("@status", SqlDbType.Bit).Value = false;
-                                    cmd.Connection = connectionString;
-                                    connectionString.Open();
-                                    cmd.ExecuteNonQuery();
-                                    connectionString.Close();
+                                    int productCurrentCount = int.Parse(dataTable.Rows[0]["productCount"].ToString());
+                                    SqlCommand updateProductInfoCmd = new SqlCommand();
+                                    updateProductInfoCmd.CommandType = CommandType.Text;
+                                    if (productCurrentCount - count == 0)
+                                    {
+                                        updateProductInfoCmd.CommandText = "UPDATE Product SET productCount = @count, availabilityStatusCode = @status WHERE productArticle = @article";
+                                        updateProductInfoCmd.Parameters.Add("@count", SqlDbType.Int).Value = productCurrentCount - count;
+                                        updateProductInfoCmd.Parameters.Add("@status", SqlDbType.Int).Value = 2;
+                                        updateProductInfoCmd.Parameters.Add("@article", SqlDbType.VarChar).Value = productInfo["productArticle"].ToString();
+                                        updateProductInfoCmd.Connection = connectionString;
+                                        connectionString.Open();
+                                        updateProductInfoCmd.ExecuteNonQuery();
+                                        connectionString.Close();
+                                    }
+                                    else
+                                    {
+                                        updateProductInfoCmd.CommandText = "UPDATE Product SET productCount = @count WHERE productArticle = @article";
+                                        updateProductInfoCmd.Parameters.Add("@count", SqlDbType.Int).Value = productCurrentCount - count;
+                                        updateProductInfoCmd.Parameters.Add("@article", SqlDbType.VarChar).Value = productInfo["productArticle"].ToString();
+                                        updateProductInfoCmd.Connection = connectionString;
+                                        connectionString.Open();
+                                        updateProductInfoCmd.ExecuteNonQuery();
+                                        connectionString.Close();
+                                    }
                                 }
-                                else //В случае отсутсвия изделия в корзине, случится его добавление
-                                {
-                                    SqlCommand cmd = new SqlCommand();
-                                    cmd.CommandType = CommandType.Text;
-                                    cmd.CommandText = "INSERT Basket (basketNumber, productsCount, boxesCount, productsArea, productsWeight, generalSum, productCode, paymentStatus) " +
-                                                      "VALUES (@number, @count, @boxes, @area, @weight, @sum, @productCode, @status)";
-                                    cmd.Parameters.Add("@number", SqlDbType.VarChar).Value = basketNumber;
-                                    cmd.Parameters.Add("@count", SqlDbType.Int).Value = count;
-                                    cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = count / countInBox + 1;
-                                    cmd.Parameters.Add("@area", SqlDbType.Float).Value = Convert.ToDouble(count * (lenght * width / 1000000));
-                                    cmd.Parameters.Add("@weight", SqlDbType.Float).Value = Convert.ToDouble(weight / countInBox * count);
-                                    cmd.Parameters.Add("@sum", SqlDbType.Float).Value = Convert.ToDouble(count * cost);
-                                    cmd.Parameters.Add("@productCode", SqlDbType.Float).Value = code;
-                                    cmd.Parameters.Add("@status", SqlDbType.Bit).Value = false;
-                                    cmd.Connection = connectionString;
-                                    connectionString.Open();
-                                    cmd.ExecuteNonQuery();
-                                    connectionString.Close();
-                                }    
                             }
-                            MessageBox.Show("Изделие добавлено в корзину.", "Уведомление", MessageBoxButton.OK, MessageBoxImage.Information);
+                            ProductsInfoGrid.ItemsSource = null;
+                            ProductsInfoGrid.Items.Refresh();
+                            connectionString.Open();
+                            FillDataGrid();
+                            connectionString.Close();
                         }
                     }
                 }

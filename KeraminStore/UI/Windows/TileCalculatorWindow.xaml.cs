@@ -386,10 +386,7 @@ namespace KeraminStore.UI.Windows
                     MessageBox.Show("Площадь не закладываемого участка не может быть больше площади комнаты.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-                else
-                {
-                    area.Text = (double.Parse(area.Text) + areaArea).ToString();
-                }
+                else area.Text = (double.Parse(area.Text) + areaArea).ToString();
             }
             else if (room.IsChecked == true && areaHeight.Text == string.Empty || floor.IsChecked == true)
             {
@@ -399,10 +396,7 @@ namespace KeraminStore.UI.Windows
                     MessageBox.Show("Площадь не закладываемого участка не может быть больше площади комнаты.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-                else
-                {
-                    area.Text = (double.Parse(area.Text) + areaArea).ToString("#.##");
-                }
+                else area.Text = (double.Parse(area.Text) + areaArea).ToString("#.##");
             }
         }
 

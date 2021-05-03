@@ -27,11 +27,11 @@ namespace KeraminStore.Data.Models
             if (productWidth == string.Empty) return emptyProductWidth;
             else
             {
-                int width = 0;
-                bool isNum = int.TryParse(productWidth, out width);
+                double width = 0;
+                bool isNum = double.TryParse(productWidth, out width);
                 if (isNum)
                 {
-                    if (width <= 20 || width > 400) return wrongValue;
+                    if (width < 9 || width > 400) return wrongValue;
                 }
                 else return invalidSymbols;
                 return productWidth;
@@ -43,11 +43,11 @@ namespace KeraminStore.Data.Models
             if (productLenght == string.Empty) return emptyProductLenght;
             else
             {
-                int lenght = 0;
-                bool isNum = int.TryParse(productLenght, out lenght);
+                double lenght = 0;
+                bool isNum = double.TryParse(productLenght, out lenght);
                 if (isNum)
                 {
-                    if (lenght <= 98 || lenght > 900) return wrongValue;
+                    if (lenght < 98 || lenght > 900) return wrongValue;
                 }
                 else return invalidSymbols;
                 return productLenght;
@@ -108,7 +108,7 @@ namespace KeraminStore.Data.Models
             bool isNum = int.TryParse(costStr, out cost);
             if (isNum)
             {
-                if (cost <= 0) return wrongValue;
+                if (cost < 0) return wrongValue;
             }
             else return invalidSymbols;
             return costStr;

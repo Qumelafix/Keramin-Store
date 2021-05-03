@@ -53,10 +53,7 @@ namespace KeraminStore
             ButtonCloseMenu.Visibility = Visibility.Collapsed;
         }
 
-        private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            this.DragMove();
-        }
+        private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) => this.DragMove();
 
         private void ChangeAccButton_Click(object sender, RoutedEventArgs e)
         {
@@ -88,9 +85,6 @@ namespace KeraminStore
                     WorkPlace.Children.Clear();
                     Menu.SelectedIndex = -1;
                     WorkPlace.Children.Add(new CatalogWindow());
-                    File.WriteAllText(@"BasketNumber.txt", string.Empty);
-                    OrderNumberWindow order = new OrderNumberWindow();
-                    order.ShowDialog();
                     break;
 
                 case 2:
@@ -130,9 +124,7 @@ namespace KeraminStore
                 case 7:
                     WorkPlace.Children.Clear();
                     WorkPlace.Children.Add(new MainPage());
-                    StaffWindow staffWindow = new StaffWindow();
-                    Menu.SelectedIndex = -1;
-                    staffWindow.ShowDialog();
+                    WorkPlace.Children.Add(new EmployeesWindow());
                     break;
 
                 default:
