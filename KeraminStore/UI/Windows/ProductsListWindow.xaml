@@ -22,8 +22,8 @@
     </Window.Resources>
     
     <Grid>
-        <Label Content="Список изделий" FontSize="30" FontWeight="Bold" FontFamily="Helvetica" Margin="20 20 0 0"/>
-        <Label x:Name="Description" Content="Для удаления/изменения данных об изделии необходимо выделить строку, а затем нажать на соответствующую кнопку снизу" FontSize="20" FontWeight="Light" FontFamily="Helvetica" Margin="21 60 0 0"/>
+        <Label Content="Список изделий" FontSize="30" FontWeight="Bold" FontFamily="Helvetica" Margin="210 20 0 0"/>
+        <Label x:Name="Description" Content="Для удаления/изменения данных об изделии выделите строку и нажмите на соответствующую кнопку снизу" FontSize="20" FontWeight="Light" FontFamily="Helvetica" Margin="210 60 0 0"/>
         <Button x:Name="CloseButton" Style="{StaticResource MaterialDesignFlatButton}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="5" Content="Закрыть" ToolTip="MaterialDesignFlatButton" Click="CloseButton_Click"/>
         <Grid Width="1720" Height="100" HorizontalAlignment="Left" VerticalAlignment="Bottom">
             <Grid.RowDefinitions>
@@ -70,7 +70,7 @@
                 <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding productCostArea}" Header="Цена руб./м²" Width="115" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                 <!--<DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding productDescription}" Header="Описание" Width="200" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>-->
                 <DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding colorName}" Header="Цвет" Width="100" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
-                <DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding productCount}" Header="Количество" Width="110" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding productCount}" Header="Количество" Width="110" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                 <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding availabilityStatusName}" Header="Статус наличия" Width="130" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
             </DataGrid.Columns>
         </DataGrid>

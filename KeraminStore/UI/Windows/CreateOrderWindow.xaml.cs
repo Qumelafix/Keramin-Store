@@ -21,7 +21,6 @@ namespace KeraminStore.UI.Windows
         {
             InitializeComponent();
             GetDeliveryInfo();
-            GetTownInfo();
             GetStreetInfo();
             GetPaymentInfo();
             connectionString.Open();
@@ -31,9 +30,10 @@ namespace KeraminStore.UI.Windows
 
         private void selfDeliveryTown_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
+            selfDeliveryAdress.SelectedIndex = -1;
             List<string> adress = new List<string>();
             connectionString.Open();
-            string query = @"SELECT streetName, building FROM Pickup JOIN Town ON Pickup.townCode = Town.townCode WHERE townName = '" + selfDeliveryTown.SelectedItem.ToString() + "'";
+            string query = @"SELECT streetName, building FROM Pickup JOIN PickupTown ON Pickup.pickupTownCode = PickupTown.pickupTownCode WHERE pickupTownName = '" + selfDeliveryTown.SelectedItem.ToString() + "'";
             SqlCommand sqlCommand = new SqlCommand(query, connectionString);
             SqlDataReader dataReader = sqlCommand.ExecuteReader();
             if (dataReader.HasRows)
@@ -45,31 +45,13 @@ namespace KeraminStore.UI.Windows
                     selfDeliveryAdress.ItemsSource = newList;
                 }
             }
-            dataReader.Close();
-            connectionString.Close();
-        }
-
-        private void GetTownInfo()
-        {
-            List<string> townNames = new List<string>();
-            connectionString.Open();
-            string query = @"SELECT townName FROM Town";
-            SqlCommand sqlCommand = new SqlCommand(query, connectionString);
-            SqlDataReader dataReader = sqlCommand.ExecuteReader();
-            if (dataReader.HasRows)
+            else
             {
-                while (dataReader.Read())
-                {
-                    townNames.Add(dataReader["townName"].ToString());
-                    var newList = from i in townNames orderby i select i;
-                    selfDeliveryTown.ItemsSource = newList;
-                    deliveryTown.ItemsSource = newList;
-                }
+                selfDeliveryAdress.ItemsSource = null;
             }
             dataReader.Close();
             connectionString.Close();
         }
-
 
         private void GetStreetInfo()
         {
@@ -84,7 +66,6 @@ namespace KeraminStore.UI.Windows
                 {
                     streetNames.Add(dataReader["streetName"].ToString());
                     var newList = from i in streetNames orderby i select i;
-                    //selfDeliveryStreet.ItemsSource = newList;
                     deliveryStreet.ItemsSource = newList;
                 }
             }
@@ -244,7 +225,6 @@ namespace KeraminStore.UI.Windows
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            //File.WriteAllText(@"BasketNumber.txt", string.Empty);
             this.Close();
         }
 
@@ -262,18 +242,47 @@ namespace KeraminStore.UI.Windows
 
         private void delivery_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
+            List<string> townNames = new List<string>();
+            connectionString.Open();
             if (delivery.SelectedItem.ToString() == "Самовывоз")
             {
                 deliveryCost.Text = "0";
                 selfDeliveryInfo.Visibility = Visibility.Visible;
                 deliveryInfo.Visibility = Visibility.Hidden;
+                string query = @"SELECT pickupTownName FROM PickupTown";
+                SqlCommand sqlCommand = new SqlCommand(query, connectionString);
+                SqlDataReader dataReader = sqlCommand.ExecuteReader();
+                if (dataReader.HasRows)
+                {
+                    while (dataReader.Read())
+                    {
+                        townNames.Add(dataReader["pickupTownName"].ToString());
+                        var newList = from i in townNames orderby i select i;
+                        selfDeliveryTown.ItemsSource = newList;
+                    }
+                }
+                dataReader.Close();
             }
             else
             {
                 deliveryCost.Text = "15";
                 selfDeliveryInfo.Visibility = Visibility.Hidden;
                 deliveryInfo.Visibility = Visibility.Visible;
+                string query = @"SELECT townName FROM Town";
+                SqlCommand sqlCommand = new SqlCommand(query, connectionString);
+                SqlDataReader dataReader = sqlCommand.ExecuteReader();
+                if (dataReader.HasRows)
+                {
+                    while (dataReader.Read())
+                    {
+                        townNames.Add(dataReader["townName"].ToString());
+                        var newList = from i in townNames orderby i select i;
+                        deliveryTown.ItemsSource = newList;
+                    }
+                }
+                dataReader.Close();
             }
+            connectionString.Close();
         }
 
         private void createOrderbutton_Click(object sender, RoutedEventArgs e)
@@ -344,10 +353,10 @@ namespace KeraminStore.UI.Windows
                 }
                 else
                 {
-                    Regex regex = new Regex(@"^(\+375|80)\(\s?(44|25|33|17|29)\s?\)\d{3}-?\s?\d{2}-?\s?\d{2}$");
+                    Regex regex = new Regex(@"^(\+375|80)\(\s?(44|25|33|17|29)\s?\)\d{3}\-?\s?\d{2}\-?\s?\d{2}$");
                     if (!regex.IsMatch(legalCustomerPhone.Text))
                     {
-                        MessageBox.Show("Телефон(должен быть записан в формате [код оператора] [2 цифры индентификатора] XXX-XX-XX.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Телефон(должен быть записан в формате [код оператора] (2 цифры индентификатора) XXX-XX-XX.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
@@ -398,7 +407,7 @@ namespace KeraminStore.UI.Windows
                     Regex regex = new Regex(@"^(\+375|80)\(\s?(44|25|33|17|29)\s?\)\d{3}\-?\s?\d{2}\-?\s?\d{2}$");
                     if (!regex.IsMatch(customerPhone.Text))
                     {
-                        MessageBox.Show("Телефон(должен быть записан в формате [код оператора] [2 цифры индентификатора] XXX-XX-XX.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Телефон(должен быть записан в формате [код оператора] (2 цифры индентификатора) XXX-XX-XX.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
@@ -455,20 +464,20 @@ namespace KeraminStore.UI.Windows
                 Regex regex = new Regex(@"^\d{1,3}$");
                 if (!regex.IsMatch(deliveryBuilding.Text))
                 {
-                    MessageBox.Show("Максимальная длина номера дома 3 символа.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Номер здания должен быть числовой величиной с максимальной длиной в 3 символа.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
                 Regex regexx = new Regex(@"^\d{1,2}$");
                 if (!regexx.IsMatch(deliveryFloor.Text))
                 {
-                    MessageBox.Show("Максимальная длина этажа 2 символа.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Этаж должен быть числовой величиной с максимальной длиной в 2 символа.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
                 if (!regex.IsMatch(deliveryApartment.Text))
                 {
-                    MessageBox.Show("Максимальная длина номера квартиры/офиса 3 символа.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Номер квартиры/офиса должен быть числовой величиной с максимальной длиной в 3 символа.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }
@@ -597,8 +606,8 @@ namespace KeraminStore.UI.Windows
                     string[] adressArray = adress.Split(',');
 
                     string selectCustomerCodeQuery = "SELECT customerCode, deliveryCode, paymentCode, pickupCode FROM Customer, Delivery, Payment, Pickup " +
-                                                 "JOIN Town ON Pickup.townCode = Town.townCode " +
-                                                 "WHERE phone = '" + customerPhone.Text + "' AND orderNumber = '" + basketNumber + "' AND townName = '" + selfDeliveryTown.Text + "' AND Pickup.streetName = '" + adressArray[0] + "' " +
+                                                 "JOIN PickupTown ON Pickup.pickupTownCode = PickupTown.pickupTownCode " +
+                                                 "WHERE phone = '" + customerPhone.Text + "' AND orderNumber = '" + basketNumber + "' AND pickupTownName = '" + selfDeliveryTown.Text + "' AND Pickup.streetName = '" + adressArray[0] + "' " +
                                                  "AND Pickup.building = " + int.Parse(adressArray[1]) + " AND deliveryName = '" + delivery.SelectedItem.ToString() + "' AND paymentType = '" + payment.SelectedItem.ToString() + "'";
                     using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectCustomerCodeQuery, connectionString))
                     {
@@ -736,7 +745,7 @@ namespace KeraminStore.UI.Windows
                     excelcells = excelworksheet.get_Range("F5");
                     excelcells.Value = DateTime.Now.ToShortDateString();
                     excelcells = excelworksheet.get_Range("C13");
-                    excelcells.Value = "    ОАО \"Керамин\"";
+                    excelcells.Value = "ОАО \"Керамин\"";
                     string infoQuery = "SELECT customerName, customerSurname, customerPatronymic, phone, mail, productName, productCostCount, productCostArea, productsCount, Basket.generalSum, CustomerOrder.generalSum, employeeSurname, employeeName, employeePatronymic FROM CustomerOrder " +
                                        "JOIN Basket ON CustomerOrder.basketCode = Basket.basketCode " +
                                        "JOIN Product ON Basket.productCode = Product.productCode " +
@@ -780,13 +789,13 @@ namespace KeraminStore.UI.Windows
                                 k = 5;
                             }
                             excelcells = excelworksheet.get_Range("C7");
-                            excelcells.Value = "    " + table.Rows[0]["customerSurname"].ToString() + " " + table.Rows[0]["customerName"].ToString() + " " + table.Rows[0]["customerPatronymic"].ToString();
+                            excelcells.Value = table.Rows[0]["customerSurname"].ToString() + " " + table.Rows[0]["customerName"].ToString() + " " + table.Rows[0]["customerPatronymic"].ToString();
 
                             excelcells = excelworksheet.get_Range("C9");
-                            excelcells.Value = "    " + table.Rows[0]["phone"].ToString();
+                            excelcells.Value = table.Rows[0]["phone"].ToString();
 
                             excelcells = excelworksheet.get_Range("C11");
-                            excelcells.Value = "    " + table.Rows[0]["mail"].ToString();
+                            excelcells.Value = table.Rows[0]["mail"].ToString();
 
                             for (int j = 2; j < 9; j++)
                             {
@@ -909,8 +918,8 @@ namespace KeraminStore.UI.Windows
                     string[] adressArray = adress.Split(',');
 
                     string selectCustomerCodeQuery = "SELECT customerCode, deliveryCode, paymentCode, pickupCode FROM Customer, Delivery, Payment, Pickup " +
-                                                     "JOIN Town ON Pickup.townCode = Town.townCode " +
-                                                     "WHERE phone = '" + legalCustomerPhone.Text + "' AND orderNumber = '" + basketNumber + "' AND townName = '" + selfDeliveryTown.Text + "' AND Pickup.streetName = '" + adressArray[0] + "' " +
+                                                     "JOIN PickupTown ON Pickup.pickupTownCode = PickupTown.pickupTownCode " +
+                                                     "WHERE phone = '" + legalCustomerPhone.Text + "' AND orderNumber = '" + basketNumber + "' AND pickupTownName = '" + selfDeliveryTown.Text + "' AND Pickup.streetName = '" + adressArray[0] + "' " +
                                                      "AND Pickup.building = " + int.Parse(adressArray[1]) + " AND deliveryName = '" + delivery.SelectedItem.ToString() + "' AND paymentType = '" + payment.SelectedItem.ToString() + "'";
                     using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectCustomerCodeQuery, connectionString))
                     {
@@ -1048,7 +1057,7 @@ namespace KeraminStore.UI.Windows
                     excelcells = excelworksheet.get_Range("F5");
                     excelcells.Value = DateTime.Now.ToShortDateString();
                     excelcells = excelworksheet.get_Range("C15");
-                    excelcells.Value = "    ОАО \"Керамин\"";
+                    excelcells.Value = "ОАО \"Керамин\"";
                     string infoQuery = "SELECT legalName, UTN, phone, mail, productName, productCostCount, productCostArea, productsCount, Basket.generalSum, CustomerOrder.generalSum, employeeSurname, employeeName, employeePatronymic FROM CustomerOrder " +
                                        "JOIN Basket ON CustomerOrder.basketCode = Basket.basketCode " +
                                        "JOIN Product ON Basket.productCode = Product.productCode " +
@@ -1092,16 +1101,16 @@ namespace KeraminStore.UI.Windows
                                 k = 4;
                             }
                             excelcells = excelworksheet.get_Range("C7");
-                            excelcells.Value = "    " + table.Rows[0]["legalName"].ToString();
+                            excelcells.Value = table.Rows[0]["legalName"].ToString();
 
                             excelcells = excelworksheet.get_Range("C9");
-                            excelcells.Value = ("    " + table.Rows[0]["UTN"].ToString()).ToString();
+                            excelcells.Value = table.Rows[0]["UTN"].ToString();
 
                             excelcells = excelworksheet.get_Range("C11");
-                            excelcells.Value = "    " + table.Rows[0]["phone"].ToString();
+                            excelcells.Value = table.Rows[0]["phone"].ToString();
 
                             excelcells = excelworksheet.get_Range("C13");
-                            excelcells.Value = "    " + table.Rows[0]["mail"].ToString();
+                            excelcells.Value = table.Rows[0]["mail"].ToString();
 
                             for (int j = 2; j < 9; j++)
                             {

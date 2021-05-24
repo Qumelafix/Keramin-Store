@@ -133,6 +133,7 @@ namespace KeraminStore.UI.Windows
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             ProductsListWindow productsListWindow = new ProductsListWindow();
+            File.WriteAllText(@"ChangingProduct.txt", string.Empty);
             this.Close();
             productsListWindow.ShowDialog();
         }

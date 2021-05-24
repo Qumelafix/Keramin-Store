@@ -165,6 +165,10 @@ namespace KeraminStore.UI.Windows
             }
         }
 
-        private void CloseButton_Click(object sender, RoutedEventArgs e) => this.Close();
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            File.WriteAllText(@"ChangingEmployee.txt", string.Empty);
+            this.Close();
+        }
     }
 }

@@ -1,4 +1,4 @@
- create database KeraminStore
+create database KeraminStore
 
  use KeraminStore
 
@@ -22,7 +22,7 @@
  constraint employeeCodePK primary key (employeeCode),
  postCode int not null,
  constraint postCodeFK foreign key (postCode) references Post (postCode) on delete cascade)
- insert into Employee(employeeLogin, employeePassword, employeeName, employeeSurname, employeePatronymic, employeeDateOfBirth, postCode, employeeAdminStatus) values ('Admin', 'qwerty', 'Александр', 'Ритвинский', 'Николаевич', '19.10.2001', 1, 1)
+ insert into Employee(employeeLogin, employeePassword, employeeName, employeeSurname, employeePatronymic, employeeDateOfBirth, postCode, employeeAdminStatus) values ('Admin', 'Qwerty123', 'Александр', 'Ритвинский', 'Николаевич', '19.10.2001', 1, 1)
 
  create table ProductCollection
  (productCollectionCode int not null identity,
@@ -127,12 +127,29 @@
  constraint townCodePK primary key (townCode))
  insert into Town (townName) values ('Минск'), ('Витебск'), ('Брест'), ('Гродно'), ('Гомель'), ('Могилев'), ('Барановичи'), ('Бобруйск'), ('Борисов'), ('Горки'), ('Лида'), ('Мозырь'), ('Молодечно'), ('Пинск'), ('Солигорск')
 
+ create table PickupTown
+ (pickupTownCode int not null identity,
+ pickupTownName varchar(100) not null,
+ constraint pickupTownNameUniq unique (pickupTownName),
+ constraint pickupTownCodePK primary key (pickupTownCode))
+ insert into pickupTown (pickupTownName) values ('Минск'), ('Витебск'), ('Брест'), ('Гродно'), ('Гомель'), ('Могилев'), ('Барановичи'), ('Бобруйск'), ('Борисов'), ('Горки'), ('Лида'), ('Мозырь'), ('Молодечно'), ('Пинск'), ('Солигорск')
+
  create table Street
  (streetCode int not null identity,
  streetName varchar(100) not null,
  constraint streetNameUniq unique (streetName),
  constraint streetCodePK primary key (streetCode))
- insert into Street (streetName) values ('Зеленая'), ('Новая'), ('Железнодорожная'), ('Колесникова')
+ insert into Street (streetName) values ('Абрикосовая'), ('Авакяна'), ('Авангардная'), ('Авиации'), ('Авроровская'), ('Автодоровская'), ('Автозаводская'), ('Автомобилистов'), ('Азгура'),
+ ('Азизова'), ('Азовская'), ('Айвазовского'), ('Академическая'), ('Аладовых'), ('Александровская'), ('Алеся Гаруна'), ('Алибегова'), ('Аллейная'), ('Алтайская'), ('Амбулаторная'),
+ ('Амураторская'), ('Амурская'), ('Ангарская'), ('Андреевская'), ('Аннаева'), ('Антоновская'), ('Аполинарьевская'), ('Аранская'), ('Арктическая'), ('Артёма'), ('Артиллеристов'),
+ ('Асаналиева'), ('Ауэзова'), ('Аэродромная'), ('Аэрофлотская'), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''),
+ (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''),
+ (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''),
+ (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''),
+ (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''),
+ (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''),
+ (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), (''),
+ (''), (''), (''), (''), (''), (''), (''), (''), (''), (''), ('')
 
  create table Customer 
  (customerCode int not null identity,
@@ -157,8 +174,8 @@
  (pickupCode int not null identity,
  streetName varchar(100) not null,
  building int null,
- townCode int not null,
- constraint townFK foreign key (townCode) references Town (townCode) on delete cascade,
+ pickupTownCode int not null,
+ constraint townFK foreign key (pickupTownCode) references PickupTown (pickupTownCode) on delete cascade,
  constraint pickupCodePK primary key (pickupCode))
 
  create table CustomerOrder

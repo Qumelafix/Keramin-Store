@@ -124,7 +124,7 @@ namespace KeraminStore
                     if (postCode == 1) cmd.Parameters.Add("@status", SqlDbType.Bit).Value = 1;
                     else cmd.Parameters.Add("@status", SqlDbType.Bit).Value = 0;
                     cmd.Parameters.Add("@date", SqlDbType.Date).Value = birthdayDateField.SelectedDate.Value.ToShortDateString();
-                    cmd.Parameters.Add("@post", SqlDbType.VarChar).Value = postCode;
+                    cmd.Parameters.Add("@post", SqlDbType.Int).Value = postCode;
                     cmd.Connection = connectionString;
                     connectionString.Open();
                     cmd.ExecuteNonQuery();

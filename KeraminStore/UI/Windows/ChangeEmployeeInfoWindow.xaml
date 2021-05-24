@@ -7,7 +7,7 @@
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Width="645" Height="655" BorderThickness="1" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="None" Foreground="White" Background="#FFEAEAEA" MouseLeftButtonDown="Window_MouseLeftButtonDown" BorderBrush="#FF919191">
+        Width="645" Height="625" BorderThickness="1" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="None" Foreground="White" Background="#FFEAEAEA" MouseLeftButtonDown="Window_MouseLeftButtonDown" BorderBrush="#FF919191">
     <Grid>
         <Label Content="Изменение данных сотрудника" FontSize="30" FontWeight="Bold" FontFamily="Helvetica" Margin="20 15 0 0"/>
         <Label Content="Внесите изменения в необходимых полях" FontSize="20" FontWeight="Light" FontFamily="Helvetica" Margin="20 54 0 0"/>

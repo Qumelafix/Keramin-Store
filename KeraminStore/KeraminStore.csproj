@@ -202,6 +202,9 @@
     <Compile Include="UI\Windows\AddNewProductWindow.xaml.cs">
       <DependentUpon>AddNewProductWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\Windows\AddPickupAdressWindow.xaml.cs">
+      <DependentUpon>AddPickupAdressWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\Windows\AutorizationWindow.xaml.cs">
       <DependentUpon>AutorizationWindow.xaml</DependentUpon>
     </Compile>
@@ -221,11 +224,20 @@
     <Compile Include="UI\Windows\EmployeesWindow.xaml.cs">
       <DependentUpon>EmployeesWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\Windows\EmpoyeesStatistic.xaml.cs">
+      <DependentUpon>EmpoyeesStatistic.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\Windows\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Windows\OrdersListWindow.xaml.cs">
+      <DependentUpon>OrdersListWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Windows\PickupsListWindow.xaml.cs">
+      <DependentUpon>PickupsListWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\Windows\ProductCountWindow.xaml.cs">
       <DependentUpon>ProductCountWindow.xaml</DependentUpon>
@@ -233,8 +245,14 @@
     <Compile Include="UI\Windows\ProductsListWindow.xaml.cs">
       <DependentUpon>ProductsListWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\Windows\ProductsStatistic.xaml.cs">
+      <DependentUpon>ProductsStatistic.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\Windows\RegistrationWindow.xaml.cs">
       <DependentUpon>RegistrationWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Windows\StatisticTypeWindow.xaml.cs">
+      <DependentUpon>StatisticTypeWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\Windows\TileCalculatorWindow.xaml.cs">
       <DependentUpon>TileCalculatorWindow.xaml</DependentUpon>
@@ -287,6 +305,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UI\Windows\AddPickupAdressWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\Windows\AutorizationWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -311,11 +333,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UI\Windows\EmpoyeesStatistic.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\Windows\MainPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\Windows\MainWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\Windows\OrdersListWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\Windows\PickupsListWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -327,7 +361,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UI\Windows\ProductsStatistic.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\Windows\RegistrationWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\Windows\StatisticTypeWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

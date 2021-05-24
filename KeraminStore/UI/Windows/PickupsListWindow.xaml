@@ -1,0 +1,41 @@
+﻿<UserControl x:Class="KeraminStore.UI.Windows.PickupsListWindow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:KeraminStore.UI.Windows"
+             mc:Ignorable="d" 
+             Width="1302" Height="730" BorderThickness="1" Foreground="White" Background="#FFEAEAEA">
+
+    <UserControl.Resources>
+        <Style x:Key="ElementStyle" TargetType="TextBlock">
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="ElementsStyle" TargetType="TextBlock">
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Label Content="Список пунктов самовывоза" FontSize="30" FontWeight="Bold" FontFamily="Helvetica" Margin="210 30 0 0"/>
+        <Label x:Name="Description" Content="Для удаления/изменения данных о пунктах самовывоза выделите строку и нажмите на соответствующую кнопку снизу" FontSize="20" FontWeight="Light" FontFamily="Helvetica" Margin="210 75 0 0"/>
+        <Grid Width="1302" Height="100" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Button x:Name="ChangeButton" Width="110" Height="40" HorizontalAlignment="Center" VerticalAlignment="Center" Content="ИЗМЕНИТЬ" Margin="0 13 150 0" Click="ChangeButton_Click"/>
+            <Rectangle Width="1" Height="50" Fill="#FFB2B2B2" Margin="1 13 0 0"/>
+            <Button x:Name="DeleteButton" Width="110" Height="40" HorizontalAlignment="Center" VerticalAlignment="Center" Content="УДАЛИТЬ" Margin="150 13 0 0" Click="DeleteButton_Click"/>
+        </Grid>
+        <DataGrid x:Name="PickupsInfoGrid" Width="610" Height="532" HorizontalAlignment="Center" Margin="25,125,27,88" BorderThickness="1" AutoGenerateColumns="False" ScrollViewer.HorizontalScrollBarVisibility="Hidden" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" GridLinesVisibility="All">
+            <DataGrid.Columns>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding pickupTownName}" Header="Город" Width="200" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding streetName}" Header="Улица" Width="200" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding building}" Header="Номер здания" Width="200" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

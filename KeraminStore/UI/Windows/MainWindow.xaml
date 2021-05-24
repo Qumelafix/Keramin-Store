@@ -73,11 +73,11 @@
                     </ListViewItem>
                     <ListViewItem x:Name="TileCalculator" Height="60">
                         <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="PencilRuler" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
+                            <materialDesign:PackIcon Kind="Calculator" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
                             <TextBlock Text="Калькулятор плитки" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                         </StackPanel>
                     </ListViewItem>
-                    <ListViewItem x:Name="AddProduct" Height="60">
+                    <!--<ListViewItem x:Name="AddProduct" Height="60">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="AddBox" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
                             <TextBlock Text="Добавить изделие" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
@@ -88,6 +88,18 @@
                             <materialDesign:PackIcon Kind="ViewList" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
                             <TextBlock Text="Список изделий" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                         </StackPanel>
+                    </ListViewItem>-->
+                    <ListViewItem x:Name="Product" Height="60" MouseLeftButtonUp="Product_MouseLeftButtonUp">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="BoxCheck" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
+                            <TextBlock Text="Изделия" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                        </StackPanel>
+                        <ListViewItem.ContextMenu>
+                            <ContextMenu x:Name="ProductMenu">
+                                <MenuItem x:Name="AddProduct" Header="Добавить новое изделие" Click="AddProduct_Click"/>
+                                <MenuItem x:Name="ProductsList" Header="Список изделий" Click="ProductsList_Click"/>
+                            </ContextMenu>
+                        </ListViewItem.ContextMenu>
                     </ListViewItem>
                     <ListViewItem x:Name="CreateOrder" Height="60">
                         <StackPanel Orientation="Horizontal">
@@ -95,13 +107,19 @@
                             <TextBlock Text="Корзина" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                         </StackPanel>
                     </ListViewItem>
-                    <!--<ListViewItem x:Name="ChangeConsumersInfo" Height="60" MouseDoubleClick="ChangeConsumersInfo_MouseDoubleClick">
+                    <ListViewItem x:Name="Statistic" Height="60" MouseLeftButtonUp="Statistic_MouseLeftButtonUp">
                         <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="Bank" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
-                            <TextBlock Text="Change consumers info" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                            <materialDesign:PackIcon Kind="ChartLine" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
+                            <TextBlock Text="Статистика" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                         </StackPanel>
-                    </ListViewItem>-->
-                    <ListViewItem x:Name="AddEmployee" Height="60">
+                        <ListViewItem.ContextMenu>
+                            <ContextMenu x:Name="StatisticMenu">
+                                <MenuItem x:Name="EmployeesStatistic" Header="Лучшие сотрудники" Click="EmployeesStatistic_Click"/>
+                                <MenuItem x:Name="ProductsStatistic" Header="Популярность изделий" Click="ProductsStatistic_Click"/>
+                            </ContextMenu>
+                        </ListViewItem.ContextMenu>
+                    </ListViewItem>
+                    <!--<ListViewItem x:Name="AddEmployee" Height="60">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="AccountAdd" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
                             <TextBlock Text="Добавить сотрудника" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
@@ -112,6 +130,60 @@
                             <materialDesign:PackIcon Kind="AccountGroup" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
                             <TextBlock Text="Список сотрудников" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                         </StackPanel>
+                    </ListViewItem>-->
+                    <ListViewItem x:Name="OrdersList" Height="60">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="ClipboardText" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
+                            <TextBlock Text="Cписок заказов" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                        </StackPanel>
+                    </ListViewItem>
+                    <ListViewItem x:Name="Employee" Height="60" MouseLeftButtonUp="Employee_MouseLeftButtonUp">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="AccountGroup" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
+                            <TextBlock Text="Сотрудники" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                        </StackPanel>
+                        <ListViewItem.ContextMenu>
+                            <ContextMenu x:Name="EmployeeMenu">
+                                <MenuItem x:Name="AddEmployee" Header="Добавить нового сотрудника" Click="AddEmployee_Click"/>
+                                <MenuItem x:Name="EmployeesList" Header="Список сотрудников" Click="EmployeesList_Click"/>
+                            </ContextMenu>
+                        </ListViewItem.ContextMenu>
+                    </ListViewItem>
+                    <ListViewItem x:Name="Pickup" Height="60" MouseLeftButtonUp="Pickup_MouseLeftButtonUp">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Location" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
+                            <TextBlock Text="Пункты самовывоза" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                        </StackPanel>
+                        <ListViewItem.ContextMenu>
+                            <ContextMenu x:Name="CntxtMenu">
+                                <!--<MenuItem x:Name="Collection" Header="Коллекции изделий">
+                                    <MenuItem x:Name="AddCollection" Header="Добавить новую коллекцию" Click="AddCollection_Click"/>
+                                    <MenuItem x:Name="CollectionList" Header="Список коллекций" Click="CollectionList_Click"/>
+                                </MenuItem>
+                                <MenuItem x:Name="Surface" Header="Поверхности изделий">
+                                    <MenuItem x:Name="AddSurface" Header="Добавить новую поверхность" Click="AddSurface_Click"/>
+                                    <MenuItem x:Name="SurfaceList" Header="Список поверхностей" Click="SurfaceList_Click"/>
+                                </MenuItem>-->
+                                <!--<MenuItem x:Name="PickupTown" Header="Города для самовывоза">
+                                    <MenuItem x:Name="AddPickupTown" Header="Добавить новый город для самовывоза" Click="AddPickupTown_Click"/>
+                                    <MenuItem x:Name="PickupTownList" Header="Список городов для самовывоза" Click="PickupTownList_Click"/>
+                                </MenuItem>-->
+                                <MenuItem x:Name="AddPickupAdress" Header="Добавить новый пункт самовывоза" Click="AddPickup_Click"/>
+                                <MenuItem x:Name="PickupAdressList" Header="Список пунктов самовывоза" Click="PickupList_Click"/>
+                                <!--<MenuItem x:Name="Post" Header="Должности">
+                                    <MenuItem x:Name="AddPost" Header="Добавить новую должность" Click="AddPost_Click"/>
+                                    <MenuItem x:Name="PostList" Header="Список должностей" Click="PostList_Click"/>
+                                </MenuItem>
+                                <MenuItem x:Name="Town" Header="Города для доставки">
+                                    <MenuItem x:Name="AddTown" Header="Добавить новый город для доставки" Click="AddTown_Click"/>
+                                    <MenuItem x:Name="TownList" Header="Список городов для доставки" Click="TownList_Click"/>
+                                </MenuItem>
+                                <MenuItem x:Name="Street" Header="Улицы для доставки">
+                                    <MenuItem x:Name="AddStreet" Header="Добавить новую улицу для доставки" Click="AddStreet_Click"/>
+                                    <MenuItem x:Name="StreetList" Header="Список улиц для доставки" Click="StreetList_Click"/>-->
+                                <!--</MenuItem>-->
+                            </ContextMenu>
+                        </ListViewItem.ContextMenu>
                     </ListViewItem>
                 </ListView>
             </StackPanel>

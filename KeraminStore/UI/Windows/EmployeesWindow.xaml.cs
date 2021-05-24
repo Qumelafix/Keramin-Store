@@ -26,7 +26,7 @@ namespace KeraminStore.UI.Windows
             int userCode = Convert.ToInt32(file.ReadLine());
             file.Close();
 
-            string employeesInfoQuery = "SELECT employeeName, employeeSurname, employeePatronymic, employeeLogin, employeePassword, employeeDateOfBirth, postName " +
+            string employeesInfoQuery = "SELECT CONCAT(employeeSurname, ' ', employeeName, ' ', employeePatronymic) as 'employeeInfo', employeeSurname, employeeName, employeePatronymic, employeeLogin, employeePassword, employeeDateOfBirth, postName " +
                                          "FROM Employee " +
                                          "JOIN Post ON Employee.postCode = Post.postCode WHERE employeeCode != '" + userCode + "'";
 
