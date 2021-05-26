@@ -53,6 +53,9 @@
                 <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding sellCount}" Header="Продано, шт." Width="115" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
             </DataGrid.Columns>
         </DataGrid>
-        <ComboBox x:Name="Month" materialDesign:HintAssist.Hint="Выберите месяц" MaxDropDownHeight="190" FontFamily="Helvetica" FontWeight="Light" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="1045,111,0,0" Foreground="Black" Background="Transparent" Width="200" Style="{StaticResource MaterialDesignFloatingHintComboBox}" SelectionChanged="Month_SelectionChanged"/>
+        <ComboBox x:Name="Month" materialDesign:HintAssist.Hint="Выберите месяц" MaxDropDownHeight="190" FontFamily="Helvetica" FontWeight="Light" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="1045,111,0,0" Foreground="Black" Background="Transparent" Width="200" Style="{StaticResource MaterialDesignFloatingHintComboBox}" SelectionChanged="Month_SelectionChanged" />
+        <ComboBox x:Name="Year" materialDesign:HintAssist.Hint="Выберите год" MaxDropDownHeight="190" FontFamily="Helvetica" FontWeight="Light" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="1045,172,0,0" Foreground="Black" Background="Transparent" Width="200" Style="{StaticResource MaterialDesignFloatingHintComboBox}" SelectionChanged="Year_SelectionChanged"/>
+        <Button x:Name="LoadButton" Width="120" Margin="1113,245,67,451" Content="ЗАГРУЗИТЬ" Click="LoadButton_Click"/>
+        <Button x:Name="CreateReportButton" Width="140" Height="40" VerticalAlignment="Bottom" HorizontalAlignment="Center" Content="ПЕЧАТЬ" Click="CreateReportButton_Click" Margin="0 0 0 30" IsEnabled="False"/>
     </Grid>
 </UserControl>

@@ -26,14 +26,18 @@
         <Label x:Name="Description" Content="Ниже представлена статистика о лучших сотрудниках по проданному количеству изделий за месяц" FontSize="20" FontWeight="Light" FontFamily="Helvetica" Margin="210 60 0 0"/>
         <DataGrid x:Name="EmployeesInfoGrid" Width="825" Height="532" HorizontalAlignment="Center" Margin="0,110,45,88" BorderThickness="1" AutoGenerateColumns="False" ScrollViewer.HorizontalScrollBarVisibility="Hidden" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" GridLinesVisibility="All">
             <DataGrid.Columns>
-                <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding employeeSurname}" Header="Фамилия" Width="140" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
-                <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding employeeName}" Header="Имя" Width="140" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
-                <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding employeePatronymic}" Header="Отчество" Width="140" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementStyle}" Binding="{Binding employeeInfo}" Header="ФИО сотрудника" Width="420" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding employeeSurname}" Width="0" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Visibility="Hidden"/>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding employeeName}" Width="0" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Visibility="Hidden"/>
+                <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding employeePatronymic}" Width="0" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Visibility="Hidden"/>
                 <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding postName}" Header="Должность" Width="150" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                 <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding sellCount}" Header="Продано, шт." Width="115" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                 <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding sellCost}" Header="На сумму, руб." Width="125" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
             </DataGrid.Columns>
         </DataGrid>
         <ComboBox x:Name="Month" materialDesign:HintAssist.Hint="Выберите месяц" MaxDropDownHeight="190" FontFamily="Helvetica" FontWeight="Light" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="1045,111,0,0" Foreground="Black" Background="Transparent" Width="200" Style="{StaticResource MaterialDesignFloatingHintComboBox}" SelectionChanged="Month_SelectionChanged"/>
+        <ComboBox x:Name="Year" materialDesign:HintAssist.Hint="Выберите год" MaxDropDownHeight="190" FontFamily="Helvetica" FontWeight="Light" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="1045,172,0,0" Foreground="Black" Background="Transparent" Width="200" Style="{StaticResource MaterialDesignFloatingHintComboBox}" SelectionChanged="Year_SelectionChanged"/>
+        <Button x:Name="LoadButton" Width="120" Margin="1113,245,67,451" Content="ЗАГРУЗИТЬ" Click="LoadButton_Click"/>
+        <Button x:Name="CreateReportButton" Width="140" Height="40" VerticalAlignment="Bottom" HorizontalAlignment="Center" Content="ПЕЧАТЬ" Click="CreateReportButton_Click" Margin="0 0 0 30" IsEnabled="False"/>
     </Grid>
 </UserControl>

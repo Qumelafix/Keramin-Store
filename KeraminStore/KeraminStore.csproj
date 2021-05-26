@@ -251,9 +251,6 @@
     <Compile Include="UI\Windows\RegistrationWindow.xaml.cs">
       <DependentUpon>RegistrationWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\Windows\StatisticTypeWindow.xaml.cs">
-      <DependentUpon>StatisticTypeWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="UI\Windows\TileCalculatorWindow.xaml.cs">
       <DependentUpon>TileCalculatorWindow.xaml</DependentUpon>
     </Compile>
@@ -366,10 +363,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\Windows\RegistrationWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\Windows\StatisticTypeWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
