@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
@@ -11,8 +12,9 @@ namespace KeraminStore.UI.Windows
 {
     public partial class ChangeEmployeeInfoWindow : Window
     {
-        readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
-
+        static string connectionString1 = ConfigurationManager.ConnectionStrings["KeraminStore.Properties.Settings.KeraminStoreConnectionString"].ConnectionString;
+        //readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
+        readonly SqlConnection connectionString = new SqlConnection(connectionString1);
         public ChangeEmployeeInfoWindow()
         {
             InitializeComponent();

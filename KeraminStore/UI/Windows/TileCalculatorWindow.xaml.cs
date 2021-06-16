@@ -11,16 +11,15 @@ namespace KeraminStore.UI.Windows
             InitializeComponent();
         }
 
-        private void CalculateButton_Click(object sender, RoutedEventArgs e)
+        private void CalculateButton_Click(object sender, RoutedEventArgs e) //Метод для расчета количества изделий
         {
-            if (room.IsChecked == false && floor.IsChecked == false)
+            if (room.IsChecked == false && floor.IsChecked == false) //Проверка выбора площади работ
             {
-                MessageBox.Show("Вы не указали место, где будет класться плитка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Вы не выбрали площадь работ.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-
             double surfaceWidthValue = 0;
-            if (surfaceWidth.Text == string.Empty)
+            if (surfaceWidth.Text == string.Empty) //Проверка ширины комнаты/пола
             {
                 MessageBox.Show("Вы не указали ширину комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -42,9 +41,8 @@ namespace KeraminStore.UI.Windows
                     return;
                 }
             }
-
             double surfaceLenghtValue = 0;
-            if (surfaceLenght.Text == string.Empty)
+            if (surfaceLenght.Text == string.Empty) //Проверка длины комнаты/пола
             {
                 MessageBox.Show("Вы не указали длину комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -66,12 +64,11 @@ namespace KeraminStore.UI.Windows
                     return;
                 }
             }
-
             double surfaceArea = 0;
             double surfaceHeightValue = 0;
-            if (room.IsChecked == true)
+            if (room.IsChecked == true) 
             {
-                if (surfaceHeight.Text == string.Empty)
+                if (surfaceHeight.Text == string.Empty) //Проверка высоты комнаты
                 {
                     MessageBox.Show("Вы не указали высоту комнаты.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
@@ -93,15 +90,11 @@ namespace KeraminStore.UI.Windows
                         return;
                     }
                 }
-                surfaceArea = (surfaceLenghtValue * 2 + surfaceWidthValue * 2) * surfaceHeightValue;
+                surfaceArea = (surfaceLenghtValue * 2 + surfaceWidthValue * 2) * surfaceHeightValue; //Расчет площади комнаты
             }
-            else
-            {
-                surfaceArea = surfaceLenghtValue * surfaceWidthValue;
-            }
-
+            else surfaceArea = surfaceLenghtValue * surfaceWidthValue; //Расчет площади комнаты/пола
             double tileWidthValue = 0;
-            if (tileWidth.Text == string.Empty)
+            if (tileWidth.Text == string.Empty) //Проверка ширины плитки
             {
                 MessageBox.Show("Вы не указали ширину плитки.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -128,9 +121,8 @@ namespace KeraminStore.UI.Windows
                     return;
                 }
             }
-
             double tileLenghtValue = 0;
-            if (tileLenght.Text == string.Empty)
+            if (tileLenght.Text == string.Empty) //Проверка длины плитки
             {
                 MessageBox.Show("Вы не указали длину плитки.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -157,10 +149,9 @@ namespace KeraminStore.UI.Windows
                     return;
                 }
             }
-
-            double tileArea = (tileLenghtValue / 1000) * (tileWidthValue / 1000);
+            double tileArea = (tileLenghtValue / 1000) * (tileWidthValue / 1000); //Расчет площади плитки
             int tileReserveValue = 0;
-            if (tileReserve.Text == string.Empty)
+            if (tileReserve.Text == string.Empty) //Проверка запаса плитки
             {
                 MessageBox.Show("Вы не указали запас плитки.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -182,7 +173,6 @@ namespace KeraminStore.UI.Windows
                     return;
                 }
             }
-
             surfaceArea -= double.Parse(area.Text);
             if (surfaceArea < tileArea)
             {
@@ -216,10 +206,10 @@ namespace KeraminStore.UI.Windows
             UnlockString();
         }
 
-        private void AddArea_Click(object sender, RoutedEventArgs e)
+        private void AddArea_Click(object sender, RoutedEventArgs e) //Метод для вычисления площади не закладываемого участка
         {
             double surfaceWidthValue = 0;
-            if (surfaceWidth.Text == string.Empty)
+            if (surfaceWidth.Text == string.Empty) //Проверка ширины комнаты/пола
             {
                 MessageBox.Show("Вы не указали ширину комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -243,7 +233,7 @@ namespace KeraminStore.UI.Windows
             }
 
             double surfaceLenghtValue = 0;
-            if (surfaceLenght.Text == string.Empty)
+            if (surfaceLenght.Text == string.Empty) //Проверка длины комнаты/пола
             {
                 MessageBox.Show("Вы не указали длину комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -270,7 +260,7 @@ namespace KeraminStore.UI.Windows
             double surfaceHeightValue = 0;
             if (room.IsChecked == true)
             {
-                if (surfaceHeight.Text == string.Empty)
+                if (surfaceHeight.Text == string.Empty) //Проверка высоты комнаты
                 {
                     MessageBox.Show("Вы не указали высоту комнаты.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
@@ -294,13 +284,10 @@ namespace KeraminStore.UI.Windows
                 }
                 surfaceArea = (surfaceLenghtValue * 2 + surfaceWidthValue * 2) * surfaceHeightValue;
             }
-            else
-            {
-                surfaceArea = surfaceLenghtValue * surfaceWidthValue;
-            }
+            else surfaceArea = surfaceLenghtValue * surfaceWidthValue;
 
             double areaWidthValue = 0;
-            if (areaWidth.Text == string.Empty)
+            if (areaWidth.Text == string.Empty) //Проверка ширины не закладываемого участка
             {
                 MessageBox.Show("Вы не указали ширину не закладываемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -329,7 +316,7 @@ namespace KeraminStore.UI.Windows
             }
 
             double areaLenghtValue = 0;
-            if (areaLenght.Text == string.Empty)
+            if (areaLenght.Text == string.Empty) //Проверка длины не закладываемого участка
             {
                 MessageBox.Show("Вы не указали длину не закладываемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -362,7 +349,7 @@ namespace KeraminStore.UI.Windows
             if (room.IsChecked == true && areaHeight.Text != string.Empty)
             {
                 bool isNum = double.TryParse(areaHeight.Text, out areaHeightValue);
-                if (isNum)
+                if (isNum) //Проверка высоты не закладываемого участка
                 {
                     if (areaHeightValue <= 0)
                     {
@@ -406,7 +393,7 @@ namespace KeraminStore.UI.Windows
             area.Text = "0";
         }
 
-        private void UnlockString()
+        private void UnlockString() //Метод для предоставления доступа к полям
         {
             surfaceWidth.IsReadOnly = false;
             surfaceLenght.IsReadOnly = false;

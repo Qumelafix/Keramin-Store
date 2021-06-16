@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
@@ -13,29 +14,24 @@ using System.Windows.Controls;
 
 namespace KeraminStore.UI.Windows
 {
-
-    public partial class ProductsStatistic : UserControl
+    public partial class ProductsStatistics : UserControl
     {
-        readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
-
-        public ProductsStatistic()
+        static string connectionString1 = ConfigurationManager.ConnectionStrings["KeraminStore.Properties.Settings.KeraminStoreConnectionString"].ConnectionString;
+        readonly SqlConnection connectionString = new SqlConnection(connectionString1);
+        public ProductsStatistics()
         {
             InitializeComponent();
-            //connectionString.Open();
-            //FillDataGrid();
-            //connectionString.Close();
-
             var russianCulture = new CultureInfo("ru-RU");
-            foreach (var month in russianCulture.DateTimeFormat.MonthNames.Take(12))
+            foreach (var month in russianCulture.DateTimeFormat.MonthNames.Take(12)) //Загрузка месяцев в соответствующее поле
             {
                 Month.Items.Add(new ListItem { Text = month });
             }
             DateTime now = DateTime.Now;
             Year.Items.Add("Все время");
-            for (int i = 2020; i <= now.Year; i++) Year.Items.Add(i.ToString());
+            for (int i = 2020; i <= now.Year; i++) Year.Items.Add(i.ToString()); //Загрузка годов в соответствующее поле
         }
 
-        private void FillDataGrid()
+        private void FillDataGrid() //Метод для заполнения таблицы данными за все время
         {
             string productsInfoQuery = "SELECT productName, productImage, productArticle, CONCAT(productLenght, 'x', productWidth) as 'productParametrs', productLenght, productWidth, surfaceName, productTypeName, productCollectionName, Sum(productsCount) as 'sellCount' " +
                                        "FROM CustomerOrder " +
@@ -47,19 +43,20 @@ namespace KeraminStore.UI.Windows
                                        "JOIN ProductType On Product.productTypeCode = ProductType.productTypeCode " +
                                        "GROUP BY productName, productImage, productArticle, productLenght, productWidth, surfaceName, productTypeName, productCollectionName";
 
-            DataTable table = new DataTable();
-            using (SqlCommand cmd = new SqlCommand(productsInfoQuery, connectionString))
+            using (SqlDataAdapter dataAdapter = new SqlDataAdapter(productsInfoQuery, connectionString))
             {
-                using (IDataReader rdr = cmd.ExecuteReader())
+                DataTable table = new DataTable();
+                dataAdapter.Fill(table);
+                if (table.Rows.Count > 0)
                 {
-                    table.Load(rdr);
+                    for (int i = 0; i < table.Rows.Count; ++i) table.Rows[i]["productImage"] = Environment.CurrentDirectory.ToString() + "\\" + table.Rows[i]["productImage"].ToString(); //Загрузка изображения изделия
+                    ProductsInfoGrid.ItemsSource = table.DefaultView; //Заполнение таблицы данными
                 }
             }
-            ProductsInfoGrid.ItemsSource = table.DefaultView;
             ProductsInfoGrid.Items.SortDescriptions.Add(new SortDescription("sellCount", ListSortDirection.Descending));
         }
 
-        private void FillDataGridByDate()
+        private void FillDataGridByDate()  //Метод для заполнения таблицы данными за определенный период
         {
             var startDate = new DateTime(Convert.ToInt32(Year.Text), Month.SelectedIndex + 1, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
@@ -78,21 +75,22 @@ namespace KeraminStore.UI.Windows
                                        "WHERE issueDate >= '" + startDate.ToShortDateString() + "' AND issueDate <= '" + endDate.ToShortDateString() + "' " +
                                        "GROUP BY productName, productImage, productArticle, productLenght, productWidth, surfaceName, productTypeName, productCollectionName";
 
-            DataTable table = new DataTable();
-            using (SqlCommand cmd = new SqlCommand(productsInfoQuery, connectionString))
+            using (SqlDataAdapter dataAdapter = new SqlDataAdapter(productsInfoQuery, connectionString))
             {
-                using (IDataReader rdr = cmd.ExecuteReader())
+                DataTable table = new DataTable();
+                dataAdapter.Fill(table);
+                if (table.Rows.Count > 0)
                 {
-                    table.Load(rdr);
+                    for (int i = 0; i < table.Rows.Count; ++i) table.Rows[i]["productImage"] = Environment.CurrentDirectory.ToString() + "\\" + table.Rows[i]["productImage"].ToString(); //Загрузка изображения изделия
+                    ProductsInfoGrid.ItemsSource = table.DefaultView; //Заполнение таблицы данными
                 }
             }
-            ProductsInfoGrid.ItemsSource = table.DefaultView;
             ProductsInfoGrid.Items.SortDescriptions.Add(new SortDescription("sellCount", ListSortDirection.Descending));
         }
 
-        private void LoadButton_Click(object sender, RoutedEventArgs e)
+        private void LoadButton_Click(object sender, RoutedEventArgs e) //Метод для загрузки данных в таблицу
         {
-            if (Month.Text == string.Empty && Year.Text == string.Empty)
+            if (Month.Text == string.Empty && Year.Text == string.Empty) //Проверки для полей
             {
                 MessageBox.Show("Для отображения статистики необходимо указать месяц и год.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -107,7 +105,7 @@ namespace KeraminStore.UI.Windows
                 MessageBox.Show("Для отображения статистики необходимо указать год.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            else if (Year.Text == Year.Items[0].ToString())
+            else if (Year.Text == Year.Items[0].ToString()) //Загрузка таблицы данными за все время
             {
                 ProductsInfoGrid.ItemsSource = null;
                 ProductsInfoGrid.Items.Refresh();
@@ -116,7 +114,7 @@ namespace KeraminStore.UI.Windows
                 connectionString.Close();
                 CreateReportButton.IsEnabled = true;
             }
-            else
+            else //Загрузка таблицы данными за определенный период
             {
                 connectionString.Open();
                 FillDataGridByDate();
@@ -140,32 +138,32 @@ namespace KeraminStore.UI.Windows
         [DllImport("user32")]
         static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId0);
 
-        private void CreateReportButton_Click(object sender, RoutedEventArgs e)
+        private void CreateReportButton_Click(object sender, RoutedEventArgs e) //Метод для формирования отчета
         {
-            if (ProductsInfoGrid.Items.Count == 0)
+            if (ProductsInfoGrid.Items.Count == 0) //Проверка наличия данных в таблице
             {
                 MessageBox.Show("Невозможно создать документ со статистикой за указанный период времени, так как в ней нет данных.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             else
             {
-                Microsoft.Office.Interop.Excel.Workbooks excelappworkbooks;
+                Microsoft.Office.Interop.Excel.Workbooks excelappworkbooks; //Создание документа Excel с указанием пути сохранения
                 Microsoft.Office.Interop.Excel.Workbook excelappworkbook;
                 Microsoft.Office.Interop.Excel.Sheets excelsheets;
                 Microsoft.Office.Interop.Excel.Worksheet excelworksheet;
                 Microsoft.Office.Interop.Excel.Range excelcells;
-                string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                string path = Environment.CurrentDirectory + "\\ProductsStatisticsDocuments";
                 Microsoft.Office.Interop.Excel.Application excelapp = new Microsoft.Office.Interop.Excel.Application();
                 excelapp.Interactive = false;
                 uint processId;
                 GetWindowThreadProcessId((IntPtr)excelapp.Hwnd, out processId);
                 int q = 6;
-                if (Year.Text == Year.Items[0].ToString())
+                if (Year.Text == Year.Items[0].ToString()) //Формирование документа за все время
                 {
                     try
                     {
                         excelappworkbooks = excelapp.Workbooks;
-                        excelappworkbook = excelapp.Workbooks.Open(Path.GetFullPath(@"ProductsStatisticExample.xls"));
+                        excelappworkbook = excelapp.Workbooks.Open(Path.GetFullPath(@"ProductsStatisticsExample.xls")); //Открытие шаблона
                         excelsheets = excelappworkbook.Worksheets;
                         excelworksheet = (Microsoft.Office.Interop.Excel.Worksheet)excelsheets.get_Item(1);
                         excelcells = excelworksheet.get_Range("F3");
@@ -181,7 +179,7 @@ namespace KeraminStore.UI.Windows
                                        "JOIN ProductType On Product.productTypeCode = ProductType.productTypeCode " +
                                        "GROUP BY productName, productImage, productArticle, productLenght, productWidth, surfaceName, productTypeName, productCollectionName";
 
-                        using (SqlDataAdapter dataAdapter = new SqlDataAdapter(infoQuery, connectionString))
+                        using (SqlDataAdapter dataAdapter = new SqlDataAdapter(infoQuery, connectionString)) //Заполнение данными
                         {
                             int position = 1;
                             int k = 0;
@@ -226,12 +224,12 @@ namespace KeraminStore.UI.Windows
                     catch (Exception m) { MessageBox.Show(m.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
                     finally { Process.GetProcessById((int)processId).Kill(); }
                 }
-                else
+                else //Формирование документа за определенный период
                 {
                     try
                     {
                         excelappworkbooks = excelapp.Workbooks;
-                        excelappworkbook = excelapp.Workbooks.Open(Path.GetFullPath(@"ProductsStatisticExample.xls"));
+                        excelappworkbook = excelapp.Workbooks.Open(Path.GetFullPath(@"ProductsStatisticsExample.xls")); //Открытие шаблона
                         excelsheets = excelappworkbook.Worksheets;
                         excelworksheet = (Microsoft.Office.Interop.Excel.Worksheet)excelsheets.get_Item(1);
                         excelcells = excelworksheet.get_Range("F3");
@@ -251,7 +249,7 @@ namespace KeraminStore.UI.Windows
                                        "WHERE issueDate >= '" + startDate.ToShortDateString() + "' AND issueDate <= '" + endDate.ToShortDateString() + "' " +
                                        "GROUP BY productName, productImage, productArticle, productLenght, productWidth, surfaceName, productTypeName, productCollectionName";
 
-                        using (SqlDataAdapter dataAdapter = new SqlDataAdapter(infoQuery, connectionString))
+                        using (SqlDataAdapter dataAdapter = new SqlDataAdapter(infoQuery, connectionString)) //Заполнение данными
                         {
                             int position = 1;
                             int k = 0;

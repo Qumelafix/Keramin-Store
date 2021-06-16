@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
@@ -9,8 +10,9 @@ namespace KeraminStore.UI.Windows
 {
     public partial class PickupsListWindow : UserControl
     {
-        readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
-
+        static string connectionString1 = ConfigurationManager.ConnectionStrings["KeraminStore.Properties.Settings.KeraminStoreConnectionString"].ConnectionString;
+        //readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
+        readonly SqlConnection connectionString = new SqlConnection(connectionString1);
         public PickupsListWindow()
         {
             InitializeComponent();
@@ -47,7 +49,7 @@ namespace KeraminStore.UI.Windows
                 DataRowView pickupInfo = (DataRowView)PickupsInfoGrid.SelectedItems[0];
                 AddPickupAdressWindow changePickupInfo = new AddPickupAdressWindow();
                 string selectEmployeeInfoQuery = "SELECT pickupCode FROM Pickup JOIN PickupTown ON Pickup.pickupTownCode = PickupTown.pickupTownCode " +
-                                                 "WHERE pickupTownName = '" + pickupInfo["pickupTownName"].ToString() + "' AND streetName = '" + pickupInfo["streetName"].ToString() + "' AND building = " + Convert.ToInt32(pickupInfo["building"].ToString()) + "";
+                                                 "WHERE pickupTownName = '" + pickupInfo["pickupTownName"].ToString() + "' AND streetName = '" + pickupInfo["streetName"].ToString() + "' AND building = '" + pickupInfo["building"].ToString() + "'";
                 using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectEmployeeInfoQuery, connectionString))
                 {
                     DataTable table = new DataTable();
@@ -91,7 +93,7 @@ namespace KeraminStore.UI.Windows
                                   "WHERE pickupTownName = @town AND streetName = @street AND building = @building"; //Запрос на удаление выбранного пункта самовывоза
                 cmd.Parameters.Add("@street", SqlDbType.VarChar).Value = pickupInfo["streetName"].ToString();
                 cmd.Parameters.Add("@town", SqlDbType.VarChar).Value = pickupInfo["pickupTownName"].ToString(); ;
-                cmd.Parameters.Add("@building", SqlDbType.Int).Value = Convert.ToInt32(pickupInfo["building"].ToString());
+                cmd.Parameters.Add("@building", SqlDbType.VarChar).Value = pickupInfo["building"].ToString();
                 cmd.Connection = connectionString;
                 connectionString.Open();
                 cmd.ExecuteNonQuery();

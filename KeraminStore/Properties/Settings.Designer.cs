@@ -26,17 +26,6 @@ namespace KeraminStore.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=DESKTOP-14U9G04\\SQLEXPRESS;Initial Catalog=KeraminStock;Integrated Se" +
-            "curity=True")]
-        public string KeraminStockConnectionString {
-            get {
-                return ((string)(this["KeraminStockConnectionString"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
         [global::System.Configuration.DefaultSettingValueAttribute("Data Source=DESKTOP-14U9G04\\SQLEXPRESS;Initial Catalog=KeraminStore;Integrated Se" +
             "curity=True")]
         public string KeraminStoreConnectionString {

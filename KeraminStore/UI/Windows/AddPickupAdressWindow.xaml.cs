@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
@@ -12,8 +13,9 @@ namespace KeraminStore.UI.Windows
 {
     public partial class AddPickupAdressWindow : Window
     {
-        readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
-
+        static string connectionString1 = ConfigurationManager.ConnectionStrings["KeraminStore.Properties.Settings.KeraminStoreConnectionString"].ConnectionString;
+        //readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
+        readonly SqlConnection connectionString = new SqlConnection(connectionString1);
         public AddPickupAdressWindow()
         {
             InitializeComponent();
@@ -80,10 +82,10 @@ namespace KeraminStore.UI.Windows
             }
             else
             {
-                Regex regex = new Regex(@"^\d{1,3}$");
+                Regex regex = new Regex(@"^(\d{1,3}|\d{1,3}\/\d{1,2}|\d{1,3}(?:[а-я])|\d{1,3}(?:[а-я])\/\d{1,2}|\d{1,3}\/\d{1,2}(?:[а-я]))$"); /*new Regex(@"^\d{1,3}$");*/
                 if (!regex.IsMatch(buildingField.Text))
                 {
-                    MessageBox.Show("Номер здания должен быть числовой величиной с максимальной длиной в 3 символа.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Номер здания должен выглядеть как 15 | 15а | 15/1 | 15а/1 | 15/1а.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
@@ -96,8 +98,8 @@ namespace KeraminStore.UI.Windows
                     if (table.Rows.Count > 0) townCode = int.Parse(table.Rows[0]["pickupTownCode"].ToString());
                 }
 
-                string selectEPickupQuery = "SELECT * FROM Pickup WHERE pickupTownCode = " + townCode + " AND streetName = '" + streetField.Text + "' AND building = " + Convert.ToInt32(buildingField.Text) + "";
-                using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectEPickupQuery, connectionString))
+                string selectPickupQuery = "SELECT * FROM Pickup WHERE pickupTownCode = " + townCode + " AND streetName = '" + streetField.Text + "' AND building = '" + buildingField.Text + "'";
+                using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectPickupQuery, connectionString))
                 {
                     DataTable table = new DataTable();
                     dataAdapter.Fill(table);
@@ -113,7 +115,7 @@ namespace KeraminStore.UI.Windows
                         cmd.CommandText = "INSERT Pickup (streetName, pickupTownCode, building) VALUES (@street, @town, @building)";
                         cmd.Parameters.Add("@street", SqlDbType.VarChar).Value = streetField.Text;
                         cmd.Parameters.Add("@town", SqlDbType.Int).Value = townCode;
-                        cmd.Parameters.Add("@building", SqlDbType.Int).Value = Convert.ToInt32(buildingField.Text);
+                        cmd.Parameters.Add("@building", SqlDbType.VarChar).Value = buildingField.Text;
                         cmd.Connection = connectionString;
                         connectionString.Open();
                         cmd.ExecuteNonQuery();
@@ -154,10 +156,10 @@ namespace KeraminStore.UI.Windows
             }
             else
             {
-                Regex regex = new Regex(@"^\d{1,3}$");
+                Regex regex = new Regex(@"^(\d{1,3}|\d{1,3}\/\d{1,2}|\d{1,3}(?:[а-я])|\d{1,3}(?:[а-я])\/\d{1,2}|\d{1,3}\/\d{1,2}(?:[а-я]))$"); /*new Regex(@"^\d{1,3}$");*/
                 if (!regex.IsMatch(buildingField.Text))
                 {
-                    MessageBox.Show("Номер здания должен быть числовой величиной с максимальной длиной в 3 символа.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Номер здания должен выглядеть как 15 | 15а | 15/1 | 15а/1 | 15/1а.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
@@ -167,7 +169,7 @@ namespace KeraminStore.UI.Windows
 
                 string townNameQ = string.Empty;
                 string streetNameQ = string.Empty;
-                int buildingQ = 0;
+                string buildingQ = string.Empty;
 
                 string selectPickupInfo = "SELECT * FROM Pickup JOIN PickupTown ON Pickup.pickupTownCode = PickupTown.pickupTownCode WHERE pickupCode = " + pickupCode + "";
                 using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectPickupInfo, connectionString))
@@ -178,18 +180,18 @@ namespace KeraminStore.UI.Windows
                     {
                         townNameQ = table.Rows[0]["pickupTownName"].ToString();
                         streetNameQ = table.Rows[0]["streetName"].ToString();
-                        buildingQ = Convert.ToInt32(table.Rows[0]["building"].ToString());
+                        buildingQ = table.Rows[0]["building"].ToString();
                     }
                 }
 
                 string selectUniqPickupQuery = "SELECT * FROM Pickup " +
                                                "JOIN PickupTown ON Pickup.pickupTownCode = PickupTown.pickupTownCode " +
-                                               "WHERE pickupTownName= '" + townField.Text + "' AND streetName = '" + streetField.Text + "' AND building = " + Convert.ToInt32(buildingField.Text) + "";
+                                               "WHERE pickupTownName= '" + townField.Text + "' AND streetName = '" + streetField.Text + "' AND building = '" + buildingField.Text + "'";
                 using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectUniqPickupQuery, connectionString))
                 {
                     DataTable table = new DataTable();
                     dataAdapter.Fill(table);
-                    if (table.Rows.Count > 0 && (table.Rows[0]["pickupTownName"].ToString() != townNameQ || table.Rows[0]["streetName"].ToString() != streetNameQ || Convert.ToInt32(table.Rows[0]["building"].ToString()) != buildingQ))
+                    if (table.Rows.Count > 0 && (table.Rows[0]["pickupTownName"].ToString() != townNameQ || table.Rows[0]["streetName"].ToString() != streetNameQ || table.Rows[0]["building"].ToString() != buildingQ))
                     {
                         MessageBox.Show("Этот пункт самовывоза уже имеется в базе.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
@@ -215,13 +217,13 @@ namespace KeraminStore.UI.Windows
                     //MessageBox.Show(table.Rows[0]["building"].ToString() + " - " + buildingField.Text);
                     //MessageBox.Show(table.Rows[0]["pickupTownCode"].ToString() + " - " + pickupTownCode.ToString());
 
-                    if (table.Rows.Count > 0 && (table.Rows[0]["streetName"].ToString() != streetField.Text || Convert.ToInt32(table.Rows[0]["building"].ToString()) != Convert.ToInt32(buildingField.Text) || Convert.ToInt32(table.Rows[0]["pickupTownCode"].ToString()) != pickupTownCode))
+                    if (table.Rows.Count > 0 && (table.Rows[0]["streetName"].ToString() != streetField.Text || table.Rows[0]["building"].ToString() != buildingField.Text || Convert.ToInt32(table.Rows[0]["pickupTownCode"].ToString()) != pickupTownCode))
                     {
                         SqlCommand cmd = new SqlCommand();
                         cmd.CommandType = CommandType.Text;
                         cmd.CommandText = "UPDATE Pickup SET streetName = @street, building = @building, pickupTownCode = @town WHERE pickupCode = @code";
                         cmd.Parameters.Add("@street", SqlDbType.VarChar).Value = streetField.Text;
-                        cmd.Parameters.Add("@building", SqlDbType.Int).Value = Convert.ToInt32(buildingField.Text);
+                        cmd.Parameters.Add("@building", SqlDbType.VarChar).Value =buildingField.Text;
                         cmd.Parameters.Add("@town", SqlDbType.Int).Value = pickupTownCode;
                         cmd.Parameters.Add("@code", SqlDbType.Int).Value = pickupCode;
                         cmd.Connection = connectionString;

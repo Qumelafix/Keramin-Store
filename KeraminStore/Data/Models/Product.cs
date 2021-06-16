@@ -14,7 +14,7 @@ namespace KeraminStore.Data.Models
                     char[] productNameArray = productName.ToCharArray();
                     for (int i = 0; i < productNameArray.Length; i++)
                     {
-                        if (!char.IsLetterOrDigit(productNameArray[i]) && productNameArray[i] != ' ' && productNameArray[i] != ',') return invalidSymbol;
+                        if (!char.IsLetterOrDigit(productNameArray[i]) && productNameArray[i] != ' ' && productNameArray[i] != ',' && productNameArray[i] != '.' && productNameArray[i] != '-') return invalidSymbol;
                     }
                 }
                 else return invalidLength;

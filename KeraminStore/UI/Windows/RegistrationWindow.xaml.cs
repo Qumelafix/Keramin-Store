@@ -1,18 +1,18 @@
 ﻿using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Linq;
-using System.Data;
-using System.IO;
-using System;
 
 namespace KeraminStore
 {
     public partial class RegistrationWindow : UserControl
     {
-        readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
-
+        static string connectionString1 = ConfigurationManager.ConnectionStrings["KeraminStore.Properties.Settings.KeraminStoreConnectionString"].ConnectionString;
+        //readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
+        readonly SqlConnection connectionString = new SqlConnection(connectionString1);
         public RegistrationWindow()
         {
             InitializeComponent();

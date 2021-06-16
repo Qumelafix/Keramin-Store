@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
@@ -13,11 +14,12 @@ using System.Windows.Controls;
 
 namespace KeraminStore.UI.Windows
 {
-    public partial class EmpoyeesStatistic : UserControl
+    public partial class EmpoyeesStatistics : UserControl
     {
-        readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
-
-        public EmpoyeesStatistic()
+        static string connectionString1 = ConfigurationManager.ConnectionStrings["KeraminStore.Properties.Settings.KeraminStoreConnectionString"].ConnectionString;
+        //readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
+        readonly SqlConnection connectionString = new SqlConnection(connectionString1);
+        public EmpoyeesStatistics()
         {
             InitializeComponent();
             //connectionString.Open();
@@ -36,7 +38,7 @@ namespace KeraminStore.UI.Windows
 
         private void FillDataGrid()
         {
-            string employeesInfoQuery = "SELECT CONCAT(employeeSurname, ' ', employeeName, ' ', employeePatronymic) as 'employeeInfo', employeeName, employeeSurname, employeePatronymic, postName, Sum(Basket.productsCount) as 'sellCount', Sum(CustomerOrder.generalSum - deliveryCost) as 'sellCost' " +
+            string employeesInfoQuery = "SELECT CONCAT(employeeSurname, ' ', employeeName, ' ', employeePatronymic) as 'employeeInfo', employeeName, employeeSurname, employeePatronymic, postName, Sum(Basket.productsCount) as 'sellCount' " + //, Sum(CustomerOrder.generalSum - deliveryCost) as 'sellCost'
                                         "FROM CustomerOrder " +
                                         "JOIN Employee ON CustomerOrder.employeeCode = Employee.employeeCode " +
                                         "JOIN Post ON Employee.postCode = Post.postCode " +
@@ -63,7 +65,7 @@ namespace KeraminStore.UI.Windows
             EmployeesInfoGrid.ItemsSource = null;
             EmployeesInfoGrid.Items.Refresh();
 
-            string employeesInfoQuery = "SELECT CONCAT(employeeSurname, ' ', employeeName, ' ', employeePatronymic) as 'employeeInfo', employeeName, employeeSurname, employeePatronymic, postName, Sum(Basket.productsCount) as 'sellCount', Sum(CustomerOrder.generalSum - deliveryCost) as 'sellCost' " +
+            string employeesInfoQuery = "SELECT CONCAT(employeeSurname, ' ', employeeName, ' ', employeePatronymic) as 'employeeInfo', employeeName, employeeSurname, employeePatronymic, postName, Sum(Basket.productsCount) as 'sellCount' " + //, Sum(CustomerOrder.generalSum - deliveryCost) as 'sellCost'
                                         "FROM CustomerOrder " +
                                         "JOIN Employee ON CustomerOrder.employeeCode = Employee.employeeCode " +
                                         "JOIN Post ON Employee.postCode = Post.postCode " +
@@ -148,7 +150,7 @@ namespace KeraminStore.UI.Windows
                 Microsoft.Office.Interop.Excel.Sheets excelsheets;
                 Microsoft.Office.Interop.Excel.Worksheet excelworksheet;
                 Microsoft.Office.Interop.Excel.Range excelcells;
-                string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                string path = Environment.CurrentDirectory.ToString() + "\\StatisticsDocuments"; /*Environment.GetFolderPath(Environment.SpecialFolder.Desktop);*/
                 Microsoft.Office.Interop.Excel.Application excelapp = new Microsoft.Office.Interop.Excel.Application();
                 excelapp.Interactive = false;
                 uint processId;
@@ -159,13 +161,13 @@ namespace KeraminStore.UI.Windows
                     try
                     {
                         excelappworkbooks = excelapp.Workbooks;
-                        excelappworkbook = excelapp.Workbooks.Open(Path.GetFullPath(@"EmployeesStatisticExample.xls"));
+                        excelappworkbook = excelapp.Workbooks.Open(Path.GetFullPath(@"EmployeesStatisticsExample.xls"));
                         excelsheets = excelappworkbook.Worksheets;
                         excelworksheet = (Microsoft.Office.Interop.Excel.Worksheet)excelsheets.get_Item(1);
                         excelcells = excelworksheet.get_Range("D3");
                         excelcells.Value = Year.Text;
 
-                        string infoQuery = "SELECT employeeName, employeeSurname, employeePatronymic, CONCAT(employeeSurname, ' ', employeeName, ' ', employeePatronymic) as 'employeeInfo', postName, Sum(Basket.productsCount) as 'sellCount', Sum(CustomerOrder.generalSum - deliveryCost) as 'sellCost' " +
+                        string infoQuery = "SELECT employeeName, employeeSurname, employeePatronymic, CONCAT(employeeSurname, ' ', employeeName, ' ', employeePatronymic) as 'employeeInfo', postName, Sum(Basket.productsCount) as 'sellCount' " + //, Sum(CustomerOrder.generalSum - deliveryCost) as 'sellCost'
                                                     "FROM CustomerOrder " +
                                                     "JOIN Employee ON CustomerOrder.employeeCode = Employee.employeeCode " +
                                                     "JOIN Post ON Employee.postCode = Post.postCode " +
@@ -182,7 +184,7 @@ namespace KeraminStore.UI.Windows
                             {
                                 for (int rows = 0; rows < table.Rows.Count; ++rows, ++position)
                                 {
-                                    for (int j = 2; j < 7; j++)
+                                    for (int j = 2; j < 6; j++)
                                     {
                                         excelcells = (Microsoft.Office.Interop.Excel.Range)excelworksheet.Cells[q, j];
                                         excelcells.Borders.ColorIndex = 0;
@@ -222,7 +224,7 @@ namespace KeraminStore.UI.Windows
                     try
                     {
                         excelappworkbooks = excelapp.Workbooks;
-                        excelappworkbook = excelapp.Workbooks.Open(Path.GetFullPath(@"EmployeesStatisticExample.xls"));
+                        excelappworkbook = excelapp.Workbooks.Open(Path.GetFullPath(@"EmployeesStatisticsExample.xls"));
                         excelsheets = excelappworkbook.Worksheets;
                         excelworksheet = (Microsoft.Office.Interop.Excel.Worksheet)excelsheets.get_Item(1);
                         excelcells = excelworksheet.get_Range("D3");
@@ -231,7 +233,7 @@ namespace KeraminStore.UI.Windows
                         var startDate = new DateTime(Convert.ToInt32(Year.Text), Month.SelectedIndex + 1, 1);
                         var endDate = startDate.AddMonths(1).AddDays(-1);
 
-                        string infoQuery = "SELECT employeeName, employeeSurname, employeePatronymic, CONCAT(employeeSurname, ' ', employeeName, ' ', employeePatronymic) as 'employeeInfo', postName, Sum(Basket.productsCount) as 'sellCount', Sum(CustomerOrder.generalSum - deliveryCost) as 'sellCost' " +
+                        string infoQuery = "SELECT employeeName, employeeSurname, employeePatronymic, CONCAT(employeeSurname, ' ', employeeName, ' ', employeePatronymic) as 'employeeInfo', postName, Sum(Basket.productsCount) as 'sellCount' " + //, Sum(CustomerOrder.generalSum - deliveryCost) as 'sellCost'
                                                     "FROM CustomerOrder " +
                                                     "JOIN Employee ON CustomerOrder.employeeCode = Employee.employeeCode " +
                                                     "JOIN Post ON Employee.postCode = Post.postCode " +
@@ -248,7 +250,7 @@ namespace KeraminStore.UI.Windows
                             {
                                 for (int rows = 0; rows < table.Rows.Count; ++rows, ++position)
                                 {
-                                    for (int j = 2; j < 7; j++)
+                                    for (int j = 2; j < 6; j++)
                                     {
                                         excelcells = (Microsoft.Office.Interop.Excel.Range)excelworksheet.Cells[q, j];
                                         excelcells.Borders.ColorIndex = 0;

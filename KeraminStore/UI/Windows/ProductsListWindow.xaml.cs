@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
@@ -11,17 +12,18 @@ namespace KeraminStore.UI.Windows
 {
     public partial class ProductsListWindow : Window
     {
-        readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
-
+        static string connectionString1 = ConfigurationManager.ConnectionStrings["KeraminStore.Properties.Settings.KeraminStoreConnectionString"].ConnectionString;
+        //readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
+        readonly SqlConnection connectionString = new SqlConnection(connectionString1);
         public ProductsListWindow()
         {
             InitializeComponent();
             connectionString.Open();
-            FillDataGrid();
+            FillDataGrid(); //Вызов метода для заполнения таблицы
             connectionString.Close();
         }
 
-        private void FillDataGrid()
+        private void FillDataGrid() //Метод для заполнения таблицы
         {
             string productsInfoQuery = "SELECT productName, productArticle, CONCAT(productLenght, 'x', productWidth) as 'productParametrs', productLenght, productCount, colorName, productWidth, productBoxWeight, productCountInBox, productCostCount, productCostArea, productImage, surfaceName, productTypeName, availabilityStatusName, productCollectionName " +
                                        "FROM Product " +
@@ -31,18 +33,29 @@ namespace KeraminStore.UI.Windows
                                        "JOIN ProductType On Product.productTypeCode = ProductType.productTypeCode " +
                                        "JOIN Color On Product.colorCode = Color.colorCode";
 
-            DataTable table = new DataTable();
-            using (SqlCommand cmd = new SqlCommand(productsInfoQuery, connectionString))
+            //DataTable table = new DataTable();
+            //using (SqlCommand cmd = new SqlCommand(productsInfoQuery, connectionString))
+            //{
+            //    using (IDataReader rdr = cmd.ExecuteReader())
+            //    {
+            //        table.Load(rdr);
+            //    }
+            //}
+            //ProductsInfoGrid.ItemsSource = table.DefaultView;
+
+            using (SqlDataAdapter dataAdapter = new SqlDataAdapter(productsInfoQuery, connectionString))
             {
-                using (IDataReader rdr = cmd.ExecuteReader())
+                DataTable table = new DataTable();
+                dataAdapter.Fill(table);
+                if (table.Rows.Count > 0)
                 {
-                    table.Load(rdr);
+                    for (int i = 0; i < table.Rows.Count; ++i) table.Rows[i]["productImage"] = Environment.CurrentDirectory.ToString() + "\\" + table.Rows[i]["productImage"].ToString(); //Загрузка изображений изделий
+                    ProductsInfoGrid.ItemsSource = table.DefaultView; //Заполнение таблицы
                 }
             }
-            ProductsInfoGrid.ItemsSource = table.DefaultView;
         }
 
-        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        private void DeleteButton_Click(object sender, RoutedEventArgs e) //Метод для удаления изделий
         {
             if (ProductsInfoGrid.SelectedItem == null)
             {
@@ -51,44 +64,44 @@ namespace KeraminStore.UI.Windows
             }
             else
             {
-                DataRowView employeeInfo = (DataRowView)ProductsInfoGrid.SelectedItems[0];
+                DataRowView employeeInfo = (DataRowView)ProductsInfoGrid.SelectedItems[0]; //Получение данных о выбранном изделии
                 SqlCommand cmd = new SqlCommand();
                 cmd.CommandType = CommandType.Text;
-                cmd.CommandText = "DELETE FROM Product WHERE productArticle = @article";
+                cmd.CommandText = "DELETE FROM Product WHERE productArticle = @article"; //запрос на удаление изделия из базы данных
                 cmd.Parameters.Add("@article", SqlDbType.VarChar).Value = employeeInfo["productArticle"].ToString();
                 cmd.Connection = connectionString;
                 connectionString.Open();
-                cmd.ExecuteNonQuery();
-                FillDataGrid();
+                cmd.ExecuteNonQuery(); //Выполенние удаления изделия
+                FillDataGrid(); //Обновление таблицы с изделиями
                 connectionString.Close();
                 MessageBox.Show("Удаление успешно выполнено.", "Уведомление", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 
-        private void searchField_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (searchField.Text == string.Empty) ProductsInfoGrid.SelectedIndex = -1;
-            else
-            {
-                for (int i = 0; i < ProductsInfoGrid.Items.Count; i++)
-                {
-                    DataGridRow row = (DataGridRow)ProductsInfoGrid.ItemContainerGenerator.ContainerFromIndex(i);
-                    if (row == null)
-                    {
-                        ProductsInfoGrid.ScrollIntoView(ProductsInfoGrid.Items[i]);
-                        row = (DataGridRow)ProductsInfoGrid.ItemContainerGenerator.ContainerFromIndex(i);
-                    }
-                    TextBlock cellcontent = ProductsInfoGrid.Columns[8].GetCellContent(row) as TextBlock;
-                    if (cellcontent != null && cellcontent.Text.ToString().Contains(searchField.Text.ToUpper()))
-                    {
-                        object item = ProductsInfoGrid.Items[i];
-                        ProductsInfoGrid.SelectedItem = item;
-                        break;
-                    }
-                }
-            }
-        }
-        private void ChangeButton_Click(object sender, RoutedEventArgs e)
+        //private void searchField_TextChanged(object sender, TextChangedEventArgs e)
+        //{
+        //    if (searchField.Text == string.Empty) ProductsInfoGrid.SelectedIndex = -1;
+        //    else
+        //    {
+        //        for (int i = 0; i < ProductsInfoGrid.Items.Count; i++)
+        //        {
+        //            DataGridRow row = (DataGridRow)ProductsInfoGrid.ItemContainerGenerator.ContainerFromIndex(i);
+        //            if (row == null)
+        //            {
+        //                ProductsInfoGrid.ScrollIntoView(ProductsInfoGrid.Items[i]);
+        //                row = (DataGridRow)ProductsInfoGrid.ItemContainerGenerator.ContainerFromIndex(i);
+        //            }
+        //            TextBlock cellcontent = ProductsInfoGrid.Columns[8].GetCellContent(row) as TextBlock;
+        //            if (cellcontent != null && cellcontent.Text.ToString().Contains(searchField.Text.ToUpper()))
+        //            {
+        //                object item = ProductsInfoGrid.Items[i];
+        //                ProductsInfoGrid.SelectedItem = item;
+        //                break;
+        //            }
+        //        }
+        //    }
+        //}
+        private void ChangeButton_Click(object sender, RoutedEventArgs e) //Метод для открытия окна для изменения данных изделия
         {
             string description = string.Empty;
             if (ProductsInfoGrid.SelectedItem == null)
@@ -98,28 +111,29 @@ namespace KeraminStore.UI.Windows
             }
             else
             {
-                DataRowView productInfo = (DataRowView)ProductsInfoGrid.SelectedItems[0];
+                DataRowView productInfo = (DataRowView)ProductsInfoGrid.SelectedItems[0];  //Получение данных о выбранном изделии
                 ChangeProductInfoWindow changeProductInfoWindow = new ChangeProductInfoWindow();
-                string selectEmployeeInfoQuery = "SELECT productCode, productDescription FROM Product " +
+                string selectProductInfoQuery = "SELECT productCode, productDescription FROM Product " + //Запрос на выборку данных для выбранного изделия
                     "JOIN ProductCollection ON Product.productCollectionCode = ProductCollection.productCollectionCode " +
                     "JOIN AvailabilityStatus On Product.availabilityStatusCode = AvailabilityStatus.availabilityStatusCode " +
                     "JOIN Surface On Product.surfaceCode = Surface.surfaceCode " +
                     "JOIN ProductType On Product.productTypeCode = ProductType.productTypeCode " +
                     "JOIN Color On Product.colorCode = Color.colorCode " +
                     "WHERE productArticle = '" + productInfo["productArticle"].ToString() + "'";
-                using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectEmployeeInfoQuery, connectionString))
+                using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectProductInfoQuery, connectionString))
                 {
                     DataTable table = new DataTable();
                     dataAdapter.Fill(table);
                     if (table.Rows.Count > 0)
                     {
-                        StreamWriter productCode = new StreamWriter("ChangingProduct.txt");
-                        productCode.Write(table.Rows[0]["productCode"].ToString());
+                        StreamWriter productCode = new StreamWriter("ChangingProduct.txt"); 
+                        productCode.Write(table.Rows[0]["productCode"].ToString()); //Запись кода выбранного для изменения изделия
                         productCode.Close();
                         description = table.Rows[0]["productDescription"].ToString();
                     }
                 }
-                changeProductInfoWindow.productNameField.Text = productInfo["productName"].ToString();
+                //Присваивание текущих данных выбранного изделия в соотсветсвующие поля (начало)
+                changeProductInfoWindow.productNameField.Text = productInfo["productName"].ToString(); 
                 changeProductInfoWindow.productTypeField.Text = productInfo["productTypeName"].ToString();
                 changeProductInfoWindow.productCollection.Text = productInfo["productCollectionName"].ToString();
                 changeProductInfoWindow.productLenght.Text = productInfo["productLenght"].ToString();
@@ -135,13 +149,43 @@ namespace KeraminStore.UI.Windows
                 changeProductInfoWindow.productDescriptionField.Text = description;
                 changeProductInfoWindow.productStatusField.Text = productInfo["availabilityStatusName"].ToString();
                 changeProductInfoWindow.productImage.Source = new BitmapImage(new Uri(@"" + productInfo["productImage"].ToString() + ""));
+                //Присваивание текущих данных выбранного изделия в соотсветсвующие поля (конец)
                 this.Close();
-                changeProductInfoWindow.ShowDialog();
+                changeProductInfoWindow.ShowDialog(); //Открытие окна изменения данных изделия
             }
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e) => this.Close();
 
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) => this.DragMove();
+
+        private void SearchIcon_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) //Метод для поиска изделий по артикулу
+        {
+            if (searchField.Text == string.Empty) ProductsInfoGrid.SelectedIndex = -1; //Проверка поля для ввода артикула на пустоту
+            else
+            {
+                for (int i = 0; i < ProductsInfoGrid.Items.Count; i++) //Проход по всей таблице с изделиями
+                {
+                    DataGridRow row = (DataGridRow)ProductsInfoGrid.ItemContainerGenerator.ContainerFromIndex(i);
+                    if (row == null)
+                    {
+                        ProductsInfoGrid.ScrollIntoView(ProductsInfoGrid.Items[i]);
+                        row = (DataGridRow)ProductsInfoGrid.ItemContainerGenerator.ContainerFromIndex(i);
+                    }
+                    TextBlock cellcontent = ProductsInfoGrid.Columns[8].GetCellContent(row) as TextBlock; //Данные со столбца с артикулом изделий
+                    if (cellcontent != null && cellcontent.Text.ToString().Contains(searchField.Text.ToUpper())) //Проверка совпадений
+                    {
+                        object item = ProductsInfoGrid.Items[i];
+                        ProductsInfoGrid.SelectedItem = item;
+                        break;
+                    }
+                    else
+                    {
+                        ProductsInfoGrid.ScrollIntoView(ProductsInfoGrid.Items[0]);
+                        ProductsInfoGrid.SelectedIndex = -1;
+                    }
+                }
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using KeraminStore.Data.Models;
 using System;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
@@ -10,7 +11,9 @@ namespace KeraminStore.UI.Windows
 {
     public partial class ProductCountWindow : Window
     {
-        readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
+        static string connectionString1 = ConfigurationManager.ConnectionStrings["KeraminStore.Properties.Settings.KeraminStoreConnectionString"].ConnectionString;
+        //readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
+        readonly SqlConnection connectionString = new SqlConnection(connectionString1);
         int prdctCode = 0;
 
         public ProductCountWindow()
@@ -18,7 +21,7 @@ namespace KeraminStore.UI.Windows
             InitializeComponent();
 
             StreamReader reader = new StreamReader("ProductCode.txt");
-            prdctCode = int.Parse(reader.ReadLine());
+            prdctCode = int.Parse(reader.ReadLine()); //Считывание кода изделия для добавления в корзину
             reader.Close();
 
             string chooseItemType = "SELECT productTypeName FROM Product " +
@@ -29,7 +32,7 @@ namespace KeraminStore.UI.Windows
                 DataTable table = new DataTable();
                 dataAdapter.Fill(table);
 
-                if (table.Rows[0]["productTypeName"].ToString() != "Настенная плитка" && table.Rows[0]["productTypeName"].ToString() != "Напольная плитка")
+                if (table.Rows[0]["productTypeName"].ToString() != "Настенная плитка" && table.Rows[0]["productTypeName"].ToString() != "Напольная плитка" && table.Rows[0]["productTypeName"].ToString() != "Бордюр") //Проверка типа изделия
                 {
                     description.Content = "Введите количество изделий в штуках";
                     septum.Visibility = Visibility.Hidden;
@@ -41,9 +44,9 @@ namespace KeraminStore.UI.Windows
             }
         }
 
-        private void AddButton_Click(object sender, RoutedEventArgs e)
+        private void AddToBasketButton_Click(object sender, RoutedEventArgs e) //Метод добавления изделия в корзину
         {
-            int prdctCnt = 0;
+            int prdctCnt = 0; //Проверка полей на корректность введенных данных
             if (countButton.IsChecked == false && areaButton.IsChecked == false)
             {
                 MessageBox.Show("Вы не выбрали удобные для вас единицы измерения.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -77,13 +80,13 @@ namespace KeraminStore.UI.Windows
                 }
 
                 StreamReader reader = new StreamReader("ProductCode.txt");
-                int prdctCode = int.Parse(reader.ReadLine());
+                int prdctCode = int.Parse(reader.ReadLine()); //Считывание кода изделия для добавления в корзину
                 reader.Close();
 
                 double lenght = 0;
                 double width = 0;
                 string selectProductInfoQuery = "SELECT productLenght, productWidth FROM Product WHERE productCode = " + prdctCode + "";
-                using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectProductInfoQuery, connectionString))
+                using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectProductInfoQuery, connectionString)) //Получение размеров изделия
                 {
                     DataTable table = new DataTable();
                     dataAdapter.Fill(table);
@@ -93,11 +96,11 @@ namespace KeraminStore.UI.Windows
                         width = double.Parse(table.Rows[0]["productWidth"].ToString());
                     }
                 }
-                prdctCnt = Convert.ToInt32(Convert.ToDouble(areaField.Text) / (lenght * width / 1000000));
+                prdctCnt = Convert.ToInt32(Convert.ToDouble(areaField.Text) / (lenght * width / 1000000)); //Вычисление количества изделий в штуках
             }
 
             string selectProductCount = "SELECT productCount FROM Product WHERE productCode = " + prdctCode + "";
-            using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectProductCount, connectionString))
+            using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectProductCount, connectionString)) //Проверка наличия необходимого количества изделий на складе
             {
                 int currentProductCount = 0;
                 DataTable table = new DataTable();
@@ -113,7 +116,7 @@ namespace KeraminStore.UI.Windows
                     else
                     {
                         StreamWriter productFile = new StreamWriter("ProductCount.txt");
-                        productFile.Write(prdctCnt.ToString());
+                        productFile.Write(prdctCnt.ToString()); //Запись необходимого количества изделий для добавления
                         productFile.Close();
                     }
                 }
@@ -147,9 +150,9 @@ namespace KeraminStore.UI.Windows
             }
         }
 
-        private void areaField_MouseLeave(object sender, MouseEventArgs e)
+        private void areaField_MouseLeave(object sender, MouseEventArgs e) //Метод для динамического расчета количества изделий в квадратных метрах и штуках
         {
-            if (areaField.Text != string.Empty)
+            if (areaField.Text != string.Empty) //Проверка поля на пустоту
             {
                 if (areaField.Text != CheckArea(areaField.Text, "Количество квадратных метров изделия не может быть меньше 0.01 м².", "Вы указали недопустимые символы в количестве квадратных метров изделия."))
                 {
@@ -160,13 +163,13 @@ namespace KeraminStore.UI.Windows
                 }
 
                 StreamReader reader = new StreamReader("ProductCode.txt");
-                int prdctCode = int.Parse(reader.ReadLine());
+                int prdctCode = int.Parse(reader.ReadLine()); //Считывание кода изделия
                 reader.Close();
 
                 double lenght = 0;
                 double width = 0;
                 string selectProductInfoQuery = "SELECT productLenght, productWidth FROM Product WHERE productCode = " + prdctCode + "";
-                using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectProductInfoQuery, connectionString))
+                using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectProductInfoQuery, connectionString)) //Получение размеров изделия
                 {
                     DataTable table = new DataTable();
                     dataAdapter.Fill(table);
@@ -176,16 +179,25 @@ namespace KeraminStore.UI.Windows
                         width = double.Parse(table.Rows[0]["productWidth"].ToString());
                     }
                 }
-                double realArea = Convert.ToInt32(Convert.ToDouble(areaField.Text) / (lenght * width / 1000000) + 1) * (lenght * width / 1000000);
-                areaField.Text = realArea.ToString();
-                countField.Text = Convert.ToInt32(realArea / (lenght * width / 1000000)).ToString();
+                double realArea = Convert.ToInt32(Convert.ToDouble(areaField.Text) / (lenght * width / 1000000)) * (lenght * width / 1000000); //Расчет квадратных метров изделий
+                if (Convert.ToDouble(areaField.Text) > Math.Round(realArea, 4)) //Корректировка полученных данных
+                {
+                    realArea = Convert.ToInt32(Convert.ToDouble(areaField.Text) / (lenght * width / 1000000) + 1) * (lenght * width / 1000000);
+                    areaField.Text = realArea.ToString();
+                    countField.Text = Convert.ToInt32(realArea / (lenght * width / 1000000)).ToString();
+                }
+                else
+                {
+                    areaField.Text = realArea.ToString();
+                    countField.Text = Convert.ToInt32(Convert.ToDouble(realArea) / (lenght * width / 1000000)).ToString();
+                }
             }
             else countField.Clear();
         }
 
-        private void countField_MouseLeave(object sender, MouseEventArgs e)
+        private void countField_MouseLeave(object sender, MouseEventArgs e) //Метод для динамического расчета количества изделий в квадратных метрах
         {
-            if (countField.Text != string.Empty)
+            if (countField.Text != string.Empty) //Проверка поля на пустоту
             {
                 if (countField.Text != CheckCount(countField.Text, "Количество изделий не может быть меньше 1 штуки.", "Вы указали недопустимые символы в количестве изделий."))
                 {
@@ -196,13 +208,13 @@ namespace KeraminStore.UI.Windows
                 }
 
                 StreamReader reader = new StreamReader("ProductCode.txt");
-                int prdctCode = int.Parse(reader.ReadLine());
+                int prdctCode = int.Parse(reader.ReadLine()); //Считывание кода изделия
                 reader.Close();
 
                 double lenght = 0;
                 double width = 0;
                 string selectProductInfoQuery = "SELECT productLenght, productWidth FROM Product WHERE productCode = " + prdctCode + "";
-                using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectProductInfoQuery, connectionString))
+                using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectProductInfoQuery, connectionString)) //Получение размеров изделия
                 {
                     DataTable table = new DataTable();
                     dataAdapter.Fill(table);
@@ -218,7 +230,7 @@ namespace KeraminStore.UI.Windows
             else areaField.Clear();
         }
 
-        private string CheckCount(string count, string wrongValue, string invalidSymbols)
+        private string CheckCount(string count, string wrongValue, string invalidSymbols) //Метод для проверки введенных данных
         {
             int inputCount = 0;
             bool isNum = int.TryParse(count, out inputCount);
@@ -230,7 +242,7 @@ namespace KeraminStore.UI.Windows
             return count;
         }
 
-        private string CheckArea(string area, string wrongValue, string invalidSymbols)
+        private string CheckArea(string area, string wrongValue, string invalidSymbols) //Метод для проверки введенных данных
         {
             double inputArea = 0;
             bool isNum = double.TryParse(area, out inputArea);

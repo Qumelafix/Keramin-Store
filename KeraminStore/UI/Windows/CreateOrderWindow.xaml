@@ -3,13 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:KeraminStore.UI.Windows"
-        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d" 
         Height="530" Width="1302" BorderThickness="1" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Foreground="White"  WindowStyle="None" Background="#FFEAEAEA" MouseLeftButtonDown="Window_MouseLeftButtonDown">
 
-    <Window.Resources>
+    <Window.Resources> <!--Стили для таблицы-->
         <Style x:Key="ElementsStyle" TargetType="TextBlock">
             <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -27,12 +25,12 @@
             <RowDefinition Height="32*"/>
         </Grid.RowDefinitions>
         <StackPanel Grid.RowSpan="2" Margin="0,0,0,10">
-            <Label x:Name="windowName" Width="375" Height="45" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Корзина" FontSize="30" FontWeight="Bold" FontFamily="Helvetica" Margin="210,30,0,0"/>
+            <Label x:Name="windowName" Width="375" Height="45" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Корзина покупателя" FontSize="30" FontWeight="Bold" FontFamily="Helvetica" Margin="210,30,0,0"/>
             <Label x:Name="windowDescription" Width="905" VerticalAlignment="Top" Height="36" Content="Здесь вы можете оформить заказ" FontSize="20" FontWeight="Light" HorizontalAlignment="Left" FontFamily="Helvetica" Margin="210,-5,0,0"/>
             <Button x:Name="CloseButton" Style="{StaticResource MaterialDesignFlatButton}" Width="86" Click="CloseButton_Click" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0 -95 10 0" ToolTip="MaterialDesignFlatButton" BorderBrush="#00000000" Background="#00000000" Content="Закрыть" Foreground="#FFEA0256"/>
-            <DataGrid x:Name="ProductsInfoGrid" Width="1260" HorizontalAlignment="Center" Margin="19,10,21,85" BorderThickness="1" AutoGenerateColumns="False" ScrollViewer.HorizontalScrollBarVisibility="Hidden" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" GridLinesVisibility="All" Grid.RowSpan="2" Height="334">
+            <DataGrid x:Name="ProductsInfoGrid" Width="1260" HorizontalAlignment="Center" Margin="19,10,21,85" BorderThickness="1" AutoGenerateColumns="False" ScrollViewer.HorizontalScrollBarVisibility="Hidden" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" GridLinesVisibility="All" Grid.RowSpan="2" Height="334"> <!--Таблица с изделиями-->
                 <DataGrid.Columns>
-                    <DataGridTextColumn  Header="Изображение">
+                    <DataGridTextColumn  Header="Изображение"> <!--Столбец с изображением изделия-->
                         <DataGridTextColumn.CellStyle>
                             <Style TargetType="DataGridCell">
                                 <Setter Property="Template">
@@ -48,16 +46,16 @@
                             </Style>
                         </DataGridTextColumn.CellStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding productName}" Header="Наименование" Width="170" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
-                    <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productArticle}" Header="Артикул" Width="150" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
-                    <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productCostCount}" Header="Цена руб./шт." Width="118" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
-                    <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productCostArea}" Header="Цена руб./м²" Width="115" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
-                    <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding count, StringFormat=f}" Header="Количество (ящ.|шт.|м²)" Width="185" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
-                    <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding boxesCount}" Header="Количество, ящ." Width="140" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Visibility="Hidden"/>
+                    <DataGridTextColumn ElementStyle="{StaticResource ElementsStyle}" Binding="{Binding productName}" Header="Наименование" Width="170" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/> <!--Столбец с наименованием изделия-->
+                    <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productArticle}" Header="Артикул" Width="150" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/> <!--Столбец с артикулом изделия-->
+                    <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productCostCount}" Header="Цена руб./шт." Width="118" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/> <!--Столбец с ценой изделия за штуку-->
+                    <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productCostArea}" Header="Цена руб./м²" Width="115" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/> <!--Столбец с ценой изделия за метр квадратный-->
+                    <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding count, StringFormat=f}" Header="Количество (ящ.|шт.|м²)" Width="185" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/> <!--Количество изделий-->
+                    <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding boxesCount}" Header="Количество, ящ." Width="140" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Visibility="Hidden"/> <!--Количество ящиков с изделиями-->
                     <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productsCount}" Header="Количество, шт." Width="140" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Visibility="Hidden"/>
-                    <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productsArea}" Header="Количество, м²" Width="130" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Visibility="Hidden"/>
-                    <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productsWeight, StringFormat=f}" Header="Вес, кг." Width="90" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
-                    <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding generalSum, StringFormat=f}" Header="Сумма" Width="130" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                    <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productsArea}" Header="Количество, м²" Width="130" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Visibility="Hidden"/> 
+                    <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding productsWeight, StringFormat=f}" Header="Вес, кг." Width="90" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/> <!--Общий вес изделий-->
+                    <DataGridTextColumn ElementStyle="{StaticResource TextBlockStyle}" Binding="{Binding generalSum, StringFormat=f}" Header="Сумма" Width="130" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/> <!--Сумма заказа-->
                     <DataGridTextColumn>
                         <DataGridTextColumn.CellStyle>
                             <Style TargetType="DataGridCell" >
@@ -66,8 +64,7 @@
                                         <ControlTemplate TargetType="DataGridCell">
                                             <Grid Background="{TemplateBinding Background}" Width="110">
                                                 <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                                <!--<Button Grid.Column="0" Width="90" Height="30" Content="ИЗМЕНИТЬ" FontSize="11" HorizontalAlignment="Center" Click="Button_Click"/>-->
-                                                <Button Grid.Column="0" Width="90" Height="30" Content="УДАЛИТЬ" FontSize="11" HorizontalAlignment="Center" Click="DeleteButton_Click"/>
+                                                <Button Grid.Column="0" Width="90" Height="30" Content="УДАЛИТЬ" FontSize="11" HorizontalAlignment="Center" Click="DeleteButton_Click"/> <!--Кнопка удаления изделий из корзины-->
                                             </Grid>
                                         </ControlTemplate>
                                     </Setter.Value>
@@ -77,23 +74,23 @@
                     </DataGridTextColumn>
                 </DataGrid.Columns>
             </DataGrid>
-            <Button x:Name="OrderButton" Height="40" Content="ОФОРМИТЬ ЗАКАЗ" Margin="1114,-70,22,25" Click="OrderButton_Click" BorderBrush="#FFEA0256" Background="#FFEA0256" Grid.Row="1"/>
+            <Button x:Name="OrderButton" Height="40" Content="ОФОРМИТЬ ЗАКАЗ" Margin="1114,-70,22,25" Click="OrderButton_Click" BorderBrush="#FFEA0256" Background="#FFEA0256" Grid.Row="1" IsEnabled="False"/>
             <Rectangle  Width="1250" Height="1" Fill="#FF424242" Margin="0,-10,0,0"/>
         </StackPanel>
         <Rectangle Height="400" Stroke="#FF424242" Margin="35,552,940,46" Grid.RowSpan="2"/>
         <Grid Width="325" Height="400" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="35,552,0,0" Grid.RowSpan="2">
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,345">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,345"> <!--Выбор покупателя-->
                 <RadioButton x:Name="legalCustomer" Content="Юр. лицо" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20 20 0 0" Foreground="Black" Background="Black" Style="{StaticResource MaterialDesignDarkRadioButton}" Click="legalCustomer_Click"/>
                 <RadioButton x:Name="usualCustomer" Content="Физ. лицо" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="104 20 0 0" Foreground="Black" Background="Black" Style="{StaticResource MaterialDesignDarkRadioButton}" Click="сustomer_Click"/>
             </StackPanel>
-            <StackPanel x:Name="customerInfo" Orientation="Horizontal" Margin="5,30,0,0" Visibility="Hidden">
-                <TextBox x:Name="customerSurname" materialDesign:HintAssist.Hint="Фамилия" Text="Ритвинский" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="20,30,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
-                <TextBox x:Name="customerName" materialDesign:HintAssist.Hint="Имя" Text="Александр" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="-280,95,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
-                <TextBox x:Name="customerPatronymic" materialDesign:HintAssist.Hint="Отчество" Text="Николаевич" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="-280,160,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
-                <TextBox x:Name="customerPhone" materialDesign:HintAssist.Hint="Контактный телефон" Text="+375(29)252-06-67" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="-280,225,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
-                <TextBox x:Name="customerMail" materialDesign:HintAssist.Hint="E-mail" Text="ritsasha01@gmail.com" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="-280,290,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+            <StackPanel x:Name="customerInfo" Orientation="Horizontal" Margin="5,30,0,0" Visibility="Hidden"> <!--Информация о физ.лице-->
+                <TextBox x:Name="customerSurname" materialDesign:HintAssist.Hint="Фамилия" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="20,30,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                <TextBox x:Name="customerName" materialDesign:HintAssist.Hint="Имя" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="-280,95,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                <TextBox x:Name="customerPatronymic" materialDesign:HintAssist.Hint="Отчество" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="-280,160,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                <TextBox x:Name="customerPhone" materialDesign:HintAssist.Hint="Контактный телефон" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="-280,225,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
+                <TextBox x:Name="customerMail" materialDesign:HintAssist.Hint="E-mail" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="-280,290,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
             </StackPanel>
-            <StackPanel x:Name="legalCustomerInfo" Orientation="Horizontal" Margin="5,30,0,0" Visibility="Hidden">
+            <StackPanel x:Name="legalCustomerInfo" Orientation="Horizontal" Margin="5,30,0,0" Visibility="Hidden"> <!--Информация о юр.лице-->
                 <TextBox x:Name="legalCustomerName" materialDesign:HintAssist.Hint="Название организации" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="20,30,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
                 <TextBox x:Name="legalCustomerUTN" materialDesign:HintAssist.Hint="ИНН" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="-280,95,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
                 <TextBox x:Name="legalCustomerPhone" materialDesign:HintAssist.Hint="Контактный телефон" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="-280,160,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
@@ -102,15 +99,14 @@
         </Grid>
         <Rectangle Height="400" Stroke="#FF424242" Margin="487,552,488,46" Grid.RowSpan="2"/>
         <Grid Width="325" Height="400" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="487,552,0,0" Grid.RowSpan="2">
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,321">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,321"> <!--Тип доставки-->
                 <ComboBox x:Name="delivery" MaxDropDownHeight="120" materialDesign:HintAssist.Hint="Выберите способ доставки" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="20,15,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintComboBox}" SelectionChanged="delivery_SelectionChanged" />
             </StackPanel>
-            <StackPanel x:Name="selfDeliveryInfo" Orientation="Horizontal" Margin="5,30,0,0" Visibility="Hidden">
+            <StackPanel x:Name="selfDeliveryInfo" Orientation="Horizontal" Margin="5,30,0,0" Visibility="Hidden"> <!--Самовывоз-->
                 <ComboBox x:Name="selfDeliveryTown" MaxDropDownHeight="120" materialDesign:HintAssist.Hint="Выберите город" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="15,50,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintComboBox}" SelectionChanged="selfDeliveryTown_SelectionChanged"/>
-                <!--<ComboBox x:Name="selfDeliveryStreet" materialDesign:HintAssist.Hint="Выберите улицу" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="-280,115,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>-->
                 <ComboBox x:Name="selfDeliveryAdress" MaxDropDownHeight="120" materialDesign:HintAssist.Hint="Адрес" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="-280,110,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintComboBox}" IsReadOnly="True"/>
             </StackPanel>
-            <StackPanel x:Name="deliveryInfo" Orientation="Horizontal" Margin="5,30,0,0" Visibility="Hidden">
+            <StackPanel x:Name="deliveryInfo" Orientation="Horizontal" Margin="5,30,0,0" Visibility="Hidden"> <!--Обычная доставка-->
                 <ComboBox x:Name="deliveryTown" MaxDropDownHeight="120" materialDesign:HintAssist.Hint="Выберите город" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="15,50,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
                 <ComboBox x:Name="deliveryStreet" MaxDropDownHeight="120" materialDesign:HintAssist.Hint="Выберите улицу" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="-280,115,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
                 <TextBox x:Name="deliveryBuilding" materialDesign:HintAssist.Hint="Введите номер здания" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="-280,180,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
@@ -121,11 +117,11 @@
         <Rectangle Height="400" Stroke="#FF424242" Margin="940,552,35,46" Grid.RowSpan="2"/>
         <Grid Width="325" Height="400" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="940,552,0,0" Grid.RowSpan="2">
             <StackPanel Orientation="Horizontal">
-                <ComboBox x:Name="payment" MaxDropDownHeight="120" materialDesign:HintAssist.Hint="Выберите способ оплаты" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="20,15,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
-                <TextBox x:Name="deliveryCost" materialDesign:HintAssist.Hint="Стоимость доставки" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="-280,100,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintTextBox}" TextChanged="deliveryCost_TextChanged"/>
-                <TextBox x:Name="sum" materialDesign:HintAssist.Hint="Сумма" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="-280,165,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
-                <TextBox x:Name="generalSum" materialDesign:HintAssist.Hint="Общая сумма" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="-280,230,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
-                <Button x:Name="createOrderbutton" Height="40" Content="ЗАВЕРШИТЬ ОФОРМЛЕНИЕ" Margin="-240,335,22,25" Click="createOrderbutton_Click" BorderBrush="#FFEA0256" Background="#FFEA0256" Grid.Row="1"/>
+                <ComboBox x:Name="payment" MaxDropDownHeight="120" materialDesign:HintAssist.Hint="Выберите способ оплаты" FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="20,15,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/> <!--Тип оплаты-->
+                <TextBox x:Name="deliveryCost" materialDesign:HintAssist.Hint="Стоимость доставки, руб." FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="-280,100,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintTextBox}" TextChanged="deliveryCost_TextChanged"/> <!--Стоимость доставки-->
+                <TextBox x:Name="sum" materialDesign:HintAssist.Hint="Сумма, руб." FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="-280,165,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintTextBox}" IsReadOnly="True"/>
+                <TextBox x:Name="generalSum" materialDesign:HintAssist.Hint="Общая сумма, руб." FontFamily="Helvetica" FontWeight="Light" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="-280,230,0,0" Foreground="Black" Background="Transparent" Width="280" Style="{StaticResource MaterialDesignFloatingHintTextBox}" IsReadOnly="True"/> <!--Общая сумма заказа-->
+                <Button x:Name="CreateOrderButton" Height="40" Content="ЗАВЕРШИТЬ ОФОРМЛЕНИЕ" Margin="-240,335,22,25" Click="CreateOrderButton_Click" BorderBrush="#FFEA0256" Background="#FFEA0256" Grid.Row="1"/> <!--Кнопка завершения оформления заказа-->
             </StackPanel>
         </Grid>
     </Grid>

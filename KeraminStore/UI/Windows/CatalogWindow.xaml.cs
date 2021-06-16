@@ -1,6 +1,7 @@
 ﻿using KeraminStore.Data.Models;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
@@ -12,7 +13,9 @@ namespace KeraminStore.UI.Windows
 {
     public partial class CatalogWindow : UserControl
     {
-        readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
+        static string connectionString1 = ConfigurationManager.ConnectionStrings["KeraminStore.Properties.Settings.KeraminStoreConnectionString"].ConnectionString;
+        //readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
+        readonly SqlConnection connectionString = new SqlConnection(connectionString1); 
         int orderNumber = 0;
 
         public CatalogWindow()
@@ -30,10 +33,7 @@ namespace KeraminStore.UI.Windows
             {
                 DataTable table = new DataTable();
                 dataAdapter.Fill(table);
-                if (table.Rows.Count > 0)
-                {
-                    orderNumber = int.Parse(table.Rows[0]["basketNumber"].ToString());
-                }
+                if (table.Rows.Count > 0) orderNumber = int.Parse(table.Rows[0]["basketNumber"].ToString());
                 else
                 {
                     string findOrderNumber = "SELECT TOP 1 basketNumber FROM Basket WHERE paymentStatus = " + 1 + " ORDER BY basketNumber DESC";
@@ -41,14 +41,8 @@ namespace KeraminStore.UI.Windows
                     {
                         DataTable orderNumberTable = new DataTable();
                         orderNumberAdapter.Fill(orderNumberTable);
-                        if (orderNumberTable.Rows.Count > 0)
-                        {
-                            orderNumber = int.Parse(orderNumberTable.Rows[0]["basketNumber"].ToString()) + 1;
-                        }
-                        else
-                        {
-                            orderNumber = 1;
-                        }
+                        if (orderNumberTable.Rows.Count > 0) orderNumber = int.Parse(orderNumberTable.Rows[0]["basketNumber"].ToString()) + 1;
+                        else orderNumber = 1;
                     }
                 }
             }
@@ -66,15 +60,25 @@ namespace KeraminStore.UI.Windows
                                        "JOIN Surface On Product.surfaceCode = Surface.surfaceCode " +
                                        "JOIN ProductType On Product.productTypeCode = ProductType.productTypeCode WHERE availabilityStatusName = '" + "Есть в наличии" + "'";
 
-            DataTable table = new DataTable();
-            using (SqlCommand cmd = new SqlCommand(productsInfoQuery, connectionString))
+            //DataTable table = new DataTable();
+            //using (SqlCommand cmd = new SqlCommand(productsInfoQuery, connectionString))
+            //{
+            //    using (IDataReader rdr = cmd.ExecuteReader())
+            //    {
+            //        table.Load(rdr);
+            //    }
+            //}
+            //ProductsInfoGrid.ItemsSource = table.DefaultView;
+            using (SqlDataAdapter dataAdapter = new SqlDataAdapter(productsInfoQuery, connectionString))
             {
-                using (IDataReader rdr = cmd.ExecuteReader())
+                DataTable table = new DataTable();
+                dataAdapter.Fill(table);
+                if (table.Rows.Count > 0)
                 {
-                    table.Load(rdr);
+                    for (int i = 0; i < table.Rows.Count; ++i) table.Rows[i]["productImage"] = Environment.CurrentDirectory.ToString() + "\\" + table.Rows[i]["productImage"].ToString();
+                    ProductsInfoGrid.ItemsSource = table.DefaultView;
                 }
             }
-            ProductsInfoGrid.ItemsSource = table.DefaultView;
         }
 
         private void GetColorName()
@@ -453,42 +457,57 @@ namespace KeraminStore.UI.Windows
             {
                 productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND productTypeName = '" + productTypeField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ") AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
             }
-            connectionString.Open();
-            DataTable table = new DataTable();
-            using (SqlCommand cmd = new SqlCommand(productsInfoQuery, connectionString))
+            //connectionString.Open();
+            //DataTable table = new DataTable();
+            //using (SqlCommand cmd = new SqlCommand(productsInfoQuery, connectionString))
+            //{
+            //    using (IDataReader rdr = cmd.ExecuteReader())
+            //    {
+            //        table.Load(rdr);
+            //    }
+            //}
+            //ProductsInfoGrid.ItemsSource = table.DefaultView;
+            using (SqlDataAdapter dataAdapter = new SqlDataAdapter(productsInfoQuery, connectionString))
             {
-                using (IDataReader rdr = cmd.ExecuteReader())
+                DataTable table = new DataTable();
+                dataAdapter.Fill(table);
+                if (table.Rows.Count > 0)
                 {
-                    table.Load(rdr);
+                    for (int i = 0; i < table.Rows.Count; ++i) table.Rows[i]["productImage"] = Environment.CurrentDirectory.ToString() + "\\" + table.Rows[i]["productImage"].ToString();
+                    ProductsInfoGrid.ItemsSource = table.DefaultView;
+                }
+                else
+                {
+                    ProductsInfoGrid.ItemsSource = null;
+                    ProductsInfoGrid.Items.Refresh();
                 }
             }
-            ProductsInfoGrid.ItemsSource = table.DefaultView;
             connectionString.Close();
         }
 
-        private void searchField_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (searchField.Text == string.Empty) ProductsInfoGrid.SelectedIndex = -1;
-            else
-            {
-                for (int i = 0; i < ProductsInfoGrid.Items.Count; i++)
-                {
-                    DataGridRow row = (DataGridRow)ProductsInfoGrid.ItemContainerGenerator.ContainerFromIndex(i);
-                    if (row == null)
-                    {
-                        ProductsInfoGrid.ScrollIntoView(ProductsInfoGrid.Items[i]);
-                        row = (DataGridRow)ProductsInfoGrid.ItemContainerGenerator.ContainerFromIndex(i);
-                    }
-                    TextBlock cellcontent = ProductsInfoGrid.Columns[2].GetCellContent(row) as TextBlock;
-                    if (cellcontent != null && cellcontent.Text.ToString().Contains(searchField.Text.ToUpper()))
-                    {
-                        object item = ProductsInfoGrid.Items[i];
-                        ProductsInfoGrid.SelectedItem = item;
-                        break;
-                    }
-                }
-            }         
-        }
+        //private void searchField_TextChanged(object sender, TextChangedEventArgs e)
+        //{
+        //    if (searchField.Text == string.Empty) ProductsInfoGrid.SelectedIndex = -1;
+        //    else
+        //    {
+        //        for (int i = 0; i < ProductsInfoGrid.Items.Count; i++)
+        //        {
+        //            DataGridRow row = (DataGridRow)ProductsInfoGrid.ItemContainerGenerator.ContainerFromIndex(i);
+        //            if (row == null)
+        //            {
+        //                ProductsInfoGrid.ScrollIntoView(ProductsInfoGrid.Items[i]);
+        //                row = (DataGridRow)ProductsInfoGrid.ItemContainerGenerator.ContainerFromIndex(i);
+        //            }
+        //            TextBlock cellcontent = ProductsInfoGrid.Columns[2].GetCellContent(row) as TextBlock;
+        //            if (cellcontent != null && cellcontent.Text.ToString().Contains(searchField.Text.ToUpper()))
+        //            {
+        //                object item = ProductsInfoGrid.Items[i];
+        //                ProductsInfoGrid.SelectedItem = item;
+        //                break;
+        //            }
+        //        }
+        //    }         
+        //}
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
@@ -551,7 +570,7 @@ namespace KeraminStore.UI.Windows
                             weight = double.Parse(table.Rows[0]["productBoxWeight"].ToString());
                             countInBox = int.Parse(table.Rows[0]["productCountInBox"].ToString());
 
-                            if (table.Rows[0]["productTypeName"].ToString() != "Настенная плитка" && table.Rows[0]["productTypeName"].ToString() != "Напольная плитка")
+                            if (table.Rows[0]["productTypeName"].ToString() != "Настенная плитка" && table.Rows[0]["productTypeName"].ToString() != "Напольная плитка" && table.Rows[0]["productTypeName"].ToString() != "Бордюр")
                             {
                                 costCount = double.Parse(table.Rows[0]["productCostCount"].ToString());
 
@@ -571,7 +590,9 @@ namespace KeraminStore.UI.Windows
                                                           "WHERE productCode = @productCode AND basketNumber = @number";
                                         cmd.Parameters.Add("@number", SqlDbType.VarChar).Value = basketNumber;
                                         cmd.Parameters.Add("@count", SqlDbType.Int).Value = currentProductsCount;
-                                        cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = currentProductsCount / countInBox + 1;
+                                        if (currentProductsCount % countInBox != 0) cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = currentProductsCount / countInBox + 1;
+                                        else cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = currentProductsCount / countInBox;
+                                        //cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = currentProductsCount / countInBox + 1;
                                         cmd.Parameters.Add("@area", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(currentProductsCount * (lenght * width / 1000000)), 2);
                                         cmd.Parameters.Add("@weight", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(weight / countInBox * currentProductsCount), 2);
                                         cmd.Parameters.Add("@sum", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(currentProductsCount * costCount), 2);
@@ -590,7 +611,9 @@ namespace KeraminStore.UI.Windows
                                                           "VALUES (@number, @count, @boxes, @area, @weight, @sum, @productCode, @status)";
                                         cmd.Parameters.Add("@number", SqlDbType.VarChar).Value = basketNumber;
                                         cmd.Parameters.Add("@count", SqlDbType.Int).Value = count;
-                                        cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = count / countInBox + 1;
+                                        if (count % countInBox != 0) cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = count / countInBox + 1;
+                                        else cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = count / countInBox;
+                                        //cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = count / countInBox + 1;
                                         cmd.Parameters.Add("@area", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(count * (lenght * width / 1000000)), 2);
                                         cmd.Parameters.Add("@weight", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(weight / countInBox * count), 2);
                                         cmd.Parameters.Add("@sum", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(count * costCount), 2);
@@ -623,7 +646,9 @@ namespace KeraminStore.UI.Windows
                                                           "WHERE productCode = @productCode AND basketNumber = @number";
                                         cmd.Parameters.Add("@number", SqlDbType.VarChar).Value = basketNumber;
                                         cmd.Parameters.Add("@count", SqlDbType.Int).Value = currentProductsCount;
-                                        cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = currentProductsCount / countInBox + 1;
+                                        if (currentProductsCount % countInBox != 0) cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = currentProductsCount / countInBox + 1;
+                                        else cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = currentProductsCount / countInBox;
+                                        //cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = currentProductsCount / countInBox + 1;
                                         cmd.Parameters.Add("@area", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(currentProductsCount * (lenght * width / 1000000)), 2);
                                         cmd.Parameters.Add("@weight", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(weight / countInBox * currentProductsCount), 2);
                                         cmd.Parameters.Add("@sum", SqlDbType.Float).Value = Math.Round(currentProductsCount * (costArea * (lenght * width / 1000000)), 2);
@@ -642,7 +667,9 @@ namespace KeraminStore.UI.Windows
                                                           "VALUES (@number, @count, @boxes, @area, @weight, @sum, @productCode, @status)";
                                         cmd.Parameters.Add("@number", SqlDbType.VarChar).Value = basketNumber;
                                         cmd.Parameters.Add("@count", SqlDbType.Int).Value = count;
-                                        cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = count / countInBox + 1;
+                                        if (count % countInBox != 0) cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = count / countInBox + 1;
+                                        else cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = count / countInBox;
+                                        //cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = count / countInBox + 1;
                                         cmd.Parameters.Add("@area", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(count * (lenght * width / 1000000)), 2);
                                         cmd.Parameters.Add("@weight", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(weight / countInBox * count), 2);
                                         cmd.Parameters.Add("@sum", SqlDbType.Float).Value = Math.Round(count * (costArea * (lenght * width / 1000000)), 2);
@@ -702,6 +729,35 @@ namespace KeraminStore.UI.Windows
                 {
                     countFile.Close();
                     return;
+                }
+            }
+        }
+
+        private void PackIconMaterial_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (searchField.Text == string.Empty) ProductsInfoGrid.SelectedIndex = -1;
+            else
+            {
+                for (int i = 0; i < ProductsInfoGrid.Items.Count; i++)
+                {
+                    DataGridRow row = (DataGridRow)ProductsInfoGrid.ItemContainerGenerator.ContainerFromIndex(i);
+                    if (row == null)
+                    {
+                        ProductsInfoGrid.ScrollIntoView(ProductsInfoGrid.Items[i]);
+                        row = (DataGridRow)ProductsInfoGrid.ItemContainerGenerator.ContainerFromIndex(i);
+                    }
+                    TextBlock cellcontent = ProductsInfoGrid.Columns[2].GetCellContent(row) as TextBlock;
+                    if (cellcontent != null && cellcontent.Text.ToString().Contains(searchField.Text.ToUpper()))
+                    {
+                        object item = ProductsInfoGrid.Items[i];
+                        ProductsInfoGrid.SelectedItem = item;
+                        break;
+                    }
+                    else
+                    {
+                        ProductsInfoGrid.ScrollIntoView(ProductsInfoGrid.Items[0]);
+                        ProductsInfoGrid.SelectedIndex = -1;
+                    }
                 }
             }
         }

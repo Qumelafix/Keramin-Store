@@ -8,12 +8,15 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.Linq;
 using System.Data;
+using System.Configuration;
 
 namespace KeraminStore.UI.Windows
-{ 
+{
     public partial class AddNewProductWindow : UserControl
     {
-        readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
+        static string connectionString1 = ConfigurationManager.ConnectionStrings["KeraminStore.Properties.Settings.KeraminStoreConnectionString"].ConnectionString;
+        //readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
+        readonly SqlConnection connectionString = new SqlConnection(connectionString1);
         private string imagePath = string.Empty;
         public AddNewProductWindow()
         {
@@ -25,7 +28,7 @@ namespace KeraminStore.UI.Windows
             GetColorName();
         }
 
-        private void GetColorName()
+        private void GetColorName() //Заполнение комбобокса цветами изделий
         {
             List<string> colorNames = new List<string>();
             connectionString.Open();
@@ -45,7 +48,7 @@ namespace KeraminStore.UI.Windows
             connectionString.Close();
         }
 
-        private void GetCollectionName()
+        private void GetCollectionName() //Заполнение комбобокса коллекциями изделий
         {
             List<string> collectionNames = new List<string>();
             connectionString.Open();
@@ -65,7 +68,7 @@ namespace KeraminStore.UI.Windows
             connectionString.Close();
         }
 
-        private void GetAvailabilityStatus()
+        private void GetAvailabilityStatus() //Заполнение комбобокса статусами наличия изделий
         {
             List<string> availabilityStatusNames = new List<string>();
             connectionString.Open();
@@ -85,7 +88,7 @@ namespace KeraminStore.UI.Windows
             connectionString.Close();
         }
 
-        private void GetProductType()
+        private void GetProductType() //Заполнение комбобокса типами изделий
         {
             List<string> typeNames = new List<string>();
             connectionString.Open();
@@ -105,7 +108,7 @@ namespace KeraminStore.UI.Windows
             connectionString.Close();
         }
 
-        private void GetSurfaceName()
+        private void GetSurfaceName() //Заполнение комбобокса поверхностями изделий
         {
             List<string> surfaceNames = new List<string>();
             connectionString.Open();
@@ -230,7 +233,7 @@ namespace KeraminStore.UI.Windows
                 MessageBox.Show("Необходимо загрузить изображение изделия.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            //Проверки вводимых данных на корректность (конец)
+            //Проверки вводимых данных на корректность(конец)
 
             int typeCode = 0;
             int collectionCode = 0;
@@ -277,11 +280,12 @@ namespace KeraminStore.UI.Windows
                         articleAdapter.Fill(articleTable);
                         if (articleTable.Rows.Count > 0) //Проверка уникальности артикула
                         {
-                            MessageBox.Show("Этот артикул принаджет другому изделию. Проверьте, не допустили ли вы ошибку.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                            MessageBox.Show("Этот артикул принадлежит другому изделию. Проверьте, не допустили ли вы ошибку.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                             return;
                         }
                     }
-
+                    string newImagePath = imagePath.Replace("KeraminStore\\bin\\Debug\\", "*");
+                    string[] imgPathArray = newImagePath.Split('*');
                     SqlCommand cmd = new SqlCommand(); //Добавление изделия в базу
                     cmd.CommandType = CommandType.Text;
                     cmd.CommandText = "INSERT Product (productName, productArticle, productWidth, productLenght, productCount, productBoxWeight, productCountInBox, productCostCount, productCostArea, productImage, productDescription, productCollectionCode, availabilityStatusCode, productTypeCode, surfaceCode, colorCode) " +
@@ -293,7 +297,7 @@ namespace KeraminStore.UI.Windows
                     cmd.Parameters.Add("@count", SqlDbType.Int).Value = Convert.ToInt32(countField.Text);
                     cmd.Parameters.Add("@boxWeight", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(boxWeightField.Text), 2);
                     cmd.Parameters.Add("@countInBox", SqlDbType.Int).Value = Convert.ToInt32(productCountInBox.Text);
-                    cmd.Parameters.Add("@image", SqlDbType.VarChar).Value = productImage.Source.ToString();
+                    cmd.Parameters.Add("@image", SqlDbType.VarChar).Value = imgPathArray[1].ToString();
                     cmd.Parameters.Add("@description", SqlDbType.VarChar).Value = productDescriptionField.Text;
                     cmd.Parameters.Add("@collectionCode", SqlDbType.Int).Value = collectionCode;
                     cmd.Parameters.Add("@statusCode", SqlDbType.Int).Value = statusCode;
@@ -320,7 +324,7 @@ namespace KeraminStore.UI.Windows
             }
         }
 
-        private void ClearFields()
+        private void ClearFields() //Очистка содержимого всех полей
         {
             productNameField.Clear();
             productTypeField.SelectedIndex = -1;
@@ -340,15 +344,21 @@ namespace KeraminStore.UI.Windows
             productImage.Source = null;
         }
 
-        private void btnOpenFile_Click(object sender, RoutedEventArgs e)
+        private void btnOpenFile_Click(object sender, RoutedEventArgs e) //Открытие файла
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.InitialDirectory = Environment.CurrentDirectory.ToString() + "\\ProductsImages";
             if (openFileDialog.ShowDialog() == true)
             {
                 string filePath = openFileDialog.FileName;
-                if ((filePath[filePath.Length - 1] == 'g' && filePath[filePath.Length - 2] == 'p' && filePath[filePath.Length - 3] == 'j') || (filePath[filePath.Length - 1] == 'g' && filePath[filePath.Length - 2] == 'n' && filePath[filePath.Length - 3] == 'p'))
+                if (filePath.Contains("KeraminStore\\bin\\Debug\\") == false)
                 {
-                    productImage.Source = new BitmapImage(new Uri(@"" + filePath + ""));
+                    MessageBox.Show("Вы можете выбрать файл только из папки ProductsImages.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                if ((filePath[filePath.Length - 1] == 'g' && filePath[filePath.Length - 2] == 'p' && filePath[filePath.Length - 3] == 'j') || (filePath[filePath.Length - 1] == 'g' && filePath[filePath.Length - 2] == 'n' && filePath[filePath.Length - 3] == 'p')) //Проверка типа файла
+                {
+                    productImage.Source = new BitmapImage(new Uri(@"" + filePath + "")); //Загрузка пути изображения
                     imagePath = filePath;
                 }
                 else
@@ -359,11 +369,11 @@ namespace KeraminStore.UI.Windows
             }            
         }
 
-        private void productTypeField_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void productTypeField_SelectionChanged(object sender, SelectionChangedEventArgs e) //Включение/отключение возможности взаимодействия с полями
         {
             if (productTypeField.SelectedIndex != -1)
             {
-                if (productTypeField.SelectedItem.ToString() == "Настенная плитка" || productTypeField.SelectedItem.ToString() == "Напольная плитка")
+                if (productTypeField.SelectedItem.ToString() == "Настенная плитка" || productTypeField.SelectedItem.ToString() == "Напольная плитка" || productTypeField.SelectedItem.ToString() == "Бордюр") //Проверка типа изделия
                 {
                     productCostCountField.IsEnabled = false;
                     productCostCountField.Clear();

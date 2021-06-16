@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
@@ -9,20 +10,20 @@ namespace KeraminStore.UI.Windows
 {
     public partial class EmployeesWindow : UserControl
     {
-        readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
-
+        static string connectionString1 = ConfigurationManager.ConnectionStrings["KeraminStore.Properties.Settings.KeraminStoreConnectionString"].ConnectionString;
+        //readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
+        readonly SqlConnection connectionString = new SqlConnection(connectionString1);
         public EmployeesWindow()
         {
             InitializeComponent();
-
-            connectionString.Open();
+            connectionString.Open(); //Открытие подключения к БД
             FillDataGrid();
-            connectionString.Close();
+            connectionString.Close(); //Закрытие подключения к БД
         }
 
-        private void FillDataGrid()
+        private void FillDataGrid() //Заполнение таблицы данными
         {
-            StreamReader file = new StreamReader("UserCode.txt");
+            StreamReader file = new StreamReader("UserCode.txt"); //Получение кода сотрудника
             int userCode = Convert.ToInt32(file.ReadLine());
             file.Close();
 
@@ -64,6 +65,7 @@ namespace KeraminStore.UI.Windows
                         employeeCode.Close();
                     }
                 }
+                //Присваивание данных выбранной строки полям в окне для изменения данных
                 changeEmployeeInfo.loginField.Text = employeeInfo["employeeLogin"].ToString();
                 changeEmployeeInfo.passwordField.Text = employeeInfo["employeePassword"].ToString();
                 changeEmployeeInfo.nameField.Text = employeeInfo["employeeName"].ToString();

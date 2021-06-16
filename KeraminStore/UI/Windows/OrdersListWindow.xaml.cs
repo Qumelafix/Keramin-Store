@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
@@ -11,8 +12,9 @@ namespace KeraminStore.UI.Windows
 {
     public partial class OrdersListWindow : UserControl
     {
-        readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
-
+        static string connectionString1 = ConfigurationManager.ConnectionStrings["KeraminStore.Properties.Settings.KeraminStoreConnectionString"].ConnectionString;
+        //readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
+        readonly SqlConnection connectionString = new SqlConnection(connectionString1);
         public OrdersListWindow()
         {
             InitializeComponent();
@@ -25,7 +27,8 @@ namespace KeraminStore.UI.Windows
         {
             string productsInfoQuery = "SELECT CONCAT(customerSurname, ' ', customerName, ' ', customerPatronymic) as 'customerInfo', CustomerOrder.orderNumber as 'order', customerSurname, customerName, customerPatronymic, legalName, UTN, phone, mail, issueDate, generalSum " +
                                        "FROM CustomerOrder " +
-                                       "JOIN Customer ON CustomerOrder.customerCode = Customer.customerCode";
+                                       "JOIN Customer ON CustomerOrder.customerCode = Customer.customerCode " +
+                                       "GROUP BY CustomerOrder.orderNumber, customerSurname, customerName, customerPatronymic, legalName, UTN, phone, mail, issueDate, generalSum";
 
             DataTable table = new DataTable();
             using (SqlCommand cmd = new SqlCommand(productsInfoQuery, connectionString))
@@ -59,7 +62,7 @@ namespace KeraminStore.UI.Windows
                 Microsoft.Office.Interop.Excel.Sheets excelsheets;
                 Microsoft.Office.Interop.Excel.Worksheet excelworksheet;
                 Microsoft.Office.Interop.Excel.Range excelcells;
-                string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                string path = Environment.CurrentDirectory + "\\OrdersDocuments"; /*Environment.GetFolderPath(Environment.SpecialFolder.Desktop);*/
                 Microsoft.Office.Interop.Excel.Application excelapp = new Microsoft.Office.Interop.Excel.Application();
                 excelapp.Interactive = false;
                 uint processId;

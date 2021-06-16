@@ -3,11 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:KeraminStore"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d" Height="790" Width="1362" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="None" Foreground="White" BorderBrush="Black" BorderThickness="1">
 
-    <Window.Resources>
+    <Window.Resources> <!--Движение бокового меню-->
         <Storyboard x:Key="MenuOpen">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Width)" Storyboard.TargetName="GridMenu">
                 <EasingDoubleKeyFrame KeyTime="0" Value="60"/>
@@ -35,9 +34,8 @@
         <Grid Height="60" VerticalAlignment="Top" Background="#FFEA0256">
             <TextBlock Text="Магазин «Керамин»" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" FontFamily="Helvetica" FontWeight="Light"/>
             <StackPanel VerticalAlignment="Center" Orientation="Horizontal" HorizontalAlignment="Right">
-                <!--<TextBlock x:Name="login" VerticalAlignment="Center" FontSize="20" Margin="10" FontFamily="Helvetica" FontWeight="Light"/>-->
                 <materialDesign:PopupBox Margin="10" PlacementMode="BottomAndAlignRightEdges" StaysOpen="False">
-                    <StackPanel Width="150">
+                    <StackPanel Width="150"> <!--Выпадающее меню (правый верхний угол)-->
                         <Button Content="Настройки" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Click="SettingsButton_Click"/>
                         <Button x:Name="HelpButton" Content="Помощь" FontFamily="Helvetica" FontWeight="Light" FontSize="16" Click="HelpButton_Click"/>
                         <Button x:Name="ChangeAccButton" Content="Сменить аккаунт" Click="ChangeAccButton_Click" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
@@ -50,7 +48,7 @@
         <Grid x:Name="WorkPlace" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="1302" Height="730"/>
         <Grid x:Name="GridMenu" Width="60" HorizontalAlignment="Left" Background="#FF51001E">
             <StackPanel>
-                <Grid Height="150" Background="White">
+                <Grid Height="150" Background="White"> <!--Кнопки открытия/закрытия бокового меню-->
                     <Button x:Name="ButtonCloseMenu" Width="60" Height="60" Background="{x:Null}" BorderBrush="{x:Null}" VerticalAlignment="Top" HorizontalAlignment="Right" Visibility="Collapsed" Click="ButtonCloseMenu_Click">
                         <materialDesign:PackIcon Foreground="#FFEA0256" Kind="ArrowLeft" Width="25" Height="25"/>
                     </Button>
@@ -58,7 +56,7 @@
                         <materialDesign:PackIcon Foreground="#FFEA0256" Kind="Menu" Width="25" Height="25"/>
                     </Button>
                 </Grid>
-                <ListView x:Name="Menu" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Foreground="White" SelectionChanged="Menu_SelectionChanged">
+                <ListView x:Name="Menu" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Foreground="White" SelectionChanged="Menu_SelectionChanged"> <!--Пункты бокового меню-->
                     <ListViewItem x:Name="MainPage" Height="60">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="ViewAgenda" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
@@ -77,18 +75,6 @@
                             <TextBlock Text="Калькулятор плитки" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                         </StackPanel>
                     </ListViewItem>
-                    <!--<ListViewItem x:Name="AddProduct" Height="60">
-                        <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="AddBox" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
-                            <TextBlock Text="Добавить изделие" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
-                        </StackPanel>
-                    </ListViewItem>
-                    <ListViewItem x:Name="ProductsList" Height="60">
-                        <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="ViewList" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
-                            <TextBlock Text="Список изделий" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
-                        </StackPanel>
-                    </ListViewItem>-->
                     <ListViewItem x:Name="Product" Height="60" MouseLeftButtonUp="Product_MouseLeftButtonUp">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="BoxCheck" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
@@ -104,7 +90,7 @@
                     <ListViewItem x:Name="CreateOrder" Height="60">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="Basket" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
-                            <TextBlock Text="Корзина" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
+                            <TextBlock Text="Корзина покупателя" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
                         </StackPanel>
                     </ListViewItem>
                     <ListViewItem x:Name="Statistic" Height="60" MouseLeftButtonUp="Statistic_MouseLeftButtonUp">
@@ -119,18 +105,6 @@
                             </ContextMenu>
                         </ListViewItem.ContextMenu>
                     </ListViewItem>
-                    <!--<ListViewItem x:Name="AddEmployee" Height="60">
-                        <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="AccountAdd" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
-                            <TextBlock Text="Добавить сотрудника" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
-                        </StackPanel>
-                    </ListViewItem>
-                    <ListViewItem x:Name="StaffList" Height="60">
-                        <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="AccountGroup" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
-                            <TextBlock Text="Список сотрудников" VerticalAlignment="Center" Margin="20 10 0 8" FontFamily="Helvetica" FontWeight="Light" FontSize="16"/>
-                        </StackPanel>
-                    </ListViewItem>-->
                     <ListViewItem x:Name="OrdersList" Height="60">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="ClipboardText" Width="25" Height="25" Margin="10" VerticalAlignment="Center"/>
@@ -144,7 +118,7 @@
                         </StackPanel>
                         <ListViewItem.ContextMenu>
                             <ContextMenu x:Name="EmployeeMenu">
-                                <MenuItem x:Name="AddEmployee" Header="Добавить нового сотрудника" Click="AddEmployee_Click"/>
+                                <MenuItem x:Name="AddEmployee" Header="Зарегистрировать нового сотрудника" Click="AddEmployee_Click"/>
                                 <MenuItem x:Name="EmployeesList" Header="Список сотрудников" Click="EmployeesList_Click"/>
                             </ContextMenu>
                         </ListViewItem.ContextMenu>
@@ -156,32 +130,8 @@
                         </StackPanel>
                         <ListViewItem.ContextMenu>
                             <ContextMenu x:Name="CntxtMenu">
-                                <!--<MenuItem x:Name="Collection" Header="Коллекции изделий">
-                                    <MenuItem x:Name="AddCollection" Header="Добавить новую коллекцию" Click="AddCollection_Click"/>
-                                    <MenuItem x:Name="CollectionList" Header="Список коллекций" Click="CollectionList_Click"/>
-                                </MenuItem>
-                                <MenuItem x:Name="Surface" Header="Поверхности изделий">
-                                    <MenuItem x:Name="AddSurface" Header="Добавить новую поверхность" Click="AddSurface_Click"/>
-                                    <MenuItem x:Name="SurfaceList" Header="Список поверхностей" Click="SurfaceList_Click"/>
-                                </MenuItem>-->
-                                <!--<MenuItem x:Name="PickupTown" Header="Города для самовывоза">
-                                    <MenuItem x:Name="AddPickupTown" Header="Добавить новый город для самовывоза" Click="AddPickupTown_Click"/>
-                                    <MenuItem x:Name="PickupTownList" Header="Список городов для самовывоза" Click="PickupTownList_Click"/>
-                                </MenuItem>-->
                                 <MenuItem x:Name="AddPickupAdress" Header="Добавить новый пункт самовывоза" Click="AddPickup_Click"/>
                                 <MenuItem x:Name="PickupAdressList" Header="Список пунктов самовывоза" Click="PickupList_Click"/>
-                                <!--<MenuItem x:Name="Post" Header="Должности">
-                                    <MenuItem x:Name="AddPost" Header="Добавить новую должность" Click="AddPost_Click"/>
-                                    <MenuItem x:Name="PostList" Header="Список должностей" Click="PostList_Click"/>
-                                </MenuItem>
-                                <MenuItem x:Name="Town" Header="Города для доставки">
-                                    <MenuItem x:Name="AddTown" Header="Добавить новый город для доставки" Click="AddTown_Click"/>
-                                    <MenuItem x:Name="TownList" Header="Список городов для доставки" Click="TownList_Click"/>
-                                </MenuItem>
-                                <MenuItem x:Name="Street" Header="Улицы для доставки">
-                                    <MenuItem x:Name="AddStreet" Header="Добавить новую улицу для доставки" Click="AddStreet_Click"/>
-                                    <MenuItem x:Name="StreetList" Header="Список улиц для доставки" Click="StreetList_Click"/>-->
-                                <!--</MenuItem>-->
                             </ContextMenu>
                         </ListViewItem.ContextMenu>
                     </ListViewItem>

@@ -1,6 +1,7 @@
 ﻿using KeraminStore.Data.Models;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
@@ -15,45 +16,47 @@ namespace KeraminStore.UI.Windows
 {
     public partial class CreateOrderWindow : Window
     {
-        readonly SqlConnection connectionString = new SqlConnection(@"Data Source=(local)\SQLEXPRESS; Initial Catalog=KeraminStore; Integrated Security=True");
-
+        static string connectionString1 = ConfigurationManager.ConnectionStrings["KeraminStore.Properties.Settings.KeraminStoreConnectionString"].ConnectionString;
+        readonly SqlConnection connectionString = new SqlConnection(connectionString1);
         public CreateOrderWindow()
         {
             InitializeComponent();
-            GetDeliveryInfo();
+            GetDeliveryInfo(); //Вызов методов для заполнения комбобоксов
             GetStreetInfo();
             GetPaymentInfo();
             connectionString.Open();
             FillDataGrid();
             connectionString.Close();
+            if (ProductsInfoGrid.Items.Count > 0) OrderButton.IsEnabled = true;
         }
 
-        private void selfDeliveryTown_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        private void selfDeliveryTown_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) //Метод для закрузки адресов по выбранному городу (самовывоз)
         {
             selfDeliveryAdress.SelectedIndex = -1;
             List<string> adress = new List<string>();
+            connectionString.Close();
             connectionString.Open();
-            string query = @"SELECT streetName, building FROM Pickup JOIN PickupTown ON Pickup.pickupTownCode = PickupTown.pickupTownCode WHERE pickupTownName = '" + selfDeliveryTown.SelectedItem.ToString() + "'";
-            SqlCommand sqlCommand = new SqlCommand(query, connectionString);
-            SqlDataReader dataReader = sqlCommand.ExecuteReader();
-            if (dataReader.HasRows)
+            if (selfDeliveryTown.SelectedItem != null)
             {
-                while (dataReader.Read())
+                string query = @"SELECT streetName, building FROM Pickup JOIN PickupTown ON Pickup.pickupTownCode = PickupTown.pickupTownCode WHERE pickupTownName = '" + selfDeliveryTown.SelectedItem.ToString() + "'";
+                SqlCommand sqlCommand = new SqlCommand(query, connectionString);
+                SqlDataReader dataReader = sqlCommand.ExecuteReader();
+                if (dataReader.HasRows)
                 {
-                    adress.Add("ул. " + dataReader["streetName"].ToString() + ", " + dataReader["building"].ToString());
-                    var newList = from i in adress orderby i select i;
-                    selfDeliveryAdress.ItemsSource = newList;
+                    while (dataReader.Read())
+                    {
+                        adress.Add("ул. " + dataReader["streetName"].ToString() + ", " + dataReader["building"].ToString()); //формирование полного адреса
+                        var newList = from i in adress orderby i select i;
+                        selfDeliveryAdress.ItemsSource = newList;
+                    }
                 }
-            }
-            else
-            {
-                selfDeliveryAdress.ItemsSource = null;
-            }
-            dataReader.Close();
+                else selfDeliveryAdress.ItemsSource = null;
+                dataReader.Close();
+            }      
             connectionString.Close();
         }
 
-        private void GetStreetInfo()
+        private void GetStreetInfo() //Метод для получения улиц
         {
             List<string> streetNames = new List<string>();
             connectionString.Open();
@@ -73,7 +76,7 @@ namespace KeraminStore.UI.Windows
             connectionString.Close();
         }
 
-        private void GetPaymentInfo()
+        private void GetPaymentInfo() //Метод для получения типа оплаты
         {
             List<string> paymentNames = new List<string>();
             connectionString.Open();
@@ -93,7 +96,7 @@ namespace KeraminStore.UI.Windows
             connectionString.Close();
         }
 
-        private void GetDeliveryInfo()
+        private void GetDeliveryInfo() //Метод для получения типа доставки
         {
             List<string> deliveryNames = new List<string>();
             connectionString.Open();
@@ -113,7 +116,7 @@ namespace KeraminStore.UI.Windows
             connectionString.Close();
         }
 
-        private void FillDataGrid()
+        private void FillDataGrid() //Метод для заполения таблицы
         {
             StreamReader streamReader = new StreamReader("BasketNumber.txt");
             string basketNumber = streamReader.ReadLine();
@@ -127,52 +130,43 @@ namespace KeraminStore.UI.Windows
                 adapter.Fill(dataTable);
                 if (dataTable.Rows.Count >= 0)
                 {
-                    DataTable datatable = new DataTable();
-                    using (SqlCommand cmd = new SqlCommand(productsInfoQuery, connectionString))
+                    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(productsInfoQuery, connectionString))
                     {
-                        using (IDataReader rdr = cmd.ExecuteReader())
+                        DataTable table = new DataTable();
+                        dataAdapter.Fill(table);
+                        if (table.Rows.Count > 0)
                         {
-                            datatable.Load(rdr);
+                            for (int i = 0; i < table.Rows.Count; ++i) table.Rows[i]["productImage"] = Environment.CurrentDirectory.ToString() + "\\" + table.Rows[i]["productImage"].ToString();
+                            ProductsInfoGrid.ItemsSource = table.DefaultView;
                         }
                     }
-                    ProductsInfoGrid.ItemsSource = datatable.DefaultView;
                 }
             }
         }
 
-        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) => this.DragMove();
+
+        private void OrderButton_Click(object sender, RoutedEventArgs e) //Метод для началана оформления заказа
         {
-            this.DragMove();
+            windowName.Content = "Оформление заказа";
+            windowDescription.Content = "Заполните все необходимые поля для оформления заказа";
+            ProductsInfoGrid.Columns[11].Visibility = Visibility.Hidden;
+            double calculateSum = 0;
+            if (sum.Text == string.Empty) sum.Text = "0";
+            for (int i = 0; i < ProductsInfoGrid.Items.Count; i++)
+            {
+                DataRowView productInfo = (DataRowView)ProductsInfoGrid.Items[i];
+                calculateSum = Math.Round(double.Parse(sum.Text) + double.Parse(productInfo["generalSum"].ToString()), 2);
+                sum.Text = calculateSum.ToString();
+            }
+            Height = 1000;
+            OrderButton.IsEnabled = false;
         }
 
-        private void OrderButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (ProductsInfoGrid.Items.Count == 0)
-            {
-                MessageBox.Show("Вы не добавили ни одного изделия для покупки.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-            else
-            {
-                windowName.Content = "Оформление заказа";
-                windowDescription.Content = "Заполните все необходимые поля для оформления заказа";
-                ProductsInfoGrid.Columns[11].Visibility = Visibility.Hidden;
-                double calculateSum = 0;
-                if (sum.Text == string.Empty) sum.Text = "0";
-                for (int i = 0; i < ProductsInfoGrid.Items.Count; i++)
-                {
-                    DataRowView productInfo = (DataRowView)ProductsInfoGrid.Items[i];
-                    calculateSum = Math.Round(double.Parse(sum.Text) + double.Parse(productInfo["generalSum"].ToString()), 2);
-                    sum.Text = calculateSum.ToString();
-                }
-                Height = 1000;
-            }
-        }
-
-        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        private void DeleteButton_Click(object sender, RoutedEventArgs e) //Метод для удаления выбранного изделия из корзины
         {
             StreamReader streamReader = new StreamReader("BasketNumber.txt");
-            string basketNumber = streamReader.ReadLine();
+            string basketNumber = streamReader.ReadLine(); //Считывание номера заказа
             streamReader.Close();
             if (ProductsInfoGrid.SelectedItem == null)
             {
@@ -181,11 +175,11 @@ namespace KeraminStore.UI.Windows
             }
             else
             {
-                DataRowView productInfo = (DataRowView)ProductsInfoGrid.SelectedItems[0];
+                DataRowView productInfo = (DataRowView)ProductsInfoGrid.SelectedItems[0]; //Получение информации о выбранном изделии
                 string selectProductCount = "SELECT productsCount, productCount FROM Basket " +
                                             "JOIN Product ON Basket.productCode = Product.productCode " +
                                             "WHERE productArticle = '" + productInfo["productArticle"].ToString() + "' AND basketNumber = '" + basketNumber + "'";
-                using (SqlDataAdapter countAdapter = new SqlDataAdapter(selectProductCount, connectionString))
+                using (SqlDataAdapter countAdapter = new SqlDataAdapter(selectProductCount, connectionString)) //
                 {
                     DataTable dataTable = new DataTable();
                     countAdapter.Fill(dataTable);
@@ -196,7 +190,7 @@ namespace KeraminStore.UI.Windows
                         SqlCommand updateProductInfoCmd = new SqlCommand();
                         updateProductInfoCmd.CommandType = CommandType.Text;
                         updateProductInfoCmd.CommandText = "UPDATE Product SET productCount = @count, availabilityStatusCode = @status WHERE productArticle = @article";
-                        updateProductInfoCmd.Parameters.Add("@count", SqlDbType.Int).Value = productCount + productsCount;
+                        updateProductInfoCmd.Parameters.Add("@count", SqlDbType.Int).Value = productCount + productsCount; //Возвращение количества изделий из корзины
                         updateProductInfoCmd.Parameters.Add("@status", SqlDbType.Int).Value = 1;
                         updateProductInfoCmd.Parameters.Add("@article", SqlDbType.VarChar).Value = productInfo["productArticle"].ToString();
                         updateProductInfoCmd.Connection = connectionString;
@@ -213,20 +207,20 @@ namespace KeraminStore.UI.Windows
                 deleteCmd.Parameters.Add("@number", SqlDbType.Int).Value = basketNumber;
                 deleteCmd.Connection = connectionString;
                 connectionString.Open();
-                deleteCmd.ExecuteNonQuery();
+                deleteCmd.ExecuteNonQuery(); //Удаление издлеия из корзины
+                ProductsInfoGrid.ItemsSource = null;
+                ProductsInfoGrid.Items.Refresh();
                 FillDataGrid();
                 connectionString.Close();
                 MessageBox.Show("Удаление успешно выполнено.", "Уведомление", MessageBoxButton.OK, MessageBoxImage.Information);
+                if (ProductsInfoGrid.Items.Count == 0) OrderButton.IsEnabled = false;
             }
         }
 
         [DllImport("user32")]
         static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId0);
 
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close();
-        }
+        private void CloseButton_Click(object sender, RoutedEventArgs e) => this.Close();
 
         private void legalCustomer_Click(object sender, RoutedEventArgs e)
         {
@@ -240,7 +234,7 @@ namespace KeraminStore.UI.Windows
             customerInfo.Visibility = Visibility.Visible;
         }
 
-        private void delivery_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        private void delivery_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) //Метод для отображения стоимости доставки
         {
             List<string> townNames = new List<string>();
             connectionString.Open();
@@ -285,16 +279,16 @@ namespace KeraminStore.UI.Windows
             connectionString.Close();
         }
 
-        private void createOrderbutton_Click(object sender, RoutedEventArgs e)
+        private void CreateOrderButton_Click(object sender, RoutedEventArgs e) //Метод для оформления заказа
         {
             if (legalCustomer.IsChecked == false && usualCustomer.IsChecked == false)
             {
                 MessageBox.Show("Вы не указали, кем является покупатель.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            else if (legalCustomer.IsChecked == true)
+            else if (legalCustomer.IsChecked == true) //Если покупатель является юр.лицом
             {
-                if (legalCustomerName.Text == string.Empty)
+                if (legalCustomerName.Text == string.Empty) //Проверка названия организации
                 {
                     MessageBox.Show("Вы не указали название организации.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
@@ -320,7 +314,7 @@ namespace KeraminStore.UI.Windows
                     }
                 }
 
-                if (legalCustomerUTN.Text == string.Empty)
+                if (legalCustomerUTN.Text == string.Empty) //Проверка ИНН
                 {
                     MessageBox.Show("Вы не указали ИНН.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
@@ -346,22 +340,22 @@ namespace KeraminStore.UI.Windows
                     }
                 }
 
-                if (legalCustomerPhone.Text == string.Empty)
+                if (legalCustomerPhone.Text == string.Empty) //Проверка номера телефона
                 {
                     MessageBox.Show("Вы не указали контактный телефон.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 else
                 {
-                    Regex regex = new Regex(@"^(\+375|80)\(\s?(44|25|33|17|29)\s?\)\d{3}\-?\s?\d{2}\-?\s?\d{2}$");
+                    Regex regex = new Regex(@"^(\+375|80)\(\s?(44|25|33|17|29)\s?\)\d{3}\W[-]?\s?\d{2}\W[-]?\s?\d{2}$");
                     if (!regex.IsMatch(legalCustomerPhone.Text))
                     {
-                        MessageBox.Show("Телефон(должен быть записан в формате [код оператора] (2 цифры индентификатора) XXX-XX-XX.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Телефон(должен быть записан в формате +375/80 (код оператора) XXX-XX-XX.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
 
-                if (legalCustomerMail.Text == string.Empty)
+                if (legalCustomerMail.Text == string.Empty) //Проверка почты
                 {
                     MessageBox.Show("Вы не указали e-mail.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
@@ -377,42 +371,42 @@ namespace KeraminStore.UI.Windows
                 }
 
             }
-            else if (usualCustomer.IsChecked == true)
+            else if (usualCustomer.IsChecked == true) //Если покупатель является физ.лицом
             {
-                if (customerName.Text != Employee.CheckEmployeeFullName(customerName.Text, "Имя не может быть пустым.", "Имя содержит недопустимые символы.", "Длина имени может составлять 2-50 символов."))
+                if (customerName.Text != Employee.CheckEmployeeFullName(customerName.Text, "Имя не может быть пустым.", "Имя содержит недопустимые символы.", "Длина имени может составлять 2-50 символов.")) //Проверка имени покупателя
                 {
                     MessageBox.Show(Employee.CheckEmployeeFullName(customerName.Text, "Имя не может быть пустым.", "Имя содержит недопустимые символы.", "Длина имени может составлять 2-50 символов."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                if (customerSurname.Text != Employee.CheckEmployeeFullName(customerSurname.Text, "Фамилия не может быть пустой.", "Фамилия содержит недопустимые символы.", "Длина фамилии может составлять 2-50 символов."))
+                if (customerSurname.Text != Employee.CheckEmployeeFullName(customerSurname.Text, "Фамилия не может быть пустой.", "Фамилия содержит недопустимые символы.", "Длина фамилии может составлять 2-50 символов.")) //Проверка фамилии покупателя
                 {
                     MessageBox.Show(Employee.CheckEmployeeFullName(customerSurname.Text, "Фамилия не может быть пустой.", "Фамилия содержит недопустимые символы.", "Длина фамилии может составлять 2-50 символов."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                if (customerPatronymic.Text != Employee.CheckEmployeeFullName(customerPatronymic.Text, "Отчество не может быть пустым.", "Отчество содержит недопустимые символы.", "Длина отчества может составлять 2-50 символов."))
+                if (customerPatronymic.Text != Employee.CheckEmployeeFullName(customerPatronymic.Text, "Отчество не может быть пустым.", "Отчество содержит недопустимые символы.", "Длина отчества может составлять 2-50 символов.")) //Проверка отчества покупателя
                 {
                     MessageBox.Show(Employee.CheckEmployeeFullName(customerPatronymic.Text, "Отчество не может быть пустым.", "Отчество содержит недопустимые символы.", "Длина отчества может составлять 2-50 символов."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                if (customerPhone.Text == string.Empty)
+                if (customerPhone.Text == string.Empty) //Проверка телефона покупателя
                 {
                     MessageBox.Show("Вы не указали контактный телефон.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 else
                 {
-                    Regex regex = new Regex(@"^(\+375|80)\(\s?(44|25|33|17|29)\s?\)\d{3}\-?\s?\d{2}\-?\s?\d{2}$");
+                    Regex regex = new Regex(@"^(\+375|80)\(\s?(44|25|33|17|29)\s?\)\d{3}\W[-]?\s?\d{2}\W[-]?\s?\d{2}$");
                     if (!regex.IsMatch(customerPhone.Text))
                     {
-                        MessageBox.Show("Телефон(должен быть записан в формате [код оператора] (2 цифры индентификатора) XXX-XX-XX.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Телефон(должен быть записан в формате +375/80 (код оператора) XXX-XX-XX.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
 
-                if (customerMail.Text == string.Empty)
+                if (customerMail.Text == string.Empty) //Проверка почты покупателя
                 {
                     MessageBox.Show("Вы не указали e-mail.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
@@ -428,7 +422,7 @@ namespace KeraminStore.UI.Windows
                 }
             }
 
-            if (delivery.SelectedIndex == -1)
+            if (delivery.SelectedIndex == -1) //Проверка выбора способа доставки
             {
                 MessageBox.Show("Вам необходимо выбрать способ доставки.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -461,10 +455,10 @@ namespace KeraminStore.UI.Windows
                     return;
                 }
 
-                Regex regex = new Regex(@"^\d{1,3}$");
+                Regex regex = new Regex(@"^(\d{1,3}|\d{1,3}\/\d{1,2}|\d{1,3}(?:[а-я])|\d{1,3}(?:[а-я])\/\d{1,2}|\d{1,3}\/\d{1,2}(?:[а-я]))$");
                 if (!regex.IsMatch(deliveryBuilding.Text))
                 {
-                    MessageBox.Show("Номер здания должен быть числовой величиной с максимальной длиной в 3 символа.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Номер здания должен выглядеть как 15 | 15а | 15/1 | 15а/1 | 15/1а.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
@@ -502,12 +496,6 @@ namespace KeraminStore.UI.Windows
                 }
             }
 
-            if (generalSum.Text == string.Empty)
-            {
-                MessageBox.Show("Вы не указали итоговую сумму заказа.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
             int streetCode = 0;
             int townCode = 0;
             int customerCode = 0;
@@ -518,19 +506,19 @@ namespace KeraminStore.UI.Windows
             int pickupCode = 0;
 
             StreamReader streamReader = new StreamReader("BasketNumber.txt");
-            string basketNumber = streamReader.ReadLine();
+            string basketNumber = streamReader.ReadLine(); //Считывание номера заказа
             streamReader.Close();
 
             StreamReader file = new StreamReader("UserCode.txt");
-            int employeeCode = Convert.ToInt32(file.ReadLine());
+            int employeeCode = Convert.ToInt32(file.ReadLine()); //Считывание кода сотрудника, оформляющего заказ
             file.Close();
 
-            Microsoft.Office.Interop.Excel.Workbooks excelappworkbooks;
+            Microsoft.Office.Interop.Excel.Workbooks excelappworkbooks; //Формирование структуры документа Excel с указанием пути сохранения
             Microsoft.Office.Interop.Excel.Workbook excelappworkbook;
             Microsoft.Office.Interop.Excel.Sheets excelsheets;
             Microsoft.Office.Interop.Excel.Worksheet excelworksheet;
             Microsoft.Office.Interop.Excel.Range excelcells;
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            string path = Environment.CurrentDirectory + "\\OrdersDocuments";
             Microsoft.Office.Interop.Excel.Application excelapp = new Microsoft.Office.Interop.Excel.Application();
             excelapp.Interactive = false;
             uint processId;
@@ -538,7 +526,7 @@ namespace KeraminStore.UI.Windows
 
             if (usualCustomer.IsChecked == true)
             {
-                if (delivery.SelectedItem.ToString() == "Самовывоз")
+                if (delivery.SelectedItem.ToString() == "Самовывоз") //Запись данных о покупателе в таблицу
                 {
                     SqlCommand cmd = new SqlCommand();
                     cmd.CommandType = CommandType.Text;
@@ -552,7 +540,7 @@ namespace KeraminStore.UI.Windows
                     cmd.Parameters.Add("@utn", SqlDbType.Int).Value = DBNull.Value;
                     cmd.Parameters.Add("@phone", SqlDbType.VarChar).Value = customerPhone.Text;
                     cmd.Parameters.Add("@mail", SqlDbType.VarChar).Value = customerMail.Text;
-                    cmd.Parameters.Add("@building", SqlDbType.Int).Value = DBNull.Value;
+                    cmd.Parameters.Add("@building", SqlDbType.VarChar).Value = DBNull.Value;
                     cmd.Parameters.Add("@floor", SqlDbType.Int).Value = DBNull.Value;
                     cmd.Parameters.Add("@apartment", SqlDbType.Int).Value = DBNull.Value;
                     cmd.Parameters.Add("@townCode", SqlDbType.Int).Value = DBNull.Value;
@@ -562,7 +550,7 @@ namespace KeraminStore.UI.Windows
                     cmd.ExecuteNonQuery();
                     connectionString.Close();
                 }
-                else
+                else //Запись данных о покупателе в таблицу
                 {
                     string selectAdressCodesQuery = "SELECT townCode, streetCode FROM Town, Street WHERE townName = '" + deliveryTown.Text + "' AND streetName = '" + deliveryStreet.Text + "'";
                     using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectAdressCodesQuery, connectionString))
@@ -588,7 +576,7 @@ namespace KeraminStore.UI.Windows
                     cmd.Parameters.Add("@utn", SqlDbType.Int).Value = DBNull.Value;
                     cmd.Parameters.Add("@phone", SqlDbType.VarChar).Value = customerPhone.Text;
                     cmd.Parameters.Add("@mail", SqlDbType.VarChar).Value = customerMail.Text;
-                    cmd.Parameters.Add("@building", SqlDbType.Int).Value = int.Parse(deliveryBuilding.Text);
+                    cmd.Parameters.Add("@building", SqlDbType.VarChar).Value = deliveryBuilding.Text;
                     cmd.Parameters.Add("@floor", SqlDbType.Int).Value = int.Parse(deliveryFloor.Text);
                     cmd.Parameters.Add("@apartment", SqlDbType.Int).Value = int.Parse(deliveryApartment.Text);
                     cmd.Parameters.Add("@townCode", SqlDbType.Int).Value = townCode;
@@ -608,8 +596,8 @@ namespace KeraminStore.UI.Windows
                     string selectCustomerCodeQuery = "SELECT customerCode, deliveryCode, paymentCode, pickupCode FROM Customer, Delivery, Payment, Pickup " +
                                                  "JOIN PickupTown ON Pickup.pickupTownCode = PickupTown.pickupTownCode " +
                                                  "WHERE phone = '" + customerPhone.Text + "' AND orderNumber = '" + basketNumber + "' AND pickupTownName = '" + selfDeliveryTown.Text + "' AND Pickup.streetName = '" + adressArray[0] + "' " +
-                                                 "AND Pickup.building = " + int.Parse(adressArray[1]) + " AND deliveryName = '" + delivery.SelectedItem.ToString() + "' AND paymentType = '" + payment.SelectedItem.ToString() + "'";
-                    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectCustomerCodeQuery, connectionString))
+                                                 "AND Pickup.building = '" + adressArray[1] + "' AND deliveryName = '" + delivery.SelectedItem.ToString() + "' AND paymentType = '" + payment.SelectedItem.ToString() + "'";
+                    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectCustomerCodeQuery, connectionString)) //Получение данных о покупателе
                     {
                         DataTable table = new DataTable();
                         dataAdapter.Fill(table);
@@ -652,7 +640,7 @@ namespace KeraminStore.UI.Windows
                                 cmd.Parameters.Add("@sum", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(generalSum.Text), 2);
                                 cmd.Connection = connectionString;
                                 connectionString.Open();
-                                cmd.ExecuteNonQuery();
+                                cmd.ExecuteNonQuery(); //Запись информации о заказе в БД
                                 connectionString.Close();
 
                                 SqlCommand cmd1 = new SqlCommand();
@@ -673,7 +661,7 @@ namespace KeraminStore.UI.Windows
                 {
                     string selectCustomerCodeQuery = "SELECT customerCode, deliveryCode, paymentCode FROM Customer, Delivery, Payment WHERE phone = '" + customerPhone.Text + "' AND orderNumber = '" + basketNumber + "' " +
                                                      "AND deliveryName = '" + delivery.SelectedItem.ToString() + "' AND paymentType = '" + payment.SelectedItem.ToString() + "'";
-                    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectCustomerCodeQuery, connectionString))
+                    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectCustomerCodeQuery, connectionString)) //Получение данных о покупателе
                     {
                         DataTable table = new DataTable();
                         dataAdapter.Fill(table);
@@ -715,7 +703,7 @@ namespace KeraminStore.UI.Windows
                                 cmd.Parameters.Add("@sum", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(generalSum.Text), 2);
                                 cmd.Connection = connectionString;
                                 connectionString.Open();
-                                cmd.ExecuteNonQuery();
+                                cmd.ExecuteNonQuery(); //Запись информации о заказе в БД
                                 connectionString.Close();
 
                                 SqlCommand cmd1 = new SqlCommand();
@@ -737,7 +725,7 @@ namespace KeraminStore.UI.Windows
                 try
                 {
                     excelappworkbooks = excelapp.Workbooks;
-                    excelappworkbook = excelapp.Workbooks.Open(Path.GetFullPath(@"SalesReceiptExample.xls"));
+                    excelappworkbook = excelapp.Workbooks.Open(Path.GetFullPath(@"SalesReceiptExample.xls")); //Открытие шаблона
                     excelsheets = excelappworkbook.Worksheets;
                     excelworksheet = (Microsoft.Office.Interop.Excel.Worksheet)excelsheets.get_Item(1);
                     excelcells = excelworksheet.get_Range("D5");
@@ -752,7 +740,7 @@ namespace KeraminStore.UI.Windows
                                        "JOIN Customer ON CustomerOrder.customerCode = Customer.customerCode " +
                                        "JOIN Employee ON CustomerOrder.employeeCode = Employee.employeeCode " +
                                        "WHERE CustomerOrder.orderNumber = " + basketNumber + "";
-                    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(infoQuery, connectionString))
+                    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(infoQuery, connectionString)) //Заполнения документа данными
                     {
                         int position = 1;
                         int k = 5;
@@ -846,7 +834,7 @@ namespace KeraminStore.UI.Windows
                     MessageBox.Show("Чек был успешно создан.", "Уведомление", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception m) { MessageBox.Show(m.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
-                finally { Process.GetProcessById((int)processId).Kill(); }
+                finally { Process.GetProcessById((int)processId).Kill(); } //Закрытие процесса Excel
             }
             else if (legalCustomer.IsChecked == true)
             {
@@ -871,7 +859,7 @@ namespace KeraminStore.UI.Windows
                     cmd.Parameters.Add("@streetCode", SqlDbType.Int).Value = DBNull.Value;
                     cmd.Connection = connectionString;
                     connectionString.Open();
-                    cmd.ExecuteNonQuery();
+                    cmd.ExecuteNonQuery(); //Запись данных о покупателе в таблицу
                     connectionString.Close();
                 }
                 else
@@ -900,14 +888,14 @@ namespace KeraminStore.UI.Windows
                     cmd.Parameters.Add("@utn", SqlDbType.Int).Value = int.Parse(legalCustomerUTN.Text);
                     cmd.Parameters.Add("@phone", SqlDbType.VarChar).Value = legalCustomerPhone.Text;
                     cmd.Parameters.Add("@mail", SqlDbType.VarChar).Value = legalCustomerMail.Text;
-                    cmd.Parameters.Add("@building", SqlDbType.Int).Value = int.Parse(deliveryBuilding.Text);
+                    cmd.Parameters.Add("@building", SqlDbType.VarChar).Value = deliveryBuilding.Text;
                     cmd.Parameters.Add("@floor", SqlDbType.Int).Value = int.Parse(deliveryFloor.Text);
                     cmd.Parameters.Add("@apartment", SqlDbType.Int).Value = int.Parse(deliveryApartment.Text);
                     cmd.Parameters.Add("@townCode", SqlDbType.Int).Value = townCode;
                     cmd.Parameters.Add("@streetCode", SqlDbType.Int).Value = streetCode;
                     cmd.Connection = connectionString;
                     connectionString.Open();
-                    cmd.ExecuteNonQuery();
+                    cmd.ExecuteNonQuery(); //Запись данных о покупателе в таблицу
                     connectionString.Close();
                 }
 
@@ -920,8 +908,8 @@ namespace KeraminStore.UI.Windows
                     string selectCustomerCodeQuery = "SELECT customerCode, deliveryCode, paymentCode, pickupCode FROM Customer, Delivery, Payment, Pickup " +
                                                      "JOIN PickupTown ON Pickup.pickupTownCode = PickupTown.pickupTownCode " +
                                                      "WHERE phone = '" + legalCustomerPhone.Text + "' AND orderNumber = '" + basketNumber + "' AND pickupTownName = '" + selfDeliveryTown.Text + "' AND Pickup.streetName = '" + adressArray[0] + "' " +
-                                                     "AND Pickup.building = " + int.Parse(adressArray[1]) + " AND deliveryName = '" + delivery.SelectedItem.ToString() + "' AND paymentType = '" + payment.SelectedItem.ToString() + "'";
-                    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectCustomerCodeQuery, connectionString))
+                                                     "AND Pickup.building = '" + adressArray[1] + "' AND deliveryName = '" + delivery.SelectedItem.ToString() + "' AND paymentType = '" + payment.SelectedItem.ToString() + "'";
+                    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectCustomerCodeQuery, connectionString)) //Получение данных о покупателе
                     {
                         DataTable table = new DataTable();
                         dataAdapter.Fill(table);
@@ -964,7 +952,7 @@ namespace KeraminStore.UI.Windows
                                 cmd.Parameters.Add("@sum", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(generalSum.Text), 2);
                                 cmd.Connection = connectionString;
                                 connectionString.Open();
-                                cmd.ExecuteNonQuery();
+                                cmd.ExecuteNonQuery(); ////Запись информации о заказе в БД
                                 connectionString.Close();
 
                                 SqlCommand cmd1 = new SqlCommand();
@@ -985,7 +973,7 @@ namespace KeraminStore.UI.Windows
                 {
                     string selectCustomerCodeQuery = "SELECT customerCode, deliveryCode, paymentCode FROM Customer, Delivery, Payment WHERE phone = '" + legalCustomerPhone.Text + "' AND orderNumber = '" + basketNumber + "' " +
                                                      "AND deliveryName = '" + delivery.SelectedItem.ToString() + "' AND paymentType = '" + payment.SelectedItem.ToString() + "'";
-                    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectCustomerCodeQuery, connectionString))
+                    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(selectCustomerCodeQuery, connectionString))  //Получение данных о покупателе
                     {
                         DataTable table = new DataTable();
                         dataAdapter.Fill(table);
@@ -1027,7 +1015,7 @@ namespace KeraminStore.UI.Windows
                                 cmd.Parameters.Add("@sum", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(generalSum.Text), 2);
                                 cmd.Connection = connectionString;
                                 connectionString.Open();
-                                cmd.ExecuteNonQuery();
+                                cmd.ExecuteNonQuery(); //Запись информации о заказе в БД
                                 connectionString.Close();
 
                                 SqlCommand cmd1 = new SqlCommand();
@@ -1049,7 +1037,7 @@ namespace KeraminStore.UI.Windows
                 try
                 {
                     excelappworkbooks = excelapp.Workbooks;
-                    excelappworkbook = excelapp.Workbooks.Open(Path.GetFullPath(@"LegalSalesReceiptExample.xls"));
+                    excelappworkbook = excelapp.Workbooks.Open(Path.GetFullPath(@"LegalSalesReceiptExample.xls")); //Открытие шаблона
                     excelsheets = excelappworkbook.Worksheets;
                     excelworksheet = (Microsoft.Office.Interop.Excel.Worksheet)excelsheets.get_Item(1);
                     excelcells = excelworksheet.get_Range("D5");
@@ -1064,7 +1052,7 @@ namespace KeraminStore.UI.Windows
                                        "JOIN Customer ON CustomerOrder.customerCode = Customer.customerCode " +
                                        "JOIN Employee ON CustomerOrder.employeeCode = Employee.employeeCode " +
                                        "WHERE CustomerOrder.orderNumber = " + basketNumber + "";
-                    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(infoQuery, connectionString))
+                    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(infoQuery, connectionString)) //Заполнения документа данными
                     {
                         int position = 1;
                         int k = 4;
@@ -1161,7 +1149,7 @@ namespace KeraminStore.UI.Windows
                     MessageBox.Show("Чек был успешно создан.", "Уведомление", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception m) { MessageBox.Show(m.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
-                finally { Process.GetProcessById((int)processId).Kill(); }
+                finally { Process.GetProcessById((int)processId).Kill(); }  //Закрытие процесса Excel
             }
             File.WriteAllText(@"BasketNumber.txt", string.Empty);
             ProductsInfoGrid.ItemsSource = null;
