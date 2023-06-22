@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KeraminStore.Data.Models;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -29,9 +30,9 @@ namespace KeraminStore.UI.Windows
                 bool isNum = double.TryParse(surfaceWidth.Text, out surfaceWidthValue);
                 if (isNum)
                 {
-                    if (surfaceWidthValue <= 0)
+                    if (surfaceWidthValue <= 0 || surfaceWidthValue > 30)
                     {
-                        MessageBox.Show("Ширина комнаты/пола не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Ширина комнаты/пола не может быть отрицательной, равной нулю или больше 30 м.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
@@ -52,9 +53,9 @@ namespace KeraminStore.UI.Windows
                 bool isNum = double.TryParse(surfaceLenght.Text, out surfaceLenghtValue);
                 if (isNum)
                 {
-                    if (surfaceLenghtValue <= 0)
+                    if (surfaceLenghtValue <= 0 || surfaceLenghtValue > 30)
                     {
-                        MessageBox.Show("Длина комнаты/пола не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Длина комнаты/пола не может быть отрицательной, равной нулю или больше 30 м.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
@@ -78,9 +79,9 @@ namespace KeraminStore.UI.Windows
                     bool isNum = double.TryParse(surfaceHeight.Text, out surfaceHeightValue);
                     if (isNum)
                     {
-                        if (surfaceHeightValue <= 0)
+                        if (surfaceHeightValue <= 0 || surfaceHeightValue > 5)
                         {
-                            MessageBox.Show("Высота комнаты не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                            MessageBox.Show("Высота комнаты не может быть отрицательной, равной нулю или больше 5 м.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                             return;
                         }
                     }
@@ -93,62 +94,39 @@ namespace KeraminStore.UI.Windows
                 surfaceArea = (surfaceLenghtValue * 2 + surfaceWidthValue * 2) * surfaceHeightValue; //Расчет площади комнаты
             }
             else surfaceArea = surfaceLenghtValue * surfaceWidthValue; //Расчет площади комнаты/пола
+
             double tileWidthValue = 0;
-            if (tileWidth.Text == string.Empty) //Проверка ширины плитки
+            if (tileWidth.Text != Product.CheckProductWidth(tileWidth.Text, "Вы не указали ширину плитки.", "Ширина плитки может составлять от 9 до 600 мм.", "Вы указали неверную ширину плитки."))
             {
-                MessageBox.Show("Вы не указали ширину плитки.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(Product.CheckProductWidth(tileWidth.Text, "Вы не указали ширину плитки.", "Ширина плитки может составлять от 9 до 600 мм.", "Вы указали неверную ширину плитки."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             else
             {
                 bool isNum = double.TryParse(tileWidth.Text, out tileWidthValue);
-                if (isNum)
-                {
-                    if (tileWidthValue <= 0)
-                    {
-                        MessageBox.Show("Ширина плитки не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-                }
-                else
-                {
-                    MessageBox.Show("Вы указали недопустимые символы в ширине плитки.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
                 if (tileWidthValue / 1000 > surfaceWidthValue)
                 {
                     MessageBox.Show("Ширина плитки не может быть больше ширины комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }
+
             double tileLenghtValue = 0;
-            if (tileLenght.Text == string.Empty) //Проверка длины плитки
+            if (tileLenght.Text != Product.CheckProductLenght(tileLenght.Text, "Вы не указали длину плитки.", "Длина плитки может составлять от 98 до 1200 мм.", "Вы указали неверную длину плитки."))
             {
-                MessageBox.Show("Вы не указали длину плитки.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(Product.CheckProductLenght(tileLenght.Text, "Вы не указали длину плитки.", "Длина плитки может составлять от 98 до 1200 мм.", "Вы указали неверную длину плитки."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             else
             {
                 bool isNum = double.TryParse(tileLenght.Text, out tileLenghtValue);
-                if (isNum)
-                {
-                    if (tileLenghtValue <= 0)
-                    {
-                        MessageBox.Show("Длина плитки не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-                }
-                else
-                {
-                    MessageBox.Show("Вы указали недопустимые символы в длине плитки.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
                 if (tileLenghtValue / 1000 > surfaceLenghtValue)
                 {
                     MessageBox.Show("Длина плитки не может быть больше длины комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }
+
             double tileArea = (tileLenghtValue / 1000) * (tileWidthValue / 1000); //Расчет площади плитки
             int tileReserveValue = 0;
             if (tileReserve.Text == string.Empty) //Проверка запаса плитки
@@ -206,7 +184,7 @@ namespace KeraminStore.UI.Windows
             UnlockString();
         }
 
-        private void AddArea_Click(object sender, RoutedEventArgs e) //Метод для вычисления площади не закладываемого участка
+        private void AddArea_Click(object sender, RoutedEventArgs e) //Метод для вычисления площади незакладываемого участка
         {
             double surfaceWidthValue = 0;
             if (surfaceWidth.Text == string.Empty) //Проверка ширины комнаты/пола
@@ -219,9 +197,9 @@ namespace KeraminStore.UI.Windows
                 bool isNum = double.TryParse(surfaceWidth.Text, out surfaceWidthValue);
                 if (isNum)
                 {
-                    if (surfaceWidthValue <= 0)
+                    if (surfaceWidthValue <= 0 || surfaceWidthValue > 30)
                     {
-                        MessageBox.Show("Ширина комнаты/пола не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Ширина комнаты/пола не может быть отрицательной, равной нулю или больше 30 м.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
@@ -243,9 +221,9 @@ namespace KeraminStore.UI.Windows
                 bool isNum = double.TryParse(surfaceLenght.Text, out surfaceLenghtValue);
                 if (isNum)
                 {
-                    if (surfaceLenghtValue <= 0)
+                    if (surfaceLenghtValue <= 0 || surfaceLenghtValue > 30)
                     {
-                        MessageBox.Show("Длина комнаты/пола не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Длина комнаты/пола не может быть отрицательной, равной нулю или больше 30 м.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
@@ -270,9 +248,9 @@ namespace KeraminStore.UI.Windows
                     bool isNum = double.TryParse(surfaceHeight.Text, out surfaceHeightValue);
                     if (isNum)
                     {
-                        if (surfaceHeightValue <= 0)
+                        if (surfaceHeightValue <= 0 || surfaceHeightValue > 5)
                         {
-                            MessageBox.Show("Высота комнаты не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                            MessageBox.Show("Высота комнаты не может быть отрицательной, равной нулю или больше 5 м.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                             return;
                         }
                     }
@@ -287,9 +265,9 @@ namespace KeraminStore.UI.Windows
             else surfaceArea = surfaceLenghtValue * surfaceWidthValue;
 
             double areaWidthValue = 0;
-            if (areaWidth.Text == string.Empty) //Проверка ширины не закладываемого участка
+            if (areaWidth.Text == string.Empty) //Проверка ширины незакладываемого участка
             {
-                MessageBox.Show("Вы не указали ширину не закладываемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Вы не указали ширину незакладываемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             else
@@ -299,26 +277,26 @@ namespace KeraminStore.UI.Windows
                 {
                     if (areaWidthValue <= 0)
                     {
-                        MessageBox.Show("Ширина не закладываемого участка не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Ширина незакладываемого участка не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Вы указали недопустимые символы в ширине не заклыдваемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Вы указали недопустимые символы в ширине незаклыдваемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 if (areaWidthValue > surfaceWidthValue)
                 {
-                    MessageBox.Show("Ширина не закладываемого участка не может быть больше ширины комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Ширина незакладываемого участка не может быть больше ширины комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }
 
             double areaLenghtValue = 0;
-            if (areaLenght.Text == string.Empty) //Проверка длины не закладываемого участка
+            if (areaLenght.Text == string.Empty) //Проверка длины незакладываемого участка
             {
-                MessageBox.Show("Вы не указали длину не закладываемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Вы не указали длину незакладываемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             else
@@ -328,18 +306,18 @@ namespace KeraminStore.UI.Windows
                 {
                     if (areaLenghtValue <= 0)
                     {
-                        MessageBox.Show("Длина не закладываемого участка не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Длина незакладываемого участка не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Вы указали недопустимые символы в длине не заклыдваемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Вы указали недопустимые символы в длине незаклыдваемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 if (areaLenghtValue > surfaceLenghtValue)
                 {
-                    MessageBox.Show("Длина не закладываемого участка не может быть больше длины комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Длина незакладываемого участка не может быть больше длины комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }
@@ -349,28 +327,28 @@ namespace KeraminStore.UI.Windows
             if (room.IsChecked == true && areaHeight.Text != string.Empty)
             {
                 bool isNum = double.TryParse(areaHeight.Text, out areaHeightValue);
-                if (isNum) //Проверка высоты не закладываемого участка
+                if (isNum) //Проверка высоты незакладываемого участка
                 {
                     if (areaHeightValue <= 0)
                     {
-                        MessageBox.Show("Высота не закладываемого участка не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Высота незакладываемого участка не может быть отрицательной или равной нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Вы указали недопустимые символы в высоте не заклыдваемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Вы указали недопустимые символы в высоте незаклыдваемого участка.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 if (areaHeightValue > surfaceHeightValue)
                 {
-                    MessageBox.Show("Высота не закладываемого участка не может быть больше высоты комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Высота незакладываемого участка не может быть больше высоты комнаты/пола.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 areaArea = (areaLenghtValue * 2 + areaWidthValue * 2) * areaHeightValue;
                 if (surfaceArea < areaArea || surfaceArea < (areaArea + double.Parse(area.Text)))
                 {
-                    MessageBox.Show("Площадь не закладываемого участка не может быть больше площади комнаты.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Площадь незакладываемого участка не может быть больше площади комнаты.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 else area.Text = (double.Parse(area.Text) + areaArea).ToString();
@@ -380,7 +358,7 @@ namespace KeraminStore.UI.Windows
                 areaArea = areaLenghtValue * areaWidthValue;
                 if (surfaceArea < areaArea || surfaceArea < (areaArea + double.Parse(area.Text)))
                 {
-                    MessageBox.Show("Площадь не закладываемого участка не может быть больше площади комнаты.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Площадь незакладываемого участка не может быть больше площади комнаты.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 else area.Text = (double.Parse(area.Text) + areaArea).ToString("#.##");

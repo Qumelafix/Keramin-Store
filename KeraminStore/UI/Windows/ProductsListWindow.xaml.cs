@@ -33,25 +33,11 @@ namespace KeraminStore.UI.Windows
                                        "JOIN ProductType On Product.productTypeCode = ProductType.productTypeCode " +
                                        "JOIN Color On Product.colorCode = Color.colorCode";
 
-            //DataTable table = new DataTable();
-            //using (SqlCommand cmd = new SqlCommand(productsInfoQuery, connectionString))
-            //{
-            //    using (IDataReader rdr = cmd.ExecuteReader())
-            //    {
-            //        table.Load(rdr);
-            //    }
-            //}
-            //ProductsInfoGrid.ItemsSource = table.DefaultView;
-
             using (SqlDataAdapter dataAdapter = new SqlDataAdapter(productsInfoQuery, connectionString))
             {
                 DataTable table = new DataTable();
                 dataAdapter.Fill(table);
-                if (table.Rows.Count > 0)
-                {
-                    for (int i = 0; i < table.Rows.Count; ++i) table.Rows[i]["productImage"] = Environment.CurrentDirectory.ToString() + "\\" + table.Rows[i]["productImage"].ToString(); //Загрузка изображений изделий
-                    ProductsInfoGrid.ItemsSource = table.DefaultView; //Заполнение таблицы
-                }
+                if (table.Rows.Count > 0) ProductsInfoGrid.ItemsSource = table.DefaultView; //Заполнение таблицы
             }
         }
 
@@ -78,29 +64,6 @@ namespace KeraminStore.UI.Windows
             }
         }
 
-        //private void searchField_TextChanged(object sender, TextChangedEventArgs e)
-        //{
-        //    if (searchField.Text == string.Empty) ProductsInfoGrid.SelectedIndex = -1;
-        //    else
-        //    {
-        //        for (int i = 0; i < ProductsInfoGrid.Items.Count; i++)
-        //        {
-        //            DataGridRow row = (DataGridRow)ProductsInfoGrid.ItemContainerGenerator.ContainerFromIndex(i);
-        //            if (row == null)
-        //            {
-        //                ProductsInfoGrid.ScrollIntoView(ProductsInfoGrid.Items[i]);
-        //                row = (DataGridRow)ProductsInfoGrid.ItemContainerGenerator.ContainerFromIndex(i);
-        //            }
-        //            TextBlock cellcontent = ProductsInfoGrid.Columns[8].GetCellContent(row) as TextBlock;
-        //            if (cellcontent != null && cellcontent.Text.ToString().Contains(searchField.Text.ToUpper()))
-        //            {
-        //                object item = ProductsInfoGrid.Items[i];
-        //                ProductsInfoGrid.SelectedItem = item;
-        //                break;
-        //            }
-        //        }
-        //    }
-        //}
         private void ChangeButton_Click(object sender, RoutedEventArgs e) //Метод для открытия окна для изменения данных изделия
         {
             string description = string.Empty;
@@ -148,7 +111,9 @@ namespace KeraminStore.UI.Windows
                 changeProductInfoWindow.productCostCountField.Text = productInfo["productCostCount"].ToString();
                 changeProductInfoWindow.productDescriptionField.Text = description;
                 changeProductInfoWindow.productStatusField.Text = productInfo["availabilityStatusName"].ToString();
-                changeProductInfoWindow.productImage.Source = new BitmapImage(new Uri(@"" + productInfo["productImage"].ToString() + ""));
+                string newIPath = Environment.CurrentDirectory.ToString().Replace("\\bin", "*");
+                string[] pathArray = newIPath.Split('*');
+                changeProductInfoWindow.productImage.Source = new BitmapImage(new Uri(@"" + pathArray[0].ToString() + productInfo["productImage"].ToString() + ""));
                 //Присваивание текущих данных выбранного изделия в соотсветсвующие поля (конец)
                 this.Close();
                 changeProductInfoWindow.ShowDialog(); //Открытие окна изменения данных изделия

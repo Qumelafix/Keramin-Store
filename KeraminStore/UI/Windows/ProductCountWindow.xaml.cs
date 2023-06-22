@@ -54,9 +54,19 @@ namespace KeraminStore.UI.Windows
             }
             if (countButton.IsChecked == true)
             {
-                if (countField.Text != Product.CheckCountInBox(countField.Text, "Вы не указали количество изделий для добавления.", "Количество изделий для добавления не может быть отрицательным.", "Вы указали недопустимые символы в количестве изделий."))
+                //if (countField.Text != Product.CheckCountInBox(countField.Text, "Вы не указали количество изделий для добавления.", "Количество изделий для добавления не может быть отрицательным.", "Вы указали недопустимые символы в количестве изделий."))
+                //{
+                //    MessageBox.Show(Product.CheckCountInBox(countField.Text, "Вы не указали количество изделий для добавления.", "Количество изделий для добавления не может быть отрицательным.", "Вы указали недопустимые символы в количестве изделий."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                //    return;
+                //}
+                if (countField.Text == string.Empty)
                 {
-                    MessageBox.Show(Product.CheckCountInBox(countField.Text, "Вы не указали количество изделий для добавления.", "Количество изделий для добавления не может быть отрицательным.", "Вы указали недопустимые символы в количестве изделий."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Вы не указали количество изделий для добавления.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                if (countField.Text != CheckCount(countField.Text, "Количество изделий не может быть меньше 1 штуки и больше 5000 штук.", "Вы указали недопустимые символы в количестве изделий."))
+                {
+                    MessageBox.Show(CheckCount(countField.Text, "Количество изделий не может быть меньше 1 штуки и больше 5000 штук.", "Вы указали недопустимые символы в количестве изделий."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 prdctCnt = Convert.ToInt32(countField.Text);
@@ -68,16 +78,21 @@ namespace KeraminStore.UI.Windows
                     MessageBox.Show("Вы не указали количество квадратных метров изделия для добавления.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-                else if (areaField.Text != Product.CheckProductCostOrWeight(areaField.Text, "Количество квадратных метров изделия не может быть отрицательным.", "Вы указали недопустимые символы в количестве квадратных метров изделия."))
+                //else if (areaField.Text != Product.CheckProductCostOrWeight(areaField.Text, "Количество квадратных метров изделия указано неверно.", "Вы указали недопустимые символы в количестве квадратных метров изделия."))
+                //{
+                //    MessageBox.Show(Product.CheckProductCostOrWeight(areaField.Text, "Количество квадратных метров изделия указано неверно.", "Вы указали недопустимые символы в количестве квадратных метров изделия."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                //    return;
+                //}
+                if (areaField.Text != CheckArea(areaField.Text, "Количество квадратных метров изделия не может быть меньше 0.01 м² и больше 150 м².", "Вы указали недопустимые символы в количестве квадратных метров изделия."))
                 {
-                    MessageBox.Show(Product.CheckProductCostOrWeight(areaField.Text, "Количество квадратных метров изделия не может быть отрицательным.", "Вы указали недопустимые символы в количестве квадратных метров изделия."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(CheckArea(areaField.Text, "Количество квадратных метров изделия не может быть меньше 0.01 м² и больше 150 м².", "Вы указали недопустимые символы в количестве квадратных метров изделия."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-                else if (double.Parse(areaField.Text) == 0)
-                {
-                    MessageBox.Show("Количество квадратных метров изделия не может быть равно нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
+                //else if (double.Parse(areaField.Text) == 0)
+                //{
+                //    MessageBox.Show("Количество квадратных метров изделия не может быть равно нулю.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                //    return;
+                //}
 
                 StreamReader reader = new StreamReader("ProductCode.txt");
                 int prdctCode = int.Parse(reader.ReadLine()); //Считывание кода изделия для добавления в корзину
@@ -154,9 +169,9 @@ namespace KeraminStore.UI.Windows
         {
             if (areaField.Text != string.Empty) //Проверка поля на пустоту
             {
-                if (areaField.Text != CheckArea(areaField.Text, "Количество квадратных метров изделия не может быть меньше 0.01 м².", "Вы указали недопустимые символы в количестве квадратных метров изделия."))
+                if (areaField.Text != CheckArea(areaField.Text, "Количество квадратных метров изделия не может быть меньше 0.01 м² и больше 150 м².", "Вы указали недопустимые символы в количестве квадратных метров изделия."))
                 {
-                    MessageBox.Show(CheckArea(areaField.Text, "Количество квадратных метров изделия не может быть меньше 0.01 м².", "Вы указали недопустимые символы в количестве квадратных метров изделия."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(CheckArea(areaField.Text, "Количество квадратных метров изделия не может быть меньше 0.01 м² и больше 150 м².", "Вы указали недопустимые символы в количестве квадратных метров изделия."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     areaField.Clear();
                     countField.Clear();
                     return;
@@ -199,9 +214,9 @@ namespace KeraminStore.UI.Windows
         {
             if (countField.Text != string.Empty) //Проверка поля на пустоту
             {
-                if (countField.Text != CheckCount(countField.Text, "Количество изделий не может быть меньше 1 штуки.", "Вы указали недопустимые символы в количестве изделий."))
+                if (countField.Text != CheckCount(countField.Text, "Количество изделий не может быть меньше 1 штуки и больше 5000 штук.", "Вы указали недопустимые символы в количестве изделий."))
                 {
-                    MessageBox.Show(CheckCount(countField.Text, "Количество изделий не может быть меньше 1 штуки.", "Вы указали недопустимые символы в количестве изделий."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(CheckCount(countField.Text, "Количество изделий не может быть меньше 1 штуки и больше 5000 штук.", "Вы указали недопустимые символы в количестве изделий."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     countField.Clear();
                     areaField.Clear();
                     return;
@@ -236,7 +251,7 @@ namespace KeraminStore.UI.Windows
             bool isNum = int.TryParse(count, out inputCount);
             if (isNum)
             {
-                if (inputCount <= 0) return wrongValue;
+                if (inputCount < 1 || inputCount > 5000) return wrongValue;
             }
             else return invalidSymbols;
             return count;
@@ -248,7 +263,7 @@ namespace KeraminStore.UI.Windows
             bool isNum = double.TryParse(area, out inputArea);
             if (isNum)
             {
-                if (inputArea <= 0) return wrongValue;
+                if (inputArea < 0.01 || inputArea > 150) return wrongValue;
             }
             else return invalidSymbols;
             return area;

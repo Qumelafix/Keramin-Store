@@ -47,11 +47,7 @@ namespace KeraminStore.UI.Windows
             {
                 DataTable table = new DataTable();
                 dataAdapter.Fill(table);
-                if (table.Rows.Count > 0)
-                {
-                    for (int i = 0; i < table.Rows.Count; ++i) table.Rows[i]["productImage"] = Environment.CurrentDirectory.ToString() + "\\" + table.Rows[i]["productImage"].ToString(); //Загрузка изображения изделия
-                    ProductsInfoGrid.ItemsSource = table.DefaultView; //Заполнение таблицы данными
-                }
+                if (table.Rows.Count > 0) ProductsInfoGrid.ItemsSource = table.DefaultView; //Заполнение таблицы данными
             }
             ProductsInfoGrid.Items.SortDescriptions.Add(new SortDescription("sellCount", ListSortDirection.Descending));
         }
@@ -79,11 +75,7 @@ namespace KeraminStore.UI.Windows
             {
                 DataTable table = new DataTable();
                 dataAdapter.Fill(table);
-                if (table.Rows.Count > 0)
-                {
-                    for (int i = 0; i < table.Rows.Count; ++i) table.Rows[i]["productImage"] = Environment.CurrentDirectory.ToString() + "\\" + table.Rows[i]["productImage"].ToString(); //Загрузка изображения изделия
-                    ProductsInfoGrid.ItemsSource = table.DefaultView; //Заполнение таблицы данными
-                }
+                if (table.Rows.Count > 0) ProductsInfoGrid.ItemsSource = table.DefaultView; //Заполнение таблицы данными
             }
             ProductsInfoGrid.Items.SortDescriptions.Add(new SortDescription("sellCount", ListSortDirection.Descending));
         }

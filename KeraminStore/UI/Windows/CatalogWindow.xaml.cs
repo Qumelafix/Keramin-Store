@@ -60,24 +60,11 @@ namespace KeraminStore.UI.Windows
                                        "JOIN Surface On Product.surfaceCode = Surface.surfaceCode " +
                                        "JOIN ProductType On Product.productTypeCode = ProductType.productTypeCode WHERE availabilityStatusName = '" + "Есть в наличии" + "'";
 
-            //DataTable table = new DataTable();
-            //using (SqlCommand cmd = new SqlCommand(productsInfoQuery, connectionString))
-            //{
-            //    using (IDataReader rdr = cmd.ExecuteReader())
-            //    {
-            //        table.Load(rdr);
-            //    }
-            //}
-            //ProductsInfoGrid.ItemsSource = table.DefaultView;
             using (SqlDataAdapter dataAdapter = new SqlDataAdapter(productsInfoQuery, connectionString))
             {
                 DataTable table = new DataTable();
                 dataAdapter.Fill(table);
-                if (table.Rows.Count > 0)
-                {
-                    for (int i = 0; i < table.Rows.Count; ++i) table.Rows[i]["productImage"] = Environment.CurrentDirectory.ToString() + "\\" + table.Rows[i]["productImage"].ToString();
-                    ProductsInfoGrid.ItemsSource = table.DefaultView;
-                }
+                if (table.Rows.Count > 0) ProductsInfoGrid.ItemsSource = table.DefaultView;
             }
         }
 
@@ -457,25 +444,11 @@ namespace KeraminStore.UI.Windows
             {
                 productsInfoQuery += "WHERE colorName = '" + colorField.Text + "' AND productTypeName = '" + productTypeField.Text + "' AND surfaceName = '" + productSurfaceField.Text + "' AND productCollectionName = '" + productCollectionField.Text + "' AND (productCostCount >= " + int.Parse(firstCost.Text) + " OR productCostArea >= " + int.Parse(firstCost.Text) + ") AND (productCostCount <= " + int.Parse(lastCost.Text) + " OR productCostArea <= " + int.Parse(lastCost.Text) + ")";
             }
-            //connectionString.Open();
-            //DataTable table = new DataTable();
-            //using (SqlCommand cmd = new SqlCommand(productsInfoQuery, connectionString))
-            //{
-            //    using (IDataReader rdr = cmd.ExecuteReader())
-            //    {
-            //        table.Load(rdr);
-            //    }
-            //}
-            //ProductsInfoGrid.ItemsSource = table.DefaultView;
             using (SqlDataAdapter dataAdapter = new SqlDataAdapter(productsInfoQuery, connectionString))
             {
                 DataTable table = new DataTable();
                 dataAdapter.Fill(table);
-                if (table.Rows.Count > 0)
-                {
-                    for (int i = 0; i < table.Rows.Count; ++i) table.Rows[i]["productImage"] = Environment.CurrentDirectory.ToString() + "\\" + table.Rows[i]["productImage"].ToString();
-                    ProductsInfoGrid.ItemsSource = table.DefaultView;
-                }
+                if (table.Rows.Count > 0) ProductsInfoGrid.ItemsSource = table.DefaultView;
                 else
                 {
                     ProductsInfoGrid.ItemsSource = null;
@@ -484,30 +457,6 @@ namespace KeraminStore.UI.Windows
             }
             connectionString.Close();
         }
-
-        //private void searchField_TextChanged(object sender, TextChangedEventArgs e)
-        //{
-        //    if (searchField.Text == string.Empty) ProductsInfoGrid.SelectedIndex = -1;
-        //    else
-        //    {
-        //        for (int i = 0; i < ProductsInfoGrid.Items.Count; i++)
-        //        {
-        //            DataGridRow row = (DataGridRow)ProductsInfoGrid.ItemContainerGenerator.ContainerFromIndex(i);
-        //            if (row == null)
-        //            {
-        //                ProductsInfoGrid.ScrollIntoView(ProductsInfoGrid.Items[i]);
-        //                row = (DataGridRow)ProductsInfoGrid.ItemContainerGenerator.ContainerFromIndex(i);
-        //            }
-        //            TextBlock cellcontent = ProductsInfoGrid.Columns[2].GetCellContent(row) as TextBlock;
-        //            if (cellcontent != null && cellcontent.Text.ToString().Contains(searchField.Text.ToUpper()))
-        //            {
-        //                object item = ProductsInfoGrid.Items[i];
-        //                ProductsInfoGrid.SelectedItem = item;
-        //                break;
-        //            }
-        //        }
-        //    }         
-        //}
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
@@ -592,7 +541,6 @@ namespace KeraminStore.UI.Windows
                                         cmd.Parameters.Add("@count", SqlDbType.Int).Value = currentProductsCount;
                                         if (currentProductsCount % countInBox != 0) cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = currentProductsCount / countInBox + 1;
                                         else cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = currentProductsCount / countInBox;
-                                        //cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = currentProductsCount / countInBox + 1;
                                         cmd.Parameters.Add("@area", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(currentProductsCount * (lenght * width / 1000000)), 2);
                                         cmd.Parameters.Add("@weight", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(weight / countInBox * currentProductsCount), 2);
                                         cmd.Parameters.Add("@sum", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(currentProductsCount * costCount), 2);
@@ -613,7 +561,6 @@ namespace KeraminStore.UI.Windows
                                         cmd.Parameters.Add("@count", SqlDbType.Int).Value = count;
                                         if (count % countInBox != 0) cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = count / countInBox + 1;
                                         else cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = count / countInBox;
-                                        //cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = count / countInBox + 1;
                                         cmd.Parameters.Add("@area", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(count * (lenght * width / 1000000)), 2);
                                         cmd.Parameters.Add("@weight", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(weight / countInBox * count), 2);
                                         cmd.Parameters.Add("@sum", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(count * costCount), 2);
@@ -648,7 +595,6 @@ namespace KeraminStore.UI.Windows
                                         cmd.Parameters.Add("@count", SqlDbType.Int).Value = currentProductsCount;
                                         if (currentProductsCount % countInBox != 0) cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = currentProductsCount / countInBox + 1;
                                         else cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = currentProductsCount / countInBox;
-                                        //cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = currentProductsCount / countInBox + 1;
                                         cmd.Parameters.Add("@area", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(currentProductsCount * (lenght * width / 1000000)), 2);
                                         cmd.Parameters.Add("@weight", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(weight / countInBox * currentProductsCount), 2);
                                         cmd.Parameters.Add("@sum", SqlDbType.Float).Value = Math.Round(currentProductsCount * (costArea * (lenght * width / 1000000)), 2);
@@ -669,7 +615,6 @@ namespace KeraminStore.UI.Windows
                                         cmd.Parameters.Add("@count", SqlDbType.Int).Value = count;
                                         if (count % countInBox != 0) cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = count / countInBox + 1;
                                         else cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = count / countInBox;
-                                        //cmd.Parameters.Add("@boxes", SqlDbType.Int).Value = count / countInBox + 1;
                                         cmd.Parameters.Add("@area", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(count * (lenght * width / 1000000)), 2);
                                         cmd.Parameters.Add("@weight", SqlDbType.Float).Value = Math.Round(Convert.ToDouble(weight / countInBox * count), 2);
                                         cmd.Parameters.Add("@sum", SqlDbType.Float).Value = Math.Round(count * (costArea * (lenght * width / 1000000)), 2);

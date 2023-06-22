@@ -356,6 +356,55 @@
   <ItemGroup>
     <Resource Include="Images\Keramin.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="ProductImages\19_13.jpg" />
+    <Resource Include="ProductImages\21_5.jpg" />
+    <Resource Include="ProductImages\2_177.jpg" />
+    <Resource Include="ProductImages\3_170.jpg" />
+    <Resource Include="ProductImages\assam_400x400_1_1_0.jpg" />
+    <Resource Include="ProductImages\aveyru_1t_400h275-min.jpg" />
+    <Resource Include="ProductImages\bologna_4_01_600x300.jpg" />
+    <Resource Include="ProductImages\buskingham_3t_600h300.jpg" />
+    <Resource Include="ProductImages\calypso_2p_400x400_0.jpg" />
+    <Resource Include="ProductImages\calypso_3t_275x400.jpg" />
+    <Resource Include="ProductImages\charm_listel_400x25.jpg" />
+    <Resource Include="ProductImages\classic_black_300x938_0.jpg" />
+    <Resource Include="ProductImages\concept_5p_lilac_400x400.jpg" />
+    <Resource Include="ProductImages\damask_2c_type2_275x400.jpg" />
+    <Resource Include="ProductImages\damask_2_border_275x50.jpg" />
+    <Resource Include="ProductImages\decor_skien_6d_750x250_0.jpg" />
+    <Resource Include="ProductImages\dune_1_listel_type1_600x985.jpg" />
+    <Resource Include="ProductImages\dune_3_600x300.jpg" />
+    <Resource Include="ProductImages\fresco_3_400x275.jpg" />
+    <Resource Include="ProductImages\fresco_5_400x275.jpg" />
+    <Resource Include="ProductImages\fresco_6_400x275.jpg" />
+    <Resource Include="ProductImages\fresh_11_glass_border_green_500x20.jpg" />
+    <Resource Include="ProductImages\fresh_8_listel_400x20.jpg" />
+    <Resource Include="ProductImages\granada_1t_01_200x200.jpg" />
+    <Resource Include="ProductImages\kartina.jpg" />
+    <Resource Include="ProductImages\manhattan_1t_grey_600x300.jpg" />
+    <Resource Include="ProductImages\mari_ermi_d_dots1_250x750.jpg" />
+    <Resource Include="ProductImages\michell_1p_grey_400x400.jpg" />
+    <Resource Include="ProductImages\michell_1t_listel_275x62.jpg" />
+    <Resource Include="ProductImages\mirabel_7d_600h300.jpg" />
+    <Resource Include="ProductImages\monaco_1_2_750x250_struct_kopirovat_1.jpg" />
+    <Resource Include="ProductImages\monaco_2d_tip_1_750x250_kopirovat_0.jpg" />
+    <Resource Include="ProductImages\monaco_5d_tip_1_750x250_kopirovat.jpg" />
+    <Resource Include="ProductImages\monte_7c_900x300_01.jpg" />
+    <Resource Include="ProductImages\morocco_4_border_275x20.jpg" />
+    <Resource Include="ProductImages\morocco_7_listel_275x62.jpg" />
+    <Resource Include="ProductImages\mosaic_pastorale_300x300.jpg" />
+    <Resource Include="ProductImages\sakura_3t_chestnut_cut_300x300.jpg" />
+    <Resource Include="ProductImages\solo_2_glass_border_light_pink_500x20.jpg" />
+    <Resource Include="ProductImages\solo_8_glass_border_yellow_600x20.jpg" />
+    <Resource Include="ProductImages\sonora_4_type_1_750x250.jpg" />
+    <Resource Include="ProductImages\vento_3t_300x100.jpg" />
+    <Resource Include="ProductImages\vento_4d_v1_300x100_1.jpg" />
+    <Resource Include="ProductImages\vento_4t_300x100_0.jpg" />
+    <Resource Include="ProductImages\vento_5d_v1_300x100_1.jpg" />
+    <Resource Include="ProductImages\villandry_7_fason_white_250x125.jpg" />
+    <Resource Include="ProductImages\vintage_3d_500x200_v1.jpg" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\MaterialDesignThemes.4.0.0\build\MaterialDesignThemes.targets" Condition="Exists('..\packages\MaterialDesignThemes.4.0.0\build\MaterialDesignThemes.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

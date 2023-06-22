@@ -134,11 +134,7 @@ namespace KeraminStore.UI.Windows
                     {
                         DataTable table = new DataTable();
                         dataAdapter.Fill(table);
-                        if (table.Rows.Count > 0)
-                        {
-                            for (int i = 0; i < table.Rows.Count; ++i) table.Rows[i]["productImage"] = Environment.CurrentDirectory.ToString() + "\\" + table.Rows[i]["productImage"].ToString();
-                            ProductsInfoGrid.ItemsSource = table.DefaultView;
-                        }
+                        if (table.Rows.Count > 0) ProductsInfoGrid.ItemsSource = table.DefaultView;
                     }
                 }
             }
@@ -237,13 +233,19 @@ namespace KeraminStore.UI.Windows
         private void delivery_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) //Метод для отображения стоимости доставки
         {
             List<string> townNames = new List<string>();
-            connectionString.Open();
             if (delivery.SelectedItem.ToString() == "Самовывоз")
             {
                 deliveryCost.Text = "0";
+                deliveryCost.IsReadOnly = true;
                 selfDeliveryInfo.Visibility = Visibility.Visible;
                 deliveryInfo.Visibility = Visibility.Hidden;
+                deliveryTown.SelectedIndex = -1;
+                deliveryStreet.SelectedIndex = -1;
+                deliveryApartment.Clear();
+                deliveryBuilding.Clear();
+                deliveryFloor.Clear();
                 string query = @"SELECT pickupTownName FROM PickupTown";
+                connectionString.Open();
                 SqlCommand sqlCommand = new SqlCommand(query, connectionString);
                 SqlDataReader dataReader = sqlCommand.ExecuteReader();
                 if (dataReader.HasRows)
@@ -259,22 +261,38 @@ namespace KeraminStore.UI.Windows
             }
             else
             {
-                deliveryCost.Text = "15";
-                selfDeliveryInfo.Visibility = Visibility.Hidden;
-                deliveryInfo.Visibility = Visibility.Visible;
-                string query = @"SELECT townName FROM Town";
-                SqlCommand sqlCommand = new SqlCommand(query, connectionString);
-                SqlDataReader dataReader = sqlCommand.ExecuteReader();
-                if (dataReader.HasRows)
+                if (delivery.Text == string.Empty || deliveryTown.Items.Count == 0)
                 {
-                    while (dataReader.Read())
+                    deliveryCost.IsReadOnly = false;
+                    deliveryCost.Text = "15";
+                    selfDeliveryInfo.Visibility = Visibility.Hidden;
+                    deliveryInfo.Visibility = Visibility.Visible;
+                    selfDeliveryAdress.SelectedIndex = -1;
+                    selfDeliveryTown.SelectedIndex = -1;
+                    string query = @"SELECT townName FROM Town";
+                    connectionString.Open();
+                    SqlCommand sqlCommand = new SqlCommand(query, connectionString);
+                    SqlDataReader dataReader = sqlCommand.ExecuteReader();
+                    if (dataReader.HasRows)
                     {
-                        townNames.Add(dataReader["townName"].ToString());
-                        var newList = from i in townNames orderby i select i;
-                        deliveryTown.ItemsSource = newList;
+                        while (dataReader.Read())
+                        {
+                            townNames.Add(dataReader["townName"].ToString());
+                            var newList = from i in townNames orderby i select i;
+                            deliveryTown.ItemsSource = newList;
+                        }
                     }
+                    dataReader.Close();
                 }
-                dataReader.Close();
+                else
+                {
+                    deliveryCost.IsReadOnly = false;
+                    deliveryCost.Text = "15";
+                    selfDeliveryInfo.Visibility = Visibility.Hidden;
+                    deliveryInfo.Visibility = Visibility.Visible;
+                    selfDeliveryAdress.SelectedIndex = -1;
+                    selfDeliveryTown.SelectedIndex = -1;
+                }
             }
             connectionString.Close();
         }
@@ -413,11 +431,19 @@ namespace KeraminStore.UI.Windows
                 }
                 else
                 {
-                    Regex regex = new Regex(@"^\s*[\w\-\+_']+(\.[\w\-\+_']+)*\@[A-Za-z0-9]([\w\.-]*[A-Za-z0-9])?\.[A-Za-z][A-Za-z\.]*[A-Za-z]$");
-                    if (!regex.IsMatch(customerMail.Text))
+                    if (customerMail.Text.Length > 40)
                     {
-                        MessageBox.Show("Вы указали неверный e-mail.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Длина e-mail должна составлять до 40 символов.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
+                    }
+                    else
+                    {
+                        Regex regex = new Regex(@"^\s*[\w\-\+_']+(\.[\w\-\+_']+)*\@[A-Za-z0-9]([\w\.-]*[A-Za-z0-9])?\.[A-Za-z][A-Za-z\.]*[A-Za-z]$");
+                        if (!regex.IsMatch(customerMail.Text))
+                        {
+                            MessageBox.Show("Вы указали неверный e-mail.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
                     }
                 }
             }
@@ -462,14 +488,15 @@ namespace KeraminStore.UI.Windows
                     return;
                 }
 
-                Regex regexx = new Regex(@"^\d{1,2}$");
-                if (!regexx.IsMatch(deliveryFloor.Text))
+                regex = new Regex(@"^\d{1,2}$");
+                if (!regex.IsMatch(deliveryFloor.Text) || (Convert.ToInt32(deliveryFloor.Text) <= 0 || Convert.ToInt32(deliveryFloor.Text) > 32))
                 {
-                    MessageBox.Show("Этаж должен быть числовой величиной с максимальной длиной в 2 символа.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Этаж должен быть числовой величиной с максимальным значением, равным 32.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                if (!regex.IsMatch(deliveryApartment.Text))
+                regex = new Regex(@"^\d{1,3}$");
+                if (!regex.IsMatch(deliveryApartment.Text) || Convert.ToInt32(deliveryApartment.Text) <= 0)
                 {
                     MessageBox.Show("Номер квартиры/офиса должен быть числовой величиной с максимальной длиной в 3 символа.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
@@ -480,20 +507,6 @@ namespace KeraminStore.UI.Windows
             {
                 MessageBox.Show("Вы не указали способ оплаты.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
-            }
-
-            if (deliveryCost.Text == string.Empty)
-            {
-                MessageBox.Show("Вы должны указать стоимость доставки.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-            else if (deliveryCost.Text != string.Empty)
-            {
-                if (deliveryCost.Text != Product.CheckProductCostOrWeight(deliveryCost.Text, "Стоимость доставки не может быть отрицательной.", "Вы указали недопустимые символы в стоимости доставки."))
-                {
-                    MessageBox.Show(Product.CheckProductCostOrWeight(deliveryCost.Text, "Стоимость доставки не может быть отрицательной.", "Вы указали недопустимые символы в стоимости доставки."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
             }
 
             int streetCode = 0;
@@ -1162,6 +1175,15 @@ namespace KeraminStore.UI.Windows
         private void deliveryCost_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             if (deliveryCost.Text == string.Empty) deliveryCost.Text = "0";
+            else if (deliveryCost.Text != string.Empty)
+            {
+                if (deliveryCost.Text != Product.CheckCostForSearch(deliveryCost.Text, "Стоимость доставки не может быть отрицательной.", "Вы указали недопустимые символы в стоимости доставки."))
+                {
+                    MessageBox.Show(Product.CheckCostForSearch(deliveryCost.Text, "Стоимость доставки не может быть отрицательной.", "Вы указали недопустимые символы в стоимости доставки."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    deliveryCost.Text = "15";
+                    return;
+                }
+            }
             generalSum.Text = (double.Parse(deliveryCost.Text) + double.Parse(sum.Text)).ToString();
         }
     }

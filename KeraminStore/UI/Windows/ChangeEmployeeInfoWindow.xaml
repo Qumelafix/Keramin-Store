@@ -3,8 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:KeraminStore.UI.Windows"
-        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Width="645" Height="625" BorderThickness="1" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="None" Foreground="White" Background="#FFEAEAEA" MouseLeftButtonDown="Window_MouseLeftButtonDown" BorderBrush="#FF919191">
@@ -14,27 +12,21 @@
         <Button x:Name="CloseButton" Style="{StaticResource MaterialDesignFlatButton}" Click="CloseButton_Click" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="5" Content="Закрыть" ToolTip="MaterialDesignFlatButton"/>
         <Grid Width="300" Height="450" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20 95 0 0">
             <StackPanel Orientation="Horizontal" Margin="0 20 0 0">
-                <!--<iconPacks:PackIconMaterial Kind="Account" VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="Black" Margin="10 20 0 0"/>-->
                 <TextBox x:Name="surnameField" materialDesign:HintAssist.Hint="Фамилия" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="45 -10 0 0" Foreground="Black" Background="Transparent" Width="235" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0 84 0 0">
-                <!--<iconPacks:PackIconMaterial Kind="Account" VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="Black" Margin="10 20 0 0"/>-->
                 <TextBox x:Name="nameField" materialDesign:HintAssist.Hint="Имя" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="45 -10 0 0" Foreground="Black" Background="Transparent" Width="235" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0 147 0 0">
-                <!--<iconPacks:PackIconMaterial Kind="Account" VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="Black" Margin="10 20 0 0"/>-->
                 <TextBox x:Name="patronymicField" materialDesign:HintAssist.Hint="Отчество" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="45 -10 0 0" Foreground="Black" Background="Transparent" Width="235" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0 210 0 0">
-                <!--<iconPacks:PackIconMaterial Kind="Account" VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="Black" Margin="10 20 0 0"/>-->
                 <TextBox x:Name="loginField" materialDesign:HintAssist.Hint="Логин" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="45 -10 0 0" Foreground="Black" Background="Transparent" Width="235" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0 273 0 0">
-                <!--<iconPacks:PackIconMaterial Kind="Key" VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="Black" Margin="10 20 0 0"/>-->
                 <TextBox x:Name="passwordField" materialDesign:HintAssist.Hint="Пароль" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="45 -10 0 0" Foreground="Black" Background="Transparent" Width="235" Style="{StaticResource MaterialDesignFloatingHintTextBox}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0 336 0 0">
-                <!--<iconPacks:PackIconMaterial Kind="Flag" VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="Black" Margin="10 20 0 0"/>-->
                 <ComboBox x:Name="postField" materialDesign:HintAssist.Hint="Должность" MaxDropDownHeight="120" FontFamily="Helvetica" FontWeight="Light" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="45 -10 0 0" Foreground="Black" Background="Transparent" Width="235" Style="{StaticResource MaterialDesignFloatingHintComboBox}"/>
             </StackPanel>
         </Grid>

@@ -149,15 +149,15 @@ namespace KeraminStore.UI.Windows
                 return;
             }
 
-            if (productLenght.Text != Product.CheckProductLenght(productLenght.Text, "Вы не указали длину изделия.", "Длина изделия может составлять от 98 до 900 мм.", "Вы указали неверную длину изделия."))
+            if (productLenght.Text != Product.CheckProductLenght(productLenght.Text, "Вы не указали длину изделия.", "Длина изделия может составлять от 98 до 1200 мм.", "Вы указали неверную длину изделия."))
             {
-                MessageBox.Show(Product.CheckProductLenght(productLenght.Text, "Вы не указали длину изделия.", "Длина изделия может составлять от 98 до 900 мм.", "Вы указали неверную длину изделия."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(Product.CheckProductLenght(productLenght.Text, "Вы не указали длину изделия.", "Длина изделия может составлять от 98 до 1200 мм.", "Вы указали неверную длину изделия."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            if (productWidth.Text != Product.CheckProductWidth(productWidth.Text, "Вы не указали ширину изделия.", "Ширина изделия может составлять от 9 до 400 мм.", "Вы указали неверную ширину изделия."))
+            if (productWidth.Text != Product.CheckProductWidth(productWidth.Text, "Вы не указали ширину изделия.", "Ширина изделия может составлять от 9 до 600 мм.", "Вы указали неверную ширину изделия."))
             {
-                MessageBox.Show(Product.CheckProductWidth(productWidth.Text, "Вы не указали ширину изделия.", "Ширина изделия может составлять от 9 до 400 мм.", "Вы указали неверную ширину изделия."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(Product.CheckProductWidth(productWidth.Text, "Вы не указали ширину изделия.", "Ширина изделия может составлять от 9 до 600 мм.", "Вы указали неверную ширину изделия."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -190,9 +190,9 @@ namespace KeraminStore.UI.Windows
                 MessageBox.Show("Вы не указали вес ящика.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            else if (boxWeightField.Text != Product.CheckProductCostOrWeight(boxWeightField.Text, "Вес ящика не может быть отрицательным.", "Вы указали недопустимые символы в весе ящика."))
+            else if (boxWeightField.Text != Product.CheckProductCostOrWeight(boxWeightField.Text, "Вес ящика не может быть отрицательным или больше 100 кг.", "Вы указали недопустимые символы в весе ящика."))
             {
-                MessageBox.Show(Product.CheckProductCostOrWeight(boxWeightField.Text, "Вес ящика не может быть отрицательным.", "Вы указали недопустимые символы в весе ящика."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(Product.CheckProductCostOrWeight(boxWeightField.Text, "Вес ящика не может быть отрицательным или больше 100 кг.", "Вы указали недопустимые символы в весе ящика."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -209,9 +209,17 @@ namespace KeraminStore.UI.Windows
             }
             else if (productCostCountField.Text != string.Empty)
             {
-                if (productCostCountField.Text != Product.CheckProductCostOrWeight(productCostCountField.Text, "Стоимость изделия не может быть отрицательной.", "Вы указали недопустимые символы в стоимости изделия."))
+                if (productCostCountField.Text != Product.CheckProductCostOrWeight(productCostCountField.Text, "Стоимость изделия не может быть отрицательной или больше 100 руб.", "Вы указали недопустимые символы в стоимости изделия."))
                 {
-                    MessageBox.Show(Product.CheckProductCostOrWeight(productCostCountField.Text, "Стоимость изделия не может быть отрицательной.", "Вы указали недопустимые символы в стоимости изделия."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(Product.CheckProductCostOrWeight(productCostCountField.Text, "Стоимость изделия не может быть отрицательной или больше 100 руб.", "Вы указали недопустимые символы в стоимости изделия."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
+            else if (productCostAreaField.Text != string.Empty)
+            {
+                if (productCostAreaField.Text != Product.CheckProductCostOrWeight(productCostAreaField.Text, "Стоимость изделия не может быть отрицательной или больше 100 руб.", "Вы указали недопустимые символы в стоимости изделия."))
+                {
+                    MessageBox.Show(Product.CheckProductCostOrWeight(productCostAreaField.Text, "Стоимость изделия не может быть отрицательной или больше 100 руб.", "Вы указали недопустимые символы в стоимости изделия."), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }
@@ -284,7 +292,7 @@ namespace KeraminStore.UI.Windows
                             return;
                         }
                     }
-                    string newImagePath = imagePath.Replace("KeraminStore\\bin\\Debug\\", "*");
+                    string newImagePath = imagePath.Replace("\\ProductImages", "*\\ProductImages");
                     string[] imgPathArray = newImagePath.Split('*');
                     SqlCommand cmd = new SqlCommand(); //Добавление изделия в базу
                     cmd.CommandType = CommandType.Text;
@@ -347,13 +355,13 @@ namespace KeraminStore.UI.Windows
         private void btnOpenFile_Click(object sender, RoutedEventArgs e) //Открытие файла
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = Environment.CurrentDirectory.ToString() + "\\ProductsImages";
+            openFileDialog.InitialDirectory = Environment.CurrentDirectory + "\\ProductImages";
             if (openFileDialog.ShowDialog() == true)
             {
                 string filePath = openFileDialog.FileName;
-                if (filePath.Contains("KeraminStore\\bin\\Debug\\") == false)
+                if (filePath.Contains("ProductImages\\") == false)
                 {
-                    MessageBox.Show("Вы можете выбрать файл только из папки ProductsImages.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Вы можете выбрать файл только из папки ProductImages.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
                 if ((filePath[filePath.Length - 1] == 'g' && filePath[filePath.Length - 2] == 'p' && filePath[filePath.Length - 3] == 'j') || (filePath[filePath.Length - 1] == 'g' && filePath[filePath.Length - 2] == 'n' && filePath[filePath.Length - 3] == 'p')) //Проверка типа файла

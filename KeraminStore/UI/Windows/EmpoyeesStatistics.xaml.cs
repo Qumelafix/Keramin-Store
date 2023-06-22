@@ -22,10 +22,6 @@ namespace KeraminStore.UI.Windows
         public EmpoyeesStatistics()
         {
             InitializeComponent();
-            //connectionString.Open();
-            //FillDataGrid();
-            //connectionString.Close();
-
             var russianCulture = new CultureInfo("ru-RU");
             foreach (var month in russianCulture.DateTimeFormat.MonthNames.Take(12))
             {
@@ -38,7 +34,7 @@ namespace KeraminStore.UI.Windows
 
         private void FillDataGrid()
         {
-            string employeesInfoQuery = "SELECT CONCAT(employeeSurname, ' ', employeeName, ' ', employeePatronymic) as 'employeeInfo', employeeName, employeeSurname, employeePatronymic, postName, Sum(Basket.productsCount) as 'sellCount' " + //, Sum(CustomerOrder.generalSum - deliveryCost) as 'sellCost'
+            string employeesInfoQuery = "SELECT CONCAT(employeeSurname, ' ', employeeName, ' ', employeePatronymic) as 'employeeInfo', employeeName, employeeSurname, employeePatronymic, postName, Sum(Basket.productsCount) as 'sellCount' " +
                                         "FROM CustomerOrder " +
                                         "JOIN Employee ON CustomerOrder.employeeCode = Employee.employeeCode " +
                                         "JOIN Post ON Employee.postCode = Post.postCode " +
@@ -65,7 +61,7 @@ namespace KeraminStore.UI.Windows
             EmployeesInfoGrid.ItemsSource = null;
             EmployeesInfoGrid.Items.Refresh();
 
-            string employeesInfoQuery = "SELECT CONCAT(employeeSurname, ' ', employeeName, ' ', employeePatronymic) as 'employeeInfo', employeeName, employeeSurname, employeePatronymic, postName, Sum(Basket.productsCount) as 'sellCount' " + //, Sum(CustomerOrder.generalSum - deliveryCost) as 'sellCost'
+            string employeesInfoQuery = "SELECT CONCAT(employeeSurname, ' ', employeeName, ' ', employeePatronymic) as 'employeeInfo', employeeName, employeeSurname, employeePatronymic, postName, Sum(Basket.productsCount) as 'sellCount' " +
                                         "FROM CustomerOrder " +
                                         "JOIN Employee ON CustomerOrder.employeeCode = Employee.employeeCode " +
                                         "JOIN Post ON Employee.postCode = Post.postCode " +
@@ -150,7 +146,7 @@ namespace KeraminStore.UI.Windows
                 Microsoft.Office.Interop.Excel.Sheets excelsheets;
                 Microsoft.Office.Interop.Excel.Worksheet excelworksheet;
                 Microsoft.Office.Interop.Excel.Range excelcells;
-                string path = Environment.CurrentDirectory.ToString() + "\\StatisticsDocuments"; /*Environment.GetFolderPath(Environment.SpecialFolder.Desktop);*/
+                string path = Environment.CurrentDirectory.ToString() + "\\EmployeesStatisticsDocuments";
                 Microsoft.Office.Interop.Excel.Application excelapp = new Microsoft.Office.Interop.Excel.Application();
                 excelapp.Interactive = false;
                 uint processId;

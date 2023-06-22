@@ -31,7 +31,7 @@ namespace KeraminStore.Data.Models
                 bool isNum = double.TryParse(productWidth, out width);
                 if (isNum)
                 {
-                    if (width < 9 || width > 400) return wrongValue;
+                    if (width < 9 || width > 600) return wrongValue;
                 }
                 else return invalidSymbols;
                 return productWidth;
@@ -47,7 +47,7 @@ namespace KeraminStore.Data.Models
                 bool isNum = double.TryParse(productLenght, out lenght);
                 if (isNum)
                 {
-                    if (lenght < 98 || lenght > 900) return wrongValue;
+                    if (lenght < 98 || lenght > 1200) return wrongValue;
                 }
                 else return invalidSymbols;
                 return productLenght;
@@ -60,10 +60,11 @@ namespace KeraminStore.Data.Models
             else
             {
                 Regex regex = new Regex(@"^[A-Z]{3}\d{8}$");
-                if (productArticle.Length >= 10 && productArticle.Length <= 100)
+                if (productArticle.Length == 11)
                 {
                     if (!regex.IsMatch(productArticle)) return invalidValue;
                 }
+                else return invalidValue;
                 return productArticle;
             }
         }
@@ -74,7 +75,7 @@ namespace KeraminStore.Data.Models
             bool isNum = double.TryParse(productCostOrWeight, out cost);
             if (isNum)
             {
-                if (cost < 0) return wrongValue;
+                if (cost < 0 || cost > 100) return wrongValue;
             }
             else return invalidSymbols;
             return productCostOrWeight;
